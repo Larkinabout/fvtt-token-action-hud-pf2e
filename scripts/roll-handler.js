@@ -1,7 +1,7 @@
 import { Utils } from './utils.js'
 
 // Core Module Imports
-import { CoreRollHandler, CoreUtils } from './config.js'
+import { CoreRollHandler, CoreUtils, Logger } from './config.js'
 
 export class RollHandler extends CoreRollHandler {
     BLIND_ROLL_MODE = 'blindRoll'
@@ -77,20 +77,20 @@ export class RollHandler extends CoreRollHandler {
             switch (charType) {
             case 'npc':
                 await this._handleUniqueActionsNpc(
-                    actionType,
                     event,
-                    tokenId,
+                    actionType,
                     actor,
+                    tokenId,
                     actionId
                 )
                 break
             case 'character':
             case 'familiar':
                 await this._handleUniqueActionsChar(
-                    actionType,
                     event,
-                    tokenId,
+                    actionType,
                     actor,
+                    tokenId,
                     actionId
                 )
                 break
@@ -101,25 +101,31 @@ export class RollHandler extends CoreRollHandler {
         case 'ability':
             this._rollAbility(event, actor, actionId)
             break
-        case 'skill':
-            await this._rollSkill(event, actor, actionId)
-            break
         case 'action':
         case 'feat':
         case 'item':
             this._rollItem(actor, actionId)
             break
+        case 'condition':
+            this._toggleCondition(actor, actionId)
+            break
+        case 'effect':
+            this._adjustEffect(actor, actionId)
+            break
         case 'spell':
-            await this._rollSpell(tokenId, actor, actionId)
+            await this._rollSpell(actor, tokenId, actionId)
+            break
+        case 'skill':
+            await this._rollSkill(event, actor, actionId)
+            break
+        case 'strike':
+            this._rollStrikeChar(event, actor, tokenId, actionId)
+            break
+        case 'toggle':
+            await this._performToggleMacro(actorId, tokenId, actionId)
             break
         case 'utility':
             this._performUtilityMacro(tokenId, actionId)
-            break
-        case 'toggle':
-            await this._performToggleMacro(event, actorId, tokenId, actionId)
-            break
-        case 'strike':
-            this._rollStrikeChar(event, tokenId, actor, actionId)
             break
         }
     }
@@ -127,36 +133,27 @@ export class RollHandler extends CoreRollHandler {
     /**
      * Handle Unique Character Actions
      * @private
+     * @param {object} event      The event
      * @param {string} actionType The action type
-     * @param {object} event The event
-     * @param {string} tokenId The token ID
-     * @param {object} actor The actor
-     * @param {string} actionId The action ID
+     * @param {object} actor      The actor
+     * @param {string} tokenId    The token id
+     * @param {string} actionId   The action id
      */
-    async _handleUniqueActionsChar (actionType, event, tokenId, actor, actionId) {
+    async _handleUniqueActionsChar (event, actionType, actor, tokenId, actionId) {
         switch (actionType) {
         case 'save':
             this._rollSave(event, actor, actionId)
             break
         case 'attribute':
+        case 'initiative':
+        case 'perceptionCheck':
             this._rollAttributeChar(event, actor, actionId)
             break
         case 'spellSlot':
-            await this._adjustSpellSlot(event, actor, actionId)
+            await this._adjustSpellSlot(actor, actionId)
             break
-        case 'heroPoint':
-            await this._adjustResources(
-                event,
-                actor,
-                'heroPoints',
-                'value',
-                actionId
-            )
-            break
-        case 'doomed':
-        case 'wounded':
-        case 'dying':
-            await this._adjustCondition(event, actor, actionType)
+        case 'heroPoints':
+            await this._adjustResources(actor, 'heroPoints', 'value', actionId)
             break
         case 'recoveryCheck':
             actor.rollRecovery({ event })
@@ -165,29 +162,31 @@ export class RollHandler extends CoreRollHandler {
             this._rollFamiliarAttack(event, actor)
             break
         case 'auxAction':
-            this._performAuxAction(event, tokenId, actor, actionId)
+            this._performAuxAction(actor, tokenId, actionId)
             break
         }
     }
 
     /**
      * Handle Unique NPC Actions
+     * @param {object} event      The event
      * @param {string} actionType The action type
-     * @param {object} event The event
-     * @param {string} tokenId The token ID
-     * @param {object} actor The actor
-     * @param {string} actionId The action ID
+     * @param {object} actor      The actor
+     * @param {string} tokenId    The token id
+     * @param {string} actionId   The action id
      */
-    async _handleUniqueActionsNpc (actionType, event, tokenId, actor, actionId) {
+    async _handleUniqueActionsNpc (event, actionType, actor, tokenId, actionId) {
         switch (actionType) {
+        case 'attribute':
+        case 'initiative':
+        case 'perceptionCheck':
+            await this._rollAttributeNpc(event, actor, actionId)
+            break
         case 'save':
             this._rollSave(event, actor, actionId)
             break
-        case 'npcStrike':
-            this._rollStrikeNpc(event, tokenId, actor, actionId)
-            break
-        case 'attribute':
-            await this._rollAttributeNpc(event, tokenId, actor, actionId)
+        case 'strike':
+            this._rollStrikeNpc(event, actor, tokenId, actionId)
             break
         }
     }
@@ -207,9 +206,9 @@ export class RollHandler extends CoreRollHandler {
     /**
      * Roll Ability
      * @private
-     * @param {object} event The event
-     * @param {object} actor The actor
-     * @param {string} actionId The action ID
+     * @param {object} event    The event
+     * @param {object} actor    The actor
+     * @param {string} actionId The action id
      */
     _rollAbility (event, actor, actionId) {
         actor.rollAbility(event, actionId)
@@ -218,9 +217,9 @@ export class RollHandler extends CoreRollHandler {
     /**
      * Roll Character Attribute
      * @private
-     * @param {object} event The event
-     * @param {object} actor The actor
-     * @param {string} actionId The action ID
+     * @param {object} event    The event
+     * @param {object} actor    The actor
+     * @param {string} actionId The action id
      */
     _rollAttributeChar (event, actor, actionId) {
         const attribute = actor.system.attributes[actionId]
@@ -235,22 +234,25 @@ export class RollHandler extends CoreRollHandler {
     /**
      * Roll NPC Attribute
      * @private
-     * @param {object} event The event
-     * @param {object} actor The actor
-     * @param {string} actionId The action ID
+     * @param {object} event    The event
+     * @param {object} actor    The actor
+     * @param {string} actionId The action id
      */
     async _rollAttributeNpc (event, actor, actionId) {
-        if (actionId === 'initiative') { await actor.rollInitiative({ createCombatants: true }) } else actor.rollAttribute(event, actionId)
+        if (actionId === 'initiative') {
+            await actor.rollInitiative({ createCombatants: true })
+        } else {
+            actor.rollAttribute(event, actionId)
+        }
     }
 
     /**
-     * Adjust Spell Slot
+     * Adjust spell slot
      * @private
-     * @param {object} event The event
-     * @param {object} actor The actor
-     * @param {string} actionId The action ID
+     * @param {object} actor    The actor
+     * @param {string} actionId The action id
      */
-    async _adjustSpellSlot (event, actor, actionId) {
+    async _adjustSpellSlot (actor, actionId) {
         const actionParts = decodeURIComponent(actionId).split('>')
 
         const spellbookId = actionParts[0]
@@ -297,9 +299,9 @@ export class RollHandler extends CoreRollHandler {
     /**
      * Roll Save
      * @private
-     * @param {object} event The event
-     * @param {object} actor The actor
-     * @param {string} actionId The action ID
+     * @param {object} event    The event
+     * @param {object} actor    The actor
+     * @param {string} actionId The action id
      */
     _rollSave (event, actor, actionId) {
         actor.saves[actionId].check.roll({ event })
@@ -317,13 +319,13 @@ export class RollHandler extends CoreRollHandler {
     /**
      * Roll Character Strike
      * @private
-     * @param {object} event The event
-     * @param {string} tokenId The token ID
-     * @param {object} actor The actor
-     * @param {string} actionId The action ID
+     * @param {object} event    The event
+     * @param {object} actor    The actor
+     * @param {string} tokenId  The token id
+     * @param {string} actionId The action id
      * @returns 
      */
-    _rollStrikeChar (event, tokenId, actor, actionId) {
+    _rollStrikeChar (event, actor, tokenId, actionId) {
         const actionParts = decodeURIComponent(actionId).split('>')
 
         const strikeId = actionParts[0]
@@ -336,10 +338,10 @@ export class RollHandler extends CoreRollHandler {
 
         if (this.isRenderItem()) {
             const item = strike.item
-            if (item) return this.doRenderItem(tokenId, item.id)
+            if (item && item.id !== 'xxPF2ExUNARMEDxx') return this.doRenderItem(actor.id, tokenId, item.id)
         }
 
-        if (altUsage !== null && strike.altUsages.length) {
+        if (altUsage !== null && strike.altUsages?.length) {
             if (altUsage === 'melee' && !strike.item.isMelee) {
                 strike = strike.altUsages.find(strike => strike.item.isMelee)
             }
@@ -364,13 +366,12 @@ export class RollHandler extends CoreRollHandler {
     /**
      * Perform Auxiliary Action
      * @private
-     * @param {object} event The event
-     * @param {string} tokenId The token ID
-     * @param {object} actor The actor
-     * @param {string} actionId The action ID
-     * @returns 
+     * @param {object} actor    The actor
+     * @param {string} tokenId  The token id
+     * @param {string} actionId The action id
+     * @returns
      */
-    _performAuxAction (event, tokenId, actor, actionId) {
+    _performAuxAction (actor, tokenId, actionId) {
         const actionParts = decodeURIComponent(actionId).split('>')
 
         const strikeId = actionParts[0]
@@ -383,7 +384,7 @@ export class RollHandler extends CoreRollHandler {
 
         if (this.isRenderItem()) {
             const item = strike.origin
-            if (item) return this.doRenderItem(tokenId, item.id)
+            if (item) return this.doRenderItem(actor.id, tokenId, item.id)
         }
 
         if (strikeUsage !== '') {
@@ -396,13 +397,13 @@ export class RollHandler extends CoreRollHandler {
     /**
      * Roll NPC Strike
      * @private
-     * @param {object} event The event
-     * @param {string} tokenId The token ID
-     * @param {object} actor The actor
-     * @param {string} actionId The action ID
+     * @param {object} event    The event
+     * @param {string} tokenId  The token id
+     * @param {object} actor    The actor
+     * @param {string} actionId The action id
      * @returns 
      */
-    _rollStrikeNpc (event, tokenId, actor, actionId) {
+    _rollStrikeNpc (event, actor, tokenId, actionId) {
         const actionParts = decodeURIComponent(actionId).split('>')
 
         const strikeId = actionParts[0]
@@ -418,13 +419,13 @@ export class RollHandler extends CoreRollHandler {
                         }) === 0
             )
 
-            if (this.isRenderItem()) return this.doRenderItem(tokenId, item.id)
+            if (this.isRenderItem()) return this.doRenderItem(actor.id, tokenId, item.id)
 
             item.toChat()
             return
         }
 
-        if (this.isRenderItem()) return this.doRenderItem(tokenId, strikeId)
+        if (this.isRenderItem()) return this.doRenderItem(actor.id, tokenId, strikeId)
 
         const strike = actor.items.get(strikeId)
 
@@ -451,7 +452,7 @@ export class RollHandler extends CoreRollHandler {
      * Roll Item
      * @private
      * @param {object} actor    The actor
-     * @param {string} actionId The actionID
+     * @param {string} actionId The action id
      */
     _rollItem (actor, actionId) {
         const item = actor.items.get(actionId)
@@ -473,17 +474,16 @@ export class RollHandler extends CoreRollHandler {
     /**
      * Roll Spell
      * @private
-     * @param {object} event    The event
-     * @param {string} tokenId  The token ID
+     * @param {string} tokenId  The token id
      * @param {object} actor    The actor
-     * @param {string} actionId The action ID
+     * @param {string} actionId The action id
      * @returns 
      */
-    async _rollSpell (tokenId, actor, actionId) {
+    async _rollSpell (actor, tokenId, actionId) {
         const actionParts = decodeURIComponent(actionId).split('>')
         const [spellbookId, level, spellId, expend] = actionParts
 
-        if (this.isRenderItem()) return this.doRenderItem(tokenId, spellId)
+        if (this.isRenderItem()) return this.doRenderItem(actor.id, tokenId, spellId)
 
         const spellcasting = actor.items.get(spellbookId)
         const spell = actor.items.get(spellId)
@@ -500,9 +500,8 @@ export class RollHandler extends CoreRollHandler {
     /**
      * Perform Utility Macro
      * @private
-     * @param {string} tokenId The token ID
-     * @param {object} actor The actor
-     * @param {string} actionId The action ID
+     * @param {string} tokenId  The token id
+     * @param {string} actionId The action id
      */
     async _performUtilityMacro (tokenId, actionId) {
         const token = CoreUtils.getToken(tokenId)
@@ -543,13 +542,12 @@ export class RollHandler extends CoreRollHandler {
     /**
      * Adjust Resources
      * @private
-     * @param {object} event The event
      * @param {object} actor The actor
      * @param {string} property The property
      * @param {string} valueName The value name
      * @param {string} actionId The action ID
      */
-    async _adjustResources (event, actor, property, valueName, actionId) {
+    async _adjustResources (actor, property, valueName, actionId) {
         let value = actor.system.resources[property][valueName]
         const max = actor.system.resources[property].max
 
@@ -572,21 +570,24 @@ export class RollHandler extends CoreRollHandler {
         Hooks.callAll('forceUpdateTokenActionHUD')
     }
 
-    /**
-     * Adjust Condition
-     * @private
-     * @param {object} event The event
-     * @param {object} actor The actor
-     * @param {string} property The property
-     */
-    async _adjustCondition (event, actor, property) {
-        const max = actor.system.attributes[property].max
+    async _toggleCondition (actor, actionId) {
+        if (this.rightClick) actor.decreaseCondition(actionId)
+        else actor.increaseCondition(actionId)
 
-        if (this.rightClick) {
-            await actor.decreaseCondition(property)
-        } else {
-            await actor.increaseCondition(property, { max })
-        }
+        Hooks.callAll('forceUpdateTokenActionHUD')
+    }
+
+    /**
+     * Adjust effect
+     * @private
+     * @param {object} actor  The actor
+     * @param {string} itemId The item id
+     */
+    async _adjustEffect (actor, itemId) {
+        const item = CoreUtils.getItem(actor, itemId)
+
+        if (this.rightClick) item.decrease()
+        else item.increase()
 
         Hooks.callAll('forceUpdateTokenActionHUD')
     }
@@ -594,12 +595,11 @@ export class RollHandler extends CoreRollHandler {
     /**
      * Perform Toggle Macro
      * @private
-     * @param {object} event The event
-     * @param {string} actorId The actorID
-     * @param {string} tokenId The token ID
+     * @param {string} actorId  The actorID
+     * @param {string} tokenId  The token ID
      * @param {string} actionId The action ID
      */
-    async _performToggleMacro (event, actorId, tokenId, actionId) {
+    async _performToggleMacro (actorId, tokenId, actionId) {
         const actor = CoreUtils.getActor(actorId, tokenId)
         const toggle = JSON.parse(actionId)
         if (!(toggle.domain && toggle.option)) return

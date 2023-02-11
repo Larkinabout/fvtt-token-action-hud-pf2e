@@ -124,49 +124,49 @@ Hooks.on('i18nInit', async () => {
                 name: game.i18n.localize('PF2E.TabFeatsLabel'),
                 subcategories: [
                     {
-                        nestId: 'features_ancestry-features',
+                        nestId: 'feats_ancestry-features',
                         id: 'ancestry-features',
                         name: game.i18n.localize('PF2E.FeaturesAncestryHeader'),
                         type: 'system',
                         hasDerivedSubcategories: false
                     },
                     {
-                        nestId: 'features_class-features',
+                        nestId: 'feats_class-features',
                         id: 'class-features',
                         name: game.i18n.localize('PF2E.FeaturesClassHeader'),
                         type: 'system',
                         hasDerivedSubcategories: false
                     },
                     {
-                        nestId: 'features_ancestry-feats',
+                        nestId: 'feats_ancestry-feats',
                         id: 'ancestry-feats',
                         name: game.i18n.localize('PF2E.FeatAncestryHeader'),
                         type: 'system',
                         hasDerivedSubcategories: false
                     },
                     {
-                        nestId: 'features_class-feats',
+                        nestId: 'feats_class-feats',
                         id: 'class-feats',
                         name: game.i18n.localize('PF2E.FeatClassHeader'),
                         type: 'system',
                         hasDerivedSubcategories: false
                     },
                     {
-                        nestId: 'features_skill-feats',
+                        nestId: 'feats_skill-feats',
                         id: 'skill-feats',
                         name: game.i18n.localize('PF2E.FeatSkillHeader'),
                         type: 'system',
                         hasDerivedSubcategories: false
                     },
                     {
-                        nestId: 'features_general-feats',
+                        nestId: 'feats_general-feats',
                         id: 'general-feats',
                         name: game.i18n.localize('PF2E.FeatGeneralHeader'),
                         type: 'system',
                         hasDerivedSubcategories: false
                     },
                     {
-                        nestId: 'features_general-feats',
+                        nestId: 'feats_general-feats',
                         id: 'general-feats',
                         name: game.i18n.localize('PF2E.FeatBonusHeader'),
                         type: 'system',
@@ -194,9 +194,30 @@ Hooks.on('i18nInit', async () => {
                 name: game.i18n.localize('tokenActionHud.pf2e.attributes'),
                 subcategories: [
                     {
-                        nestId: 'attributes_attributes',
-                        id: 'attributes',
-                        name: game.i18n.localize('tokenActionHud.pf2e.attributes'),
+                        nestId: 'attributes_hero-points',
+                        id: 'hero-points',
+                        name: game.i18n.localize('PF2E.HeroPointsLabel'),
+                        type: 'system',
+                        hasDerivedSubcategories: false
+                    },
+                    {
+                        nestId: 'attributes_initiative',
+                        id: 'initiative',
+                        name: game.i18n.localize('PF2E.InitiativeLabel'),
+                        type: 'system',
+                        hasDerivedSubcategories: false
+                    },
+                    {
+                        nestId: 'attributes_perception-check',
+                        id: 'perception-check',
+                        name: game.i18n.localize('PF2E.PerceptionLabel'),
+                        type: 'system',
+                        hasDerivedSubcategories: false
+                    },
+                    {
+                        nestId: 'attributes_saves',
+                        id: 'saves',
+                        name: game.i18n.localize('PF2E.SavesHeader'),
                         type: 'system',
                         hasDerivedSubcategories: false
                     }
@@ -208,7 +229,7 @@ Hooks.on('i18nInit', async () => {
                 name: game.i18n.localize('PF2E.SkillsLabel'),
                 subcategories: [
                     {
-                        nestId: 'skills-core-skills',
+                        nestId: 'skills_core-skills',
                         id: 'core-skills',
                         name: game.i18n.localize('PF2E.CoreSkillsHeader'),
                         type: 'system',
@@ -228,6 +249,13 @@ Hooks.on('i18nInit', async () => {
                 id: 'effects',
                 name: game.i18n.localize('PF2E.EffectsLabel'),
                 subcategories: [
+                    {
+                        nestId: 'effects_conditions',
+                        id: 'conditions',
+                        name: game.i18n.localize('PF2E.ConditionsLabel'),
+                        type: 'system',
+                        hasDerivedSubcategories: false
+                    },
                     {
                         nestId: 'effects_effects',
                         id: 'effects',
@@ -253,6 +281,13 @@ Hooks.on('i18nInit', async () => {
                         nestId: 'utility_token',
                         id: 'token',
                         name: game.i18n.localize('tokenActionHud.token'),
+                        type: 'system',
+                        hasDerivedSubcategories: false
+                    },
+                    {
+                        nestId: 'utility_recovery-check',
+                        id: 'recovery-check',
+                        name: game.i18n.localize('PF2E.Check.Specific.Recovery'),
                         type: 'system',
                         hasDerivedSubcategories: false
                     },
@@ -295,13 +330,18 @@ Hooks.on('i18nInit', async () => {
             { id: 'general-feats', name: game.i18n.localize('PF2E.FeatGeneralHeader'), type: 'system', hasDerivedSubcategories: false },
             { id: 'bonus-feats', name: game.i18n.localize('PF2E.FeatBonusHeader'), type: 'system', hasDerivedSubcategories: false },
             { id: 'spells', name: game.i18n.localize('PF2E.SpellLabelPlural'), type: 'system', hasDerivedSubcategories: true },
-            { id: 'attributes', name: game.i18n.localize('tokenActionHud.pf2e.attributes'), type: 'system', hasDerivedSubcategories: false },
+            { id: 'hero-points', name: game.i18n.localize('PF2E.HeroPointsLabel'), type: 'system', hasDerivedSubcategories: false },
+            { id: 'initiative', name: game.i18n.localize('PF2E.InitiativeLabel'), type: 'system', hasDerivedSubcategories: false },
+            { id: 'perception-check', name: game.i18n.localize('PF2E.PerceptionLabel'), type: 'system', hasDerivedSubcategories: false },
             { id: 'core-skills', name: game.i18n.localize('PF2E.CoreSkillsHeader'), type: 'system', hasDerivedSubcategories: false },
             { id: 'lore-skills', name: game.i18n.localize('PF2E.LoreSkillsHeader'), type: 'system', hasDerivedSubcategories: false },
+            { id: 'conditions', name: game.i18n.localize('PF2E.ConditionsLabel'), type: 'system', hasDerivedSubcategories: false },
             { id: 'effects', name: game.i18n.localize('PF2E.EffectsLabel'), type: 'system', hasDerivedSubcategories: false },
             { id: 'combat', name: game.i18n.localize('tokenActionHud.combat'), type: 'system', hasDerivedSubcategories: false },
             { id: 'token', name: game.i18n.localize('tokenActionHud.token'), type: 'system', hasDerivedSubcategories: false },
+            { id: 'recovery-check', name: game.i18n.localize('PF2E.Check.Specific.Recovery'), type: 'system', hasDerivedSubcategories: false },
             { id: 'rests', name: game.i18n.localize('tokenActionHud.pf2e.rests'), type: 'system', hasDerivedSubcategories: false },
+            { id: 'saves', name: game.i18n.localize('PF2E.SavesHeader'), type: 'system', hasDerivedSubcategories: false },
             { id: 'utility', name: game.i18n.localize('tokenActionHud.utility'), type: 'system', hasDerivedSubcategories: false }
         ]
     }

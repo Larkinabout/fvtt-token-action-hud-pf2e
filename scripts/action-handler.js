@@ -52,7 +52,7 @@ export class ActionHandler extends CoreActionHandler {
 
         // Exit if actor is not required type
         const knownActors = ['character', 'npc', 'familiar']
-        if (!knownActors.includes(this.actorType)) return
+        if (this.actorType && !knownActors.includes(this.actorType)) return
 
         // Set items variable
         if (this.actorId !== 'multi') {
@@ -125,11 +125,15 @@ export class ActionHandler extends CoreActionHandler {
      */
     async _buildCharacterActions () {
         this._buildActions()
-        this._buildAttributes()
         this._buildCombat()
+        await this._buildConditions()
         this._buildEffects()
         this._buildFeats()
+        this._buildHeroPoints()
+        this._buildInitiative()
         this._buildInventory()
+        this._buildPerceptionCheck()
+        this._buildRecoveryCheck()
         this._buildRests()
         this._buildSaves()
         this._buildSkills()
@@ -144,10 +148,12 @@ export class ActionHandler extends CoreActionHandler {
      */
     async _buildFamiliarActions () {
         this._buildAttack()
-        this._buildAttributes()
         this._buildCombat()
+        await this._buildConditions()
         this._buildEffects()
+        this._buildInitiative()
         this._buildInventory()
+        this._buildPerceptionCheck()
         this._buildSaves()
         this._buildSkills()
     }
@@ -158,11 +164,15 @@ export class ActionHandler extends CoreActionHandler {
     async _buildNpcActions () {
         this._buildActions()
         this._buildCombat()
+        await this._buildConditions()
         this._buildEffects()
         this._buildFeats()
+        this._buildInitiative()
         this._buildInventory()
+        this._buildPerceptionCheck()
         this._buildSaves()
         this._buildSkills()
+        this._buildStrikes()
         await this._buildSpells()
     }
 
@@ -172,6 +182,8 @@ export class ActionHandler extends CoreActionHandler {
      * @returns {object}
      */
     _buildMultipleTokenActions () {
+        this._buildInitiative()
+        this._buildPerceptionCheck()
         this._buildSaves()
         this._buildSkills()
     }
@@ -264,15 +276,13 @@ export class ActionHandler extends CoreActionHandler {
             const name = attack.name.charAt(0).toUpperCase() + attack.name.slice(1)
             const encodedValue = [actionType, this.actorId, this.tokenId, id].join(this.delimiter)
             const info1 = attack.totalModifier < 0 ? attack.totalModifier : `+${attack.totalModifier}`
-            const selected = true
 
             // Get actions
             const actions = [{
                 id,
                 name,
                 encodedValue,
-                info1,
-                selected
+                info1
             }]
 
             // Create subcategory data
@@ -281,103 +291,6 @@ export class ActionHandler extends CoreActionHandler {
             // Add actions to action list
             this.addActionsToActionList(actions, subcategoryData)
         }
-    }
-
-    /**
-     * Build attributes
-     * @private
-     */
-    _buildAttributes () {
-        // Exit if no subcategory exists
-        if (!this.subcategoryIds.includes('attributes')) return
-
-        const actionType = 'attribute'
-
-        // Get attributes
-        const attributes = (this.actorId !== 'multi')
-            ? Object.entries(this.actor.system.attributes).filter(attribute => !!attribute[1]?.roll)
-            : Object.entries(CONFIG.PF2E.attributes)
-
-        // Get actions
-        const actions = attributes.map(attribute => {
-            const id = attribute[0]
-            const name = (this.actorId !== 'multi') ? attribute[1].label ?? id.charAt(0).toUpperCase() + id.slice(1) : CoreUtils.i18n(attribute[1])
-            const encodedValue = [actionType, this.actorId, this.tokenId, id].join(this.delimiter)
-            const selected = true
-            return {
-                id,
-                name,
-                encodedValue,
-                selected
-            }
-        })
-
-        // Hero Points
-        const heroPoints = this.actor.system.resources?.heroPoints
-        if (heroPoints) {
-            actions.push(
-                this._getAttributePoolAction(
-                    'heroPoint',
-                    CoreUtils.i18n('PF2E.HeroPointsLabel'),
-                    heroPoints.value,
-                    heroPoints.max
-                )
-            )
-        }
-
-        // Dying
-        const doomedPoints = this.actor.system.attributes?.doomed
-        const dyingPoints = this.actor.system.attributes?.dying
-        if (dyingPoints) {
-            actions.push(
-                this._getAttributePoolAction(
-                    'dying',
-                    CoreUtils.i18n('PF2E.ConditionTypeDying'),
-                    dyingPoints.value,
-                    dyingPoints.max -= (doomedPoints) ? doomedPoints.value : 0
-                )
-            )
-        }
-
-        // Recovery Check
-        if (dyingPoints?.value >= 1) {
-            actions.push({
-                id: 'recoveryCheck',
-                name: CoreUtils.i18n('PF2E.Check.Specific.Recovery'),
-                encodedValue: ['recoveryCheck', this.actorId, this.tokenId, 'recoveryCheck'].join(this.delimiter)
-            })
-        }
-
-        // Wounded
-        const woundedPoints = this.actor.system.attributes?.wounded
-        if (woundedPoints) {
-            actions.push(
-                this._getAttributePoolAction(
-                    'wounded',
-                    CoreUtils.i18n('PF2E.ConditionTypeWounded'),
-                    woundedPoints.value,
-                    woundedPoints.max
-                )
-            )
-        }
-
-        // Doomed
-        if (doomedPoints) {
-            actions.push(
-                this._getAttributePoolAction(
-                    'doomed',
-                    CoreUtils.i18n('PF2E.ConditionTypeDoomed'),
-                    doomedPoints.value,
-                    doomedPoints.max
-                )
-            )
-        }
-
-        // Create subcategory data
-        const subcategoryData = { id: 'attributes', type: 'system' }
-
-        // Add actions to action list
-        this.addActionsToActionList(actions, subcategoryData)
     }
 
     /**
@@ -417,6 +330,100 @@ export class ActionHandler extends CoreActionHandler {
     }
 
     /**
+     * Build conditions
+     * @private
+     */
+    async _buildConditions () {
+        // Exit if no subcategory exists
+        if (!this.subcategoryIds.includes('conditions')) return
+
+        const actionType = 'condition'
+
+        const limitedConditions = ['doomed', 'dying', 'wounded']
+
+        // Get active conditions
+        const activeConditions = new Map(
+            [...this.items]
+                .filter(item => item[1].type === actionType)
+                .map(item => {
+                    const itemData = item[1]
+                    return [
+                        itemData.slug,
+                        itemData
+                    ]
+                })
+        )
+
+        // Get conditions
+        const conditions = [...game.pf2e.ConditionManager.conditions]
+
+        // Build actions
+        const actions = conditions.map(condition => {
+            const id = condition[1].slug
+            const activeCondition = activeConditions.get(condition[0])
+            const activeConditionId = activeCondition?.id
+            const name = condition[1].name
+            const encodedValue = [actionType, this.actorId, this.tokenId, id].join(this.delimiter)
+            const img = CoreUtils.getImage(condition[1])
+            const active = (activeConditionId) ? ' active' : ''
+            const cssClass = `toggle${active}`
+            let info1 = ''
+            if (activeConditionId) {
+                if (limitedConditions.includes(activeCondition.slug)) {
+                    const attribute = this.actor.system.attributes[activeCondition.slug]
+                    const value = attribute.value
+                    const max = attribute.max
+                    info1 = { text: (max > 0) ? `${value ?? 0}/${max}` : '' }
+                } else if (activeCondition.system.value.isValued) {
+                    info1 = { text: activeCondition.system.value.value }
+                }
+            }
+            return {
+                id,
+                name,
+                encodedValue,
+                cssClass,
+                img,
+                info1
+            }
+        })
+
+        // Create subcategory data
+        const subcategoryData = { id: 'conditions', type: 'system' }
+
+        // Add actions to action list
+        await this.addActionsToActionList(actions, subcategoryData)
+    }
+
+    /**
+     * Build hero points
+     */
+    async _buildHeroPoints () {
+        // Exit if no subcategory exists
+        if (!this.subcategoryIds.includes('hero-points')) return
+
+        const actionType = 'heroPoints'
+
+        // Create subcategory data
+        const subcategoryData = { id: 'hero-points', type: 'system' }
+
+        const heroPoints = this.actor.system.resources?.heroPoints
+        const value = heroPoints.value
+        const max = heroPoints.max
+
+        // Get actions
+        const actions = [{
+            id: 'heroPoints',
+            name: CoreUtils.i18n('PF2E.HeroPointsLabel'),
+            encodedValue: [actionType, this.actorId, this.tokenId, actionType].join(this.delimiter),
+            info1: { text: (max > 0) ? `${value ?? 0}/${max}` : '' }
+        }]
+
+        // Add actions to action list
+        this.addActionsToActionList(actions, subcategoryData)
+    }
+
+    /**
      * Build effects
      * @private
      */
@@ -427,7 +434,7 @@ export class ActionHandler extends CoreActionHandler {
         const actionType = 'effect'
 
         // Get effects
-        const effects = new Map([...this.items].filter(item => item[1].type === 'effect'))
+        const effects = new Map([...this.items].filter(item => item[1].type === 'effect' && (!(item.unidentified ?? false) || game.user.isGM)))
 
         // Create subcategory data
         const subcategoryData = { id: 'effects', type: 'system' }
@@ -479,6 +486,35 @@ export class ActionHandler extends CoreActionHandler {
             // Build actions
             this._addActions(feats, subcategoryData, actionType)
         }
+    }
+
+    /**
+     * Build initiative
+     * @private
+     */
+    _buildInitiative () {
+        // Exit if no subcategory existsp
+        if (!this.subcategoryIds.includes('initiative')) return
+
+        const actionType = 'initiative'
+
+        const initiative = (this.actorId !== 'multi') ? this.actor.system.attributes.initiative : 'PF2E.InitiativeLabel'
+        const totalModifier = initiative.totalModifier
+        const modifier = (totalModifier || totalModifier === 0) ? `${(totalModifier > 0) ? '+' : ''}${totalModifier}` : ''
+
+        // Get actions
+        const actions = [{
+            id: 'initiative',
+            name: (initiative.label) ? initiative.label : (typeof initiative === 'string') ? CoreUtils.i18n(initiative) : '',
+            encodedValue: [actionType, this.actorId, this.tokenId, 'initiative'].join(this.delimiter),
+            info1: { text: modifier }
+        }]
+
+        // Create subcategory data
+        const subcategoryData = { id: 'initiative', type: 'system' }
+
+        // Add actions to action list
+        this.addActionsToActionList(actions, subcategoryData)
     }
 
     /**
@@ -554,6 +590,62 @@ export class ActionHandler extends CoreActionHandler {
     }
 
     /**
+     * Build perception check
+     * @private
+     */
+    _buildPerceptionCheck () {
+        // Exit if no subcategory exists
+        if (!this.subcategoryIds.includes('perception-check')) return
+
+        const actionType = 'perceptionCheck'
+
+        const perception = (this.actorId !== 'multi') ? this.actor.system.attributes.perception : CONFIG.PF2E.attributes.perception
+        const totalModifier = perception.totalModifier
+        const modifier = (totalModifier || totalModifier === 0) ? `${(totalModifier > 0) ? '+' : ''}${totalModifier}` : ''
+
+        // Get actions
+        const actions = [{
+            id: 'perception',
+            name: CoreUtils.i18n(CONFIG.PF2E.attributes.perception),
+            encodedValue: [actionType, this.actorId, this.tokenId, 'perception'].join(this.delimiter),
+            info1: { text: modifier }
+        }]
+
+        // Create subcategory data
+        const subcategoryData = { id: 'perception-check', type: 'system' }
+
+        // Add actions to action list
+        this.addActionsToActionList(actions, subcategoryData)
+    }
+
+    /**
+     * Build recovery check
+     */
+    _buildRecoveryCheck () {
+        // Exit if no subcategory exists
+        if (!this.subcategoryIds.includes('recovery-check')) return
+
+        const actionType = 'recoveryCheck'
+
+        const dyingPoints = this.actor.system.attributes?.dying
+
+        if (dyingPoints?.value >= 1) {
+            // Get actions
+            const actions = [{
+                id: actionType,
+                name: CoreUtils.i18n('PF2E.Check.Specific.Recovery'),
+                encodedValue: [actionType, this.actorId, this.tokenId, actionType].join(this.delimiter)
+            }]
+
+            // Create subcategory data
+            const subcategoryData = { id: 'recovery-check', type: 'system' }
+
+            // Add actions to action list
+            this.addActionsToActionList(actions, subcategoryData)
+        }
+    }
+
+    /**
      * Build rests
      */
     _buildRests () {
@@ -605,19 +697,17 @@ export class ActionHandler extends CoreActionHandler {
         const actionType = 'save'
 
         // Get saves
-        const saves = (this.actorId !== 'multi') ? Object.values(this.actor.saves).filter(save => !!save[1]?.roll) : Object.entries(CONFIG.PF2E.saves)
+        const saves = (this.actorId !== 'multi') ? Object.entries(this.actor.saves) : Object.entries(CONFIG.PF2E.saves)
 
         // Get actions
         const actions = saves.map((save) => {
-            const id = save.slug
-            const name = save.label
+            const id = save[0]
+            const name = save[1].label ?? (typeof save[1] === 'string' ? CoreUtils.i18n(save[1]) : '')
             const encodedValue = [actionType, this.actorId, this.tokenId, id].join(this.delimiter)
-            const selected = true
             return {
                 id,
                 name,
-                encodedValue,
-                selected
+                encodedValue
             }
         })
 
@@ -641,7 +731,7 @@ export class ActionHandler extends CoreActionHandler {
         // Get skills
         const skills = (this.actorId !== 'multi')
             ? Object.entries(this.actor.skills).filter(skill => !!skill[1].label && skill[1].label.length > 1)
-            : this.getSharedSkills()
+            : this._getSharedSkills()
 
         const skillsMap = new Map()
 
@@ -675,19 +765,17 @@ export class ActionHandler extends CoreActionHandler {
             const actions = [...skills].map(skill => {
                 const id = skill[0]
                 const data = skill[1]
-                const label = CoreUtils.i18n(data.label)
+                const label = CoreUtils.i18n(data.label) ?? CoreUtils.i18n(CONFIG.PF2E.skillList[skill[0]])
                 const name = this.abbreviatedSkills ? SKILL_ABBREVIATIONS[data.slug] ?? label : label
                 const encodedValue = [actionType, this.actorId, this.tokenId, id].join(this.delimiter)
-                const mod = data.check.mod
-                const info1 = (mod <= 0 ? '' : '+') + mod
-                const selected = true
+                const mod = data.check?.mod
+                const info1 = (mod || mod === 0) ? `${(mod > 0) ? '+' : ''}${mod}` : ''
 
                 return {
                     id,
                     name,
                     encodedValue,
-                    info1,
-                    selected
+                    info1
                 }
             })
 
@@ -701,7 +789,7 @@ export class ActionHandler extends CoreActionHandler {
      * @returns {object}
      */
     _getSharedSkills () {
-        const allSkillSets = this.actors.map(actor => Object.entries(actor.system.skills).filter(skill => !!skill[1].roll))
+        const allSkillSets = this.actors.map(actor => Object.entries(actor.skills).filter(skill => !!skill[1].label && skill[1].label.length > 1))
         const minSkillSetSize = Math.min(...allSkillSets.map(skillSet => skillSet.length))
         const smallestSkillSet = allSkillSets.find(skillSet => skillSet.length === minSkillSetSize)
         return smallestSkillSet.filter(smallestSkill => allSkillSets.every(skillSet => skillSet.some(skill => skill[0] === smallestSkill[0])))
@@ -762,11 +850,9 @@ export class ActionHandler extends CoreActionHandler {
                 await this._addSpellSlotInfo(levelSubcategoryData, level, spellInfo)
 
                 // Get available spells
-                const uses = CoreUtils.deepClone(level[1].uses)
                 const activeSpells = level[1].active
                     .filter(activeSpell => !activeSpell?.expended && activeSpell)
                     .map(spell => spell.spell)
-                activeSpells.forEach(spell => { spell.uses = uses })
 
                 const spellsMap = new Map(activeSpells.map(spell => [spell.id, spell]))
 
@@ -782,14 +868,16 @@ export class ActionHandler extends CoreActionHandler {
         level,
         spellInfo
     ) {
-        const isFocusPool = spellInfo.isFocusPool
-        const isPrepared = spellInfo.isPrepared
+        const isCantrip = level[1].isCantrip
         const isFlexible = spellInfo.isFlexible
+        const isFocusPool = spellInfo.isFocusPool
+        const isInnate = spellInfo.isInnate
+        const isPrepared = spellInfo.isPrepared
 
         //  Exit if spells are cantrips
-        if (!isFocusPool && level[1].isCantrip) return
+        if (!isFocusPool && (isCantrip || isInnate)) return
 
-        if ((isPrepared && !isFlexible)) return
+        if (!isFocusPool && (isPrepared && !isFlexible)) return
 
         const actionType = 'spellSlot'
         const focus = this.actor.system.resources.focus
@@ -797,9 +885,9 @@ export class ActionHandler extends CoreActionHandler {
         const spellSlot = (isFocusPool) ? 'focus' : `slot${level[1].level}`
         const maxSlots = (spellSlot === 'focus') ? focus?.max : slots?.max
         const availableSlots = (spellSlot === 'focus') ? focus?.value : slots?.value
-        const maxUses = level[1].uses?.max
+        const info1 = { text: (maxSlots >= 0) ? `${availableSlots ?? 0}/${maxSlots}` : '' }
 
-        levelSubcategoryData.info1 = (maxSlots >= 0) ? `${availableSlots}/${maxSlots}` : ''
+        levelSubcategoryData.info = { info1 }
 
         // Add subcategory info to the subcategory
         this.addSubcategoryInfo(levelSubcategoryData)
@@ -814,7 +902,7 @@ export class ActionHandler extends CoreActionHandler {
             },
             {
                 id: `${spellInfo.id}>${spellSlot}>slotDecrease`,
-                name: '+',
+                name: '-',
                 encodedValue: [actionType, this.actorId, this.tokenId, `${spellInfo.id}>${spellSlot}>slotDecrease`].join(this.delimiter),
                 cssClass: 'shrink'
             }
@@ -840,7 +928,7 @@ export class ActionHandler extends CoreActionHandler {
         let strikes = this.actor.system.actions
             .filter(action => action.type === actionType && (action.item.system.quantity > 0 || this.actor.type === 'npc'))
         strikes = strikes
-            .filter((strike, index) => index === strikes.findIndex(other => strike.label === other.label))
+            .filter((strike, index) => index === strikes.findIndex(other => strike.label === other.label && strike.attackRollType === other.attackRollType))
 
         // Exit if no strikes exist
         if (!strikes) return
@@ -848,7 +936,7 @@ export class ActionHandler extends CoreActionHandler {
         for (const strike of strikes) {
             const strikeId = strike.item.id
             const strikeSubcategoryId = `strikes+${strike.slug}`
-            const strikeSubcategoryName = (strike.attackRollType) ? `${strike.label} - ${CoreUtils.i18n(strike.attackRollType)}` : strike.label
+            const strikeSubcategoryName = strike.label
 
             // Create subcategory data
             const strikeSubcategoryData = { id: strikeSubcategoryId, name: strikeSubcategoryName, hasDerivedSubcategories: true, type: 'system-derived' }
@@ -863,7 +951,8 @@ export class ActionHandler extends CoreActionHandler {
                     const name = auxiliaryAction.label
                     return { id, name }
                 })
-                if (auxiliaryActionEntities[0]) auxiliaryActionEntities[0].img = strike.imageUrl
+                const image = { img: strike.imageUrl }
+                if (auxiliaryActionEntities[0]) auxiliaryActionEntities[0].img = CoreUtils.getImage(image)
 
                 // Get actions
                 const actions = auxiliaryActionEntities.map(entity => this._getAction(actionType, entity))
@@ -872,7 +961,7 @@ export class ActionHandler extends CoreActionHandler {
                 this.addActionsToActionList(actions, strikeSubcategoryData)
             }
 
-            const strikeUsages = [strike, ...strike.altUsages]
+            const strikeUsages = (strikes.altUsages) ? [strike, ...strike.altUsages] : [strike]
 
             for (const strikeUsage of strikeUsages) {
                 const glyph = strike.glyph

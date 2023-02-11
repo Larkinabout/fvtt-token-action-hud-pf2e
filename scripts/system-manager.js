@@ -49,7 +49,6 @@ export class SystemManager extends CoreSystemManager {
 
     /** @override */
     async doRegisterDefaultFlags () {
-        const defaults = DEFAULTS
-        await CoreUtils.setUserFlag('default', defaults)
+        return DEFAULTS
     }
 }
