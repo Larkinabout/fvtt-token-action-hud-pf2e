@@ -1,13 +1,13 @@
 {
   "tokenActionHud": {
     "pf2e": {
-      "attributes": "Attributes",
-      "rests": "Rests",
-      "takeBreather": "Take a Breather",
+      "attributes": "属性",
+      "rests": "休息",
+      "takeBreather": "小憩一刻",
       "settings": {
         "calculateAttackPenalty": {
-          "hint": "Display the calculated attack penalty (Attack Modifier minus MAP) for Strikes",
-          "name": "Display Calculated Attack Penalty"
+          "hint": "为打击显示自动计算的攻击减值 (即攻击加值-多重攻击减值)",
+          "name": "显示多重攻击减值"
         }
       }
     }
