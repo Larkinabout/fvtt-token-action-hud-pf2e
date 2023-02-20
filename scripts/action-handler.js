@@ -851,7 +851,7 @@ export class ActionHandler extends CoreActionHandler {
 
         for (const strike of strikes) {
             const strikeId = strike.item.id
-            const strikeSubcategoryId = `strikes+${strike.slug}`
+            const strikeSubcategoryId = `strikes+${encodeURIComponent(strike.label)}`
             const strikeSubcategoryName = strike.label
 
             // Create subcategory data
