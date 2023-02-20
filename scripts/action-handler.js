@@ -961,7 +961,7 @@ export class ActionHandler extends CoreActionHandler {
                 this.addActionsToActionList(actions, strikeSubcategoryData)
             }
 
-            const strikeUsages = (strikes.altUsages) ? [strike, ...strike.altUsages] : [strike]
+            const strikeUsages = (strike.altUsages) ? [strike, ...strike.altUsages] : [strike]
 
             for (const strikeUsage of strikeUsages) {
                 const glyph = strike.glyph
