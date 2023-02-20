@@ -27,6 +27,7 @@
   "scripts": [
   ],
   "styles": [
+    "./styles/tah-pf2e.css"
   ],
   "languages": [
     {

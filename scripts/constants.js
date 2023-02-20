@@ -20,7 +20,7 @@ export const REQUIRED_CORE_MODULE_VERSION = '1.2'
 /**
  * Action icons
  */
-export const ACTION_ICONS = {
+export const ACTION_ICON = {
     1: '<span style=\'font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);\'>A</span>',
     2: '<span style=\'font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);\'>D</span>',
     3: '<span style=\'font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);\'>T</span>',
@@ -30,9 +30,29 @@ export const ACTION_ICONS = {
 }
 
 /**
+ * Action type
+ */
+export const ACTION_TYPE = {
+    action: 'ITEM.TypeAction',
+    attribute: 'tokenActionHud.pf2e.attribute',
+    auxAction: 'PF2E.WeaponStrikeLabel',
+    condition: 'ITEM.TypeCondition',
+    effect: 'ITEM.TypeEffect',
+    familiarAttack: 'PF2E.AttackLabel',
+    feat: 'PF2E.Item.Feat.LevelLabel',
+    item: 'PF2E.ItemTitle',
+    save: 'tokenActionHud.pf2e.save',
+    skill: 'PF2E.SkillLabel',
+    spell: 'ITEM.TypeSpell',
+    strike: 'PF2E.WeaponStrikeLabel',
+    toggle: 'tokenActionHud.pf2e.toggle',
+    utility: 'tokenActionHud.utility'
+}
+
+/**
  * Skill abbreviations
  */
-export const SKILL_ABBREVIATIONS = {
+export const SKILL_ABBREVIATION = {
     acrobatics: 'acr',
     arcana: 'arc',
     athletics: 'ath',
@@ -54,7 +74,7 @@ export const SKILL_ABBREVIATIONS = {
 /**
  * Strike icons
  */
-export const STRIKE_ICONS = {
+export const STRIKE_ICON = {
     melee: `<img class="alt-usage-icon" src="systems/pf2e/icons/mdi/sword.svg" title="Melee Usage" style="
             border: 0;
             filter: invert(1) drop-shadow(1px 1px 1px rgba(0, 0, 0, 1));
@@ -71,7 +91,7 @@ export const STRIKE_ICONS = {
             ">`
 }
 
-export const STRIKE_USAGES = {
+export const STRIKE_USAGE = {
     melee: { name: 'PF2E.WeaponRangeMelee' },
     ranged: { name: 'PF2E.NPCAttackRanged' },
     thrown: { name: 'PF2E.TraitThrown' }

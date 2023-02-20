@@ -8,6 +8,10 @@
         "calculateAttackPenalty": {
           "hint": "Display the calculated attack penalty (Attack Modifier minus MAP) for Strikes",
           "name": "Display Calculated Attack Penalty"
+        },
+        "colorSkills": {
+          "hint": "Color skills based on its rank",
+          "name": "Color skills based on its rank"
         }
       }
     }

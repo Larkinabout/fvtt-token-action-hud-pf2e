@@ -1,0 +1,37 @@
+.tah-action button.tah-pf2e-skill-rank-1 {
+  background-color: #171f69;
+}
+
+.tah-action button.tah-pf2e-skill-rank-2 {
+  background-color: #3c005e;
+}
+
+.tah-action button.tah-pf2e-skill-rank-3 {
+  background-color: #640;
+}
+
+.tah-action button.tah-pf2e-skill-rank-4 {
+  background-color: #5e0000;
+}
+
+.tah-action button.tah-pf2e-skill-rank-1,
+.tah-action button.tah-pf2e-skill-rank-2,
+.tah-action button.tah-pf2e-skill-rank-3,
+.tah-action button.tah-pf2e-skill-rank-4 {
+  color: #ddd;
+}
+
+.tah-action button.tah-pf2e-skill-rank-1 .tah-info1,
+.tah-action button.tah-pf2e-skill-rank-1 .tah-info2,
+.tah-action button.tah-pf2e-skill-rank-1 .tah-info3,
+.tah-action button.tah-pf2e-skill-rank-2 .tah-info1,
+.tah-action button.tah-pf2e-skill-rank-2 .tah-info2,
+.tah-action button.tah-pf2e-skill-rank-2 .tah-info3,
+.tah-action button.tah-pf2e-skill-rank-3 .tah-info1,
+.tah-action button.tah-pf2e-skill-rank-3 .tah-info2,
+.tah-action button.tah-pf2e-skill-rank-3 .tah-info3,
+.tah-action button.tah-pf2e-skill-rank-4 .tah-info1,
+.tah-action button.tah-pf2e-skill-rank-4 .tah-info2,
+.tah-action button.tah-pf2e-skill-rank-4 .tah-info3 {
+  color: #ddd;
+}

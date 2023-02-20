@@ -1,9 +1,9 @@
 // System Module Imports
-import { ACTION_ICONS, SKILL_ABBREVIATIONS, STRIKE_ICONS, STRIKE_USAGES } from './constants.js'
+import { ACTION_ICON, ACTION_TYPE, SKILL_ABBREVIATION, STRIKE_ICON, STRIKE_USAGE } from './constants.js'
 import { Utils } from './utils.js'
 
 // Core Module Imports
-import { CoreActionHandler, CoreUtils, Logger } from './config.js'
+import { CoreActionHandler, CoreUtils } from './config.js'
 
 export class ActionHandler extends CoreActionHandler {
     // Initialize actor and token variables
@@ -21,12 +21,12 @@ export class ActionHandler extends CoreActionHandler {
     // Initialize setting variables
     abbreviateSkills = null
     calculateAttackPenalty = null
+    colorSkills = null
 
     // Initialize subcategoryIds variables
     subcategoryIds = null
     activationSubcategoryIds = null
     effectSubcategoryIds = null
-    featSubcategoryIds = null
     inventorySubcategoryIds = null
     spellSubcategoryIds = null
 
@@ -64,41 +64,10 @@ export class ActionHandler extends CoreActionHandler {
         // Set settings variables
         this.abbreviateSkills = Utils.getSetting('abbreviateSkills')
         this.calculateAttackPenalty = Utils.getSetting('calculateAttackPenalty')
+        this.colorSkills = Utils.getSetting('colorSkills')
 
         // Set subcategory variables
         this.subcategoryIds = subcategoryIds
-
-        this.actionSubcategoryIds = subcategoryIds.filter(subcategoryId =>
-            subcategoryId === 'actions' ||
-            subcategoryId === 'reactions' ||
-            subcategoryId === 'free-actions' ||
-            subcategoryId === 'passives'
-        )
-
-        this.featSubcategoryIds = subcategoryIds.filter(subcategoryId =>
-            subcategoryId === 'ancestry-features' ||
-            subcategoryId === 'class-features' ||
-            subcategoryId === 'ancestry-feats' ||
-            subcategoryId === 'class-feats' ||
-            subcategoryId === 'skill-feats' ||
-            subcategoryId === 'general-feats' ||
-            subcategoryId === 'bonus-feats'
-        )
-
-        this.inventorySubcategoryIds = subcategoryIds.filter(subcategoryId =>
-            subcategoryId === 'equipped' ||
-            subcategoryId === 'consumables' ||
-            subcategoryId === 'containers' ||
-            subcategoryId === 'equipment' ||
-            subcategoryId === 'loot' ||
-            subcategoryId === 'tools' ||
-            subcategoryId === 'weapons' ||
-            subcategoryId === 'unequipped'
-        )
-
-        this.skillSubcategoryIds = subcategoryIds.filter(subcategoryId =>
-            subcategoryId === 'core-skills' ||
-            subcategoryId === 'lore-skills')
 
         if (this.actorType === 'character') {
             await this._buildCharacterActions()
@@ -151,7 +120,6 @@ export class ActionHandler extends CoreActionHandler {
         this._buildCombat()
         await this._buildConditions()
         this._buildEffects()
-        this._buildInitiative()
         this._buildInventory()
         this._buildPerceptionCheck()
         this._buildSaves()
@@ -192,8 +160,6 @@ export class ActionHandler extends CoreActionHandler {
      * Build actions
      */
     _buildActions () {
-        if (!this.actionSubcategoryIds) return
-
         const actionType = 'action'
 
         // Exit early if no items exist
@@ -228,35 +194,16 @@ export class ActionHandler extends CoreActionHandler {
         }
 
         // Loop through inventory subcateogry ids
-        for (const subcategoryId of this.actionSubcategoryIds) {
-            if (!actionsMap.has(subcategoryId)) continue
+        for (const [key, value] of actionsMap) {
+            const subcategoryId = key
+            const actions = value
 
             // Create subcategory data
             const subcategoryData = { id: subcategoryId, type: 'system' }
 
-            const actions = actionsMap.get(subcategoryId)
-
             // Build actions
             this._addActions(actions, subcategoryData, actionType)
         }
-
-        /*   const exploration = this.initializeEmptySubcategory()
-        exploration.actions = this._produceActionMap(
-            tokenId,
-            (filteredActions ?? []).filter((a) =>
-                a.system.traits?.value.includes('exploration')
-            ),
-            macroType
-        )
-
-        const downtime = this.initializeEmptySubcategory()
-        downtime.actions = this._produceActionMap(
-            tokenId,
-            (filteredActions ?? []).filter((a) =>
-                a.system.traits?.value.includes('downtime')
-            ),
-            macroType
-        ) */
     }
 
     /**
@@ -264,9 +211,6 @@ export class ActionHandler extends CoreActionHandler {
      * @private
      */
     _buildAttack () {
-        // Exit if no subcategory exists
-        if (!this.subcategoryIds.includes('attack')) return
-
         const actionType = 'familiarAttack'
 
         const attack = this.actor.system.attack
@@ -274,6 +218,8 @@ export class ActionHandler extends CoreActionHandler {
         if (attack) {
             const id = attack.slug
             const name = attack.name.charAt(0).toUpperCase() + attack.name.slice(1)
+            const actionTypeName = `${CoreUtils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
+            const listName = `${actionTypeName}${name}`
             const encodedValue = [actionType, this.actorId, this.tokenId, id].join(this.delimiter)
             const info1 = attack.totalModifier < 0 ? attack.totalModifier : `+${attack.totalModifier}`
 
@@ -282,7 +228,8 @@ export class ActionHandler extends CoreActionHandler {
                 id,
                 name,
                 encodedValue,
-                info1
+                info1,
+                listName
             }]
 
             // Create subcategory data
@@ -297,9 +244,6 @@ export class ActionHandler extends CoreActionHandler {
      * Build combat
      */
     _buildCombat () {
-        // Exit if no subcategory exists
-        if (!this.subcategoryIds.includes('combat')) return
-
         const actionType = 'utility'
 
         // Set combat types
@@ -314,11 +258,14 @@ export class ActionHandler extends CoreActionHandler {
         const actions = Object.entries(combatTypes).map((combatType) => {
             const id = combatType[1].id
             const name = combatType[1].name
+            const actionTypeName = `${CoreUtils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
+            const listName = `${actionTypeName}${name}`
             const encodedValue = [actionType, this.actorId, this.tokenId, id].join(this.delimiter)
             return {
                 id,
                 name,
-                encodedValue
+                encodedValue,
+                listName
             }
         })
 
@@ -334,9 +281,6 @@ export class ActionHandler extends CoreActionHandler {
      * @private
      */
     async _buildConditions () {
-        // Exit if no subcategory exists
-        if (!this.subcategoryIds.includes('conditions')) return
-
         const actionType = 'condition'
 
         const limitedConditions = ['doomed', 'dying', 'wounded']
@@ -363,6 +307,8 @@ export class ActionHandler extends CoreActionHandler {
             const activeCondition = activeConditions.get(condition[0])
             const activeConditionId = activeCondition?.id
             const name = condition[1].name
+            const actionTypeName = `${CoreUtils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
+            const listName = `${actionTypeName}${name}`
             const encodedValue = [actionType, this.actorId, this.tokenId, id].join(this.delimiter)
             const img = CoreUtils.getImage(condition[1])
             const active = (activeConditionId) ? ' active' : ''
@@ -384,7 +330,8 @@ export class ActionHandler extends CoreActionHandler {
                 encodedValue,
                 cssClass,
                 img,
-                info1
+                info1,
+                listName
             }
         })
 
@@ -399,9 +346,6 @@ export class ActionHandler extends CoreActionHandler {
      * Build hero points
      */
     async _buildHeroPoints () {
-        // Exit if no subcategory exists
-        if (!this.subcategoryIds.includes('hero-points')) return
-
         const actionType = 'heroPoints'
 
         // Create subcategory data
@@ -428,9 +372,6 @@ export class ActionHandler extends CoreActionHandler {
      * @private
      */
     _buildEffects () {
-        // Exit if no subcategory exists
-        if (!this.subcategoryIds.includes('effects')) return
-
         const actionType = 'effect'
 
         // Get effects
@@ -448,9 +389,6 @@ export class ActionHandler extends CoreActionHandler {
      * @private
      */
     _buildFeats () {
-        // Exit if no subcategories exist
-        if (!this.featSubcategoryIds) return
-
         const actionType = 'feat'
         const featTypes = {
             ancestryfeature: 'ancestry-features',
@@ -467,18 +405,14 @@ export class ActionHandler extends CoreActionHandler {
 
         for (const [key, value] of this.items) {
             const featType = value.featType
-            if (!featsMap.has(featType)) featsMap.set(featType, new Map())
-            featsMap.get(featType).set(key, value)
+            const subcategoryId = featTypes[featType]
+            if (!featsMap.has(subcategoryId)) featsMap.set(subcategoryId, new Map())
+            featsMap.get(subcategoryId).set(key, value)
         }
 
         for (const [key, value] of featsMap) {
-            const featType = key
+            const subcategoryId = key
             const feats = value
-
-            const subcategoryId = featTypes[featType]
-
-            // Exit if subcategory does not exist
-            if (!this.featSubcategoryIds.includes(subcategoryId)) continue
 
             // Get subcategory data
             const subcategoryData = { id: subcategoryId, type: 'system' }
@@ -493,9 +427,6 @@ export class ActionHandler extends CoreActionHandler {
      * @private
      */
     _buildInitiative () {
-        // Exit if no subcategory existsp
-        if (!this.subcategoryIds.includes('initiative')) return
-
         const actionType = 'initiative'
 
         const initiative = (this.actorId !== 'multi') ? this.actor.system.attributes.initiative : 'PF2E.InitiativeLabel'
@@ -522,9 +453,6 @@ export class ActionHandler extends CoreActionHandler {
      * @private
      */
     _buildInventory () {
-        // Exit if no subcategories exist
-        if (!this.inventorySubcategoryIds) return
-
         // Exit early if no items exist
         if (this.items.size === 0) return
 
@@ -576,13 +504,12 @@ export class ActionHandler extends CoreActionHandler {
         }
 
         // Loop through inventory subcateogry ids
-        for (const subcategoryId of this.inventorySubcategoryIds) {
-            if (!inventoryMap.has(subcategoryId)) continue
+        for (const [key, value] of inventoryMap) {
+            const subcategoryId = key
+            const inventory = value
 
             // Create subcategory data
             const subcategoryData = { id: subcategoryId, type: 'system' }
-
-            const inventory = inventoryMap.get(subcategoryId)
 
             // Build actions
             this._addActions(inventory, subcategoryData)
@@ -594,9 +521,6 @@ export class ActionHandler extends CoreActionHandler {
      * @private
      */
     _buildPerceptionCheck () {
-        // Exit if no subcategory exists
-        if (!this.subcategoryIds.includes('perception-check')) return
-
         const actionType = 'perceptionCheck'
 
         const perception = (this.actorId !== 'multi') ? this.actor.system.attributes.perception : CONFIG.PF2E.attributes.perception
@@ -622,9 +546,6 @@ export class ActionHandler extends CoreActionHandler {
      * Build recovery check
      */
     _buildRecoveryCheck () {
-        // Exit if no subcategory exists
-        if (!this.subcategoryIds.includes('recovery-check')) return
-
         const actionType = 'recoveryCheck'
 
         const dyingPoints = this.actor.system.attributes?.dying
@@ -649,9 +570,6 @@ export class ActionHandler extends CoreActionHandler {
      * Build rests
      */
     _buildRests () {
-        // Exit if no subcategory exists
-        if (!this.subcategoryIds.includes('rests')) return
-
         // Exit if multiple actors and not every actor is not the character type
         if (this.actorId === 'multi' && !this.actors.every(actor => actor.type === 'character')) return
 
@@ -691,9 +609,6 @@ export class ActionHandler extends CoreActionHandler {
      * @private
      */
     _buildSaves () {
-        // Exit if no subcategory exists
-        if (!this.subcategoryIds.includes('saves')) return
-
         const actionType = 'save'
 
         // Get saves
@@ -703,11 +618,14 @@ export class ActionHandler extends CoreActionHandler {
         const actions = saves.map((save) => {
             const id = save[0]
             const name = save[1].label ?? (typeof save[1] === 'string' ? CoreUtils.i18n(save[1]) : '')
+            const actionTypeName = `${CoreUtils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
+            const listName = `${actionTypeName}${name}`
             const encodedValue = [actionType, this.actorId, this.tokenId, id].join(this.delimiter)
             return {
                 id,
                 name,
-                encodedValue
+                encodedValue,
+                listName
             }
         })
 
@@ -723,15 +641,14 @@ export class ActionHandler extends CoreActionHandler {
      * @private
      */
     _buildSkills () {
-        // Exit if no subcategory exists
-        if (!this.skillSubcategoryIds) return
-
         const actionType = 'skill'
 
         // Get skills
         const skills = (this.actorId !== 'multi')
             ? Object.entries(this.actor.skills).filter(skill => !!skill[1].label && skill[1].label.length > 1)
             : this._getSharedSkills()
+
+        if (!skills) return
 
         const skillsMap = new Map()
 
@@ -753,29 +670,33 @@ export class ActionHandler extends CoreActionHandler {
         }
 
         // Loop through inventory subcateogry ids
-        for (const subcategoryId of this.skillSubcategoryIds) {
-            if (!skillsMap.has(subcategoryId)) continue
+        for (const [key, value] of skillsMap) {
+            const subcategoryId = key
+            const skills = value
 
             // Create subcategory data
             const subcategoryData = { id: subcategoryId, type: 'system' }
-
-            const skills = skillsMap.get(subcategoryId)
 
             // Get actions
             const actions = [...skills].map(skill => {
                 const id = skill[0]
                 const data = skill[1]
                 const label = CoreUtils.i18n(data.label) ?? CoreUtils.i18n(CONFIG.PF2E.skillList[skill[0]])
-                const name = this.abbreviatedSkills ? SKILL_ABBREVIATIONS[data.slug] ?? label : label
+                const name = this.abbreviatedSkills ? SKILL_ABBREVIATION[data.slug] ?? label : label
+                const actionTypeName = `${CoreUtils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
+                const listName = `${actionTypeName}${name}`
                 const encodedValue = [actionType, this.actorId, this.tokenId, id].join(this.delimiter)
+                const cssClass = (this.colorSkills && data.rank > 0) ? `tah-pf2e-skill-rank-${data.rank}` : ''
                 const mod = data.check?.mod
-                const info1 = (mod || mod === 0) ? `${(mod > 0) ? '+' : ''}${mod}` : ''
+                const info1 = { text: (mod || mod === 0) ? `${(mod >= 0) ? '+' : ''}${mod}` : '' }
 
                 return {
                     id,
                     name,
                     encodedValue,
-                    info1
+                    cssClass,
+                    info1,
+                    listName
                 }
             })
 
@@ -789,6 +710,7 @@ export class ActionHandler extends CoreActionHandler {
      * @returns {object}
      */
     _getSharedSkills () {
+        if (!this.actors) return
         const allSkillSets = this.actors.map(actor => Object.entries(actor.skills).filter(skill => !!skill[1].label && skill[1].label.length > 1))
         const minSkillSetSize = Math.min(...allSkillSets.map(skillSet => skillSet.length))
         const smallestSkillSet = allSkillSets.find(skillSet => skillSet.length === minSkillSetSize)
@@ -800,9 +722,6 @@ export class ActionHandler extends CoreActionHandler {
      * @private
      */
     async _buildSpells () {
-        // Exit if no subcategory exists
-        if (!this.subcategoryIds.includes('spells')) return
-
         const actionType = 'spell'
 
         // Create parent subcategory data
@@ -916,9 +835,6 @@ export class ActionHandler extends CoreActionHandler {
      * Build strikes
      */
     _buildStrikes () {
-        // Exit if no subcategory exists
-        if (!this.subcategoryIds.includes('strikes')) return
-
         const actionType = 'strike'
 
         // Create parent subcategory data
@@ -944,12 +860,14 @@ export class ActionHandler extends CoreActionHandler {
             // Add subcategory to action list
             this.addSubcategoryToActionList(parentSubcategoryData, strikeSubcategoryData)
 
-            if (strike.auxiliaryActions) {
+            if (strike.auxiliaryActions?.length) {
                 const actionType = 'auxAction'
                 const auxiliaryActionEntities = strike.auxiliaryActions.map((auxiliaryAction, index) => {
                     const id = encodeURIComponent(`${strikeId}>${index}>`)
                     const name = auxiliaryAction.label
-                    return { id, name }
+                    const actionTypeName = `${CoreUtils.i18n(ACTION_TYPE[actionType])}: ${strikeSubcategoryName}: ` ?? ''
+                    const listName = `${actionTypeName}${name}`
+                    return { id, name, listName }
                 })
                 const image = { img: strike.imageUrl }
                 if (auxiliaryActionEntities[0]) auxiliaryActionEntities[0].img = CoreUtils.getImage(image)
@@ -981,10 +899,10 @@ export class ActionHandler extends CoreActionHandler {
                 const usageSubcategoryId = `${strikeSubcategoryId}+${usage}`
                 const usageSubcategoryName = (strikeUsage.attackRollType)
                     ? CoreUtils.i18n(strikeUsage.attackRollType)
-                    : CoreUtils.i18n(STRIKE_USAGES[usage].name)
+                    : CoreUtils.i18n(STRIKE_USAGE[usage].name)
                 const usageSubcategoryIcon = (usage !== 'thrown' && glyph)
                     ? `<span style='font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);'>${glyph}</span>`
-                    : STRIKE_ICONS[usage]
+                    : STRIKE_ICON[usage]
 
                 // Create subcategory data
                 const usageSubcategoryData = { id: usageSubcategoryId, name: usageSubcategoryName, icon: usageSubcategoryIcon, type: 'system-derived' }
@@ -992,45 +910,50 @@ export class ActionHandler extends CoreActionHandler {
                 // Add subcategory to action list
                 this.addSubcategoryToActionList(strikeSubcategoryData, usageSubcategoryData)
 
-                if (strikeUsage.ready) {
-                    const entities = strikeUsage.variants.map((variant, index) => {
-                        const id = encodeURIComponent(`${strikeId}>${index}>` + usage)
-                        const isMap = variant.label.includes('MAP')
-                        const bonus = (isMap) ? strike.totalModifier + parseInt(variant.label.split(' ')[1]) : parseInt(variant.label.split(' ')[1])
-                        const name = (this.calculateAttackPenalty) ? (bonus >= 0) ? `+${bonus}` : `${bonus}` : variant.label
-                        return { actionType, id, name }
-                    })
+                const actionTypeName = `${CoreUtils.i18n(ACTION_TYPE[actionType])}: ${strikeSubcategoryName}: ${usageSubcategoryName}: ` ?? ''
+                const systemSelected = strikeUsage.ready
 
-                    // Get Damage
-                    const damageId = encodeURIComponent(`${strikeId}>damage>${usage}`)
-                    const damageName = CoreUtils.i18n('PF2E.DamageLabel')
-                    entities.push({ actionType, id: damageId, name: damageName })
+                const entities = strikeUsage.variants.map((variant, index) => {
+                    const id = encodeURIComponent(`${strikeId}>${index}>` + usage)
+                    const isMap = variant.label.includes('MAP')
+                    const bonus = (isMap) ? strike.totalModifier + parseInt(variant.label.split(' ')[1]) : parseInt(variant.label.split(' ')[1])
+                    const name = (this.calculateAttackPenalty) ? (bonus >= 0) ? `+${bonus}` : `${bonus}` : variant.label
+                    const listName = `${actionTypeName}${name}`
+                    return { actionType, id, name, listName, systemSelected }
+                })
 
-                    // Get Critical
-                    const criticalId = encodeURIComponent(`${strikeId}>critical>${usage}`)
-                    const criticalName = CoreUtils.i18n('PF2E.CriticalDamageLabel')
-                    entities.push({ actionType, id: criticalId, name: criticalName })
+                // Get Damage
+                const damageId = encodeURIComponent(`${strikeId}>damage>${usage}`)
+                const damageName = CoreUtils.i18n('PF2E.DamageLabel')
+                const damageListName = `${actionTypeName}${damageName}`
+                entities.push({ actionType, id: damageId, name: damageName, listName: damageListName, systemSelected })
 
-                    // Get Ammo
-                    if (strikeUsage.selectedAmmoId && !strikeUsage.ammunition) {
-                        const item = this.actor.items.get(strikeUsage.selectedAmmoId)
+                // Get Critical
+                const criticalId = encodeURIComponent(`${strikeId}>critical>${usage}`)
+                const criticalName = CoreUtils.i18n('PF2E.CriticalDamageLabel')
+                const criticalListName = `${actionTypeName}${criticalName}`
+                entities.push({ actionType, id: criticalId, name: criticalName, listName: criticalListName, systemSelected })
 
-                        if (!item) {
-                            const id = 'noAmmo'
-                            const name = CoreUtils.i18n('tokenActionHud.pf2e.noAmmo')
-                            entities.push({ actionType, id, name })
-                        } else {
-                            item.actionType = actionType
-                            entities.push(item)
-                        }
+                // Get Ammo
+                if (strikeUsage.selectedAmmoId && !strikeUsage.ammunition) {
+                    const item = this.actor.items.get(strikeUsage.selectedAmmoId)
+
+                    if (!item) {
+                        const id = 'noAmmo'
+                        const name = CoreUtils.i18n('tokenActionHud.pf2e.noAmmo')
+                        const listName = `${actionTypeName}${name}`
+                        entities.push({ actionType, id, name, listName, systemSelected })
+                    } else {
+                        item.actionType = actionType
+                        entities.push(item)
                     }
-
-                    // Get actions
-                    const actions = entities.map(entity => this._getAction(actionType, entity))
-
-                    // Add actions to action list
-                    this.addActionsToActionList(actions, usageSubcategoryData)
                 }
+
+                // Get actions
+                const actions = entities.map(entity => this._getAction(actionType, entity))
+
+                // Add actions to action list
+                this.addActionsToActionList(actions, usageSubcategoryData)
             }
         }
     }
@@ -1039,9 +962,6 @@ export class ActionHandler extends CoreActionHandler {
      * Build toggles
      */
     _buildToggles () {
-        // Exit if no subcategory exists
-        if (!this.subcategoryIds.includes('toggles')) return
-
         const actionType = 'toggle'
 
         // Get toggles
@@ -1156,6 +1076,8 @@ export class ActionHandler extends CoreActionHandler {
     _getAction (actionType, entity) {
         const id = entity.id ?? entity._id
         const name = entity?.name ?? entity?.label
+        const actionTypeName = `${CoreUtils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
+        const listName = entity.listName ?? `${actionTypeName}${name}`
         let cssClass = ''
         if (Object.hasOwn(entity, 'disabled')) {
             const active = (!entity.disabled) ? ' active' : ''
@@ -1177,6 +1099,7 @@ export class ActionHandler extends CoreActionHandler {
         const info1 = info?.info1
         const info2 = info?.info2
         const info3 = info?.info3
+        const systemSelected = entity?.systemSelected ?? null
         return {
             id,
             name,
@@ -1186,7 +1109,9 @@ export class ActionHandler extends CoreActionHandler {
             icon1,
             info1,
             info2,
-            info3
+            info3,
+            listName,
+            systemSelected
         }
     }
 
@@ -1318,7 +1243,7 @@ export class ActionHandler extends CoreActionHandler {
      * @returns {string}
      */
     _getActionIcon (action) {
-        return ACTION_ICONS[action]
+        return ACTION_ICON[action]
     }
 
     /** @protected */
