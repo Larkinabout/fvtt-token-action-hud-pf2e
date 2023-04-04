@@ -1,0 +1,15 @@
+{
+  "tokenActionHud": {
+    "pf2e": {
+      "attributes": "屬性",
+      "rests": "休息",
+      "takeBreather": "小憩一刻",
+      "settings": {
+        "calculateAttackPenalty": {
+          "hint": "為打擊顯示自動計算的攻擊減值 (即攻擊加值-多重攻擊減值)",
+          "name": "顯示多重攻擊減值"
+        }
+      }
+    }
+  }
+}
