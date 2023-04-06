@@ -2,16 +2,16 @@
   "tokenActionHud": {
     "pf2e": {
       "attribute": "Attribute",
-      "attributes": "Attributes",
+      "attributes": "Attributs",
       "noAmmo": "No Ammo",
-      "rests": "Rests",
+      "rests": "Repos",
       "save": "Save",
-      "takeBreather": "Take a Breather",
+      "takeBreather": "Reprendre son souffle",
       "toggle": "Toggle",
       "settings": {
         "calculateAttackPenalty": {
-          "hint": "Display the calculated attack penalty (Attack Modifier minus MAP) for Strikes",
-          "name": "Display Calculated Attack Penalty"
+          "hint": "Afficher la pénalité d'attaque calculée (Modificateur d'attaque moins PAM) pour les Frappes",
+          "name": "Afficher la Pénalité d'attaque calculée"
         },
         "colorSkills": {
           "hint": "Color skills based on its rank",
