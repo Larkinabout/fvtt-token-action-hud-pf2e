@@ -27,7 +27,7 @@ Token Action HUD is a repositionable HUD of actions for a selected token.
 
 ## Required Modules
 
-**IMPORTANT** - Token Action HUD Pathfinder 2 requires the [Token Action HUD D&D Core](https://foundryvtt.com/packages/token-action-hud-core) module to be installed.
+**IMPORTANT** - Token Action HUD Pathfinder 2 requires the [Token Action HUD Core](https://foundryvtt.com/packages/token-action-hud-core) module to be installed.
 
 ## Recommended Modules
 Token Action HUD uses either the [Color Picker](https://foundryvtt.com/packages/color-picker), [libThemer](https://foundryvtt.com/packages/lib-themer) or [VTTColorSettings](https://foundryvtt.com/packages/colorsettings) library modules for its color picker settings. Only one is required.

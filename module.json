@@ -14,9 +14,9 @@
       "name": "^ and stick"
     }
   ],
-  "url": "https://github.com/Larkinabout/fvtt-token-action-hud-pf2e",
+  "url": "This is auto replaced",
   "flags": {},
-  "version": "0.1.0",
+  "version": "This is auto replaced",
   "compatibility": {
     "minimum": "10",
     "verified": "10.291"
@@ -27,6 +27,7 @@
   "scripts": [
   ],
   "styles": [
+    "./styles/tah-pf2e.css"
   ],
   "languages": [
     {
@@ -88,7 +89,8 @@
         "type": "system",
         "compatibility": [
           {
-            "verified": "4.6.4"
+            "minimum": "4.6.4",
+            "verified": "4.10.4"
           }
         ]
       }
@@ -99,9 +101,9 @@
         "type": "module",
         "compatibility": [
           {
-            "minimum": "1.2.0",
-            "maximum": "1.2",
-            "verified": "1.2.0"
+            "minimum": "1.3.0",
+            "maximum": "1.3",
+            "verified": "1.3.0"
           }
         ]
       }
@@ -112,8 +114,8 @@
     }
   },
   "socket": false,
-  "manifest": "https://github.com/Larkinabout/fvtt-token-action-hud-pf2e/releases/download/1.1.0/module.zip",
-  "download": "https://github.com/Larkinabout/fvtt-token-action-hud-pf2e/releases/latest/download/module.zip",
+  "manifest": "This is auto replaced",
+  "download": "This is auto replaced",
   "readme": "https://github.com/Larkinabout/fvtt-token-action-hud-pf2e#readme",
   "protected": false,
   "coreTranslation": false,

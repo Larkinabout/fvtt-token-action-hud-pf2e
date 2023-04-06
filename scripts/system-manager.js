@@ -3,52 +3,52 @@ import { ActionHandler } from './action-handler.js'
 import { RollHandler as Core } from './roll-handler.js'
 import { DEFAULTS } from './defaults.js'
 import * as systemSettings from './settings.js'
-import { Utils } from './utils.js'
 
-// Core Module Imports
-import { CoreSystemManager, CoreCategoryManager, CoreUtils } from './config.js'
+export let SystemManager = null
 
-export class SystemManager extends CoreSystemManager {
+Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
+    SystemManager = class SystemManager extends coreModule.api.SystemManager {
     /** @override */
-    doGetCategoryManager (user) {
-        return new CoreCategoryManager()
-    }
-
-    /** @override */
-    doGetActionHandler (categoryManager) {
-        const actionHandler = new ActionHandler(categoryManager)
-        return actionHandler
-    }
-
-    /** @override */
-    getAvailableRollHandlers () {
-        const coreTitle = 'Core PF2E'
-
-        const choices = { core: coreTitle }
-
-        return choices
-    }
-
-    /** @override */
-    doGetRollHandler (handlerId) {
-        let rollHandler
-        switch (handlerId) {
-        case 'core':
-        default:
-            rollHandler = new Core()
-            break
+        doGetCategoryManager (user) {
+            return new coreModule.api.CategoryManager()
         }
 
-        return rollHandler
-    }
+        /** @override */
+        doGetActionHandler (categoryManager) {
+            const actionHandler = new ActionHandler(categoryManager)
+            return actionHandler
+        }
 
-    /** @override */
-    doRegisterSettings (updateFunc) {
-        systemSettings.register(updateFunc)
-    }
+        /** @override */
+        getAvailableRollHandlers () {
+            const coreTitle = 'Core PF2E'
 
-    /** @override */
-    async doRegisterDefaultFlags () {
-        return DEFAULTS
+            const choices = { core: coreTitle }
+
+            return choices
+        }
+
+        /** @override */
+        doGetRollHandler (handlerId) {
+            let rollHandler
+            switch (handlerId) {
+            case 'core':
+            default:
+                rollHandler = new Core()
+                break
+            }
+
+            return rollHandler
+        }
+
+        /** @override */
+        doRegisterSettings (updateFunc) {
+            systemSettings.register(updateFunc)
+        }
+
+        /** @override */
+        async doRegisterDefaultFlags () {
+            return DEFAULTS
+        }
     }
-}
+})
