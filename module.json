@@ -14,9 +14,9 @@
       "name": "^ and stick"
     }
   ],
-  "url": "https://github.com/Larkinabout/fvtt-token-action-hud-pf2e",
+  "url": "This is auto replaced",
   "flags": {},
-  "version": "0.1.0",
+  "version": "This is auto replaced",
   "compatibility": {
     "minimum": "10",
     "verified": "10.291"
@@ -113,8 +113,8 @@
     }
   },
   "socket": false,
-  "manifest": "https://github.com/Larkinabout/fvtt-token-action-hud-pf2e/releases/download/1.1.0/module.zip",
-  "download": "https://github.com/Larkinabout/fvtt-token-action-hud-pf2e/releases/latest/download/module.zip",
+  "manifest": "This is auto replaced",
+  "download": "This is auto replaced",
   "readme": "https://github.com/Larkinabout/fvtt-token-action-hud-pf2e#readme",
   "protected": false,
   "coreTranslation": false,

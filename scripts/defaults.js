@@ -1,348 +1,117 @@
+import { SUBCATEGORY } from './constants.js'
+
 /**
  * Default categories and subcategories
  */
 export let DEFAULTS = null
 
-Hooks.on('i18nInit', async () => {
+Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
+    const subcategories = SUBCATEGORY
+    Object.values(subcategories).forEach(subcategory => {
+        subcategory.name = coreModule.api.Utils.i18n(subcategory.name)
+        subcategory.listName = `Subcategory: ${coreModule.api.Utils.i18n(subcategory.name)}`
+    })
+    const subcategoriesArray = Object.values(subcategories)
     DEFAULTS = {
         categories: [
             {
                 nestId: 'attack',
                 id: 'attack',
-                name: game.i18n.localize('PF2E.AttackLabel'),
+                name: coreModule.api.Utils.i18n('PF2E.AttackLabel'),
                 subcategories: [
-                    {
-                        nestId: 'attack_attack',
-                        id: 'attack',
-                        name: game.i18n.localize('PF2E.AttackLabel'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    }
+                    { ...subcategories.attack, nestId: 'attack_attack' }
                 ]
             },
             {
                 nestId: 'actions',
                 id: 'actions',
-                name: game.i18n.localize('PF2E.ActionsActionsHeader'),
+                name: coreModule.api.Utils.i18n('PF2E.ActionsActionsHeader'),
                 subcategories: [
-                    {
-                        nestId: 'actions_toggles',
-                        id: 'toggles',
-                        name: game.i18n.localize('PF2E.TogglesLabel'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'actions_strikes',
-                        id: 'strikes',
-                        name: game.i18n.localize('PF2E.StrikesLabel'),
-                        type: 'system',
-                        hasDerivedSubcategories: true
-                    },
-                    {
-                        nestId: 'actions_actions',
-                        id: 'actions',
-                        name: game.i18n.localize('PF2E.ActionsActionsHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'actions_reactions',
-                        id: 'reactions',
-                        name: game.i18n.localize('PF2E.ActionsReactionsHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'actions_free-actions',
-                        id: 'free-actions',
-                        name: game.i18n.localize('PF2E.ActionsFreeActionsHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'actions_passives',
-                        id: 'passives',
-                        name: game.i18n.localize('PF2E.NPC.PassivesLabel'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    }
+                    { ...subcategories.toggles, nestId: 'actions_toggles' },
+                    { ...subcategories.strikes, nestId: 'actions_strikes' },
+                    { ...subcategories.actions, nestId: 'actions_actions' },
+                    { ...subcategories.reactions, nestId: 'actions_reactions' },
+                    { ...subcategories.freeActions, nestId: 'actions_free-actions' },
+                    { ...subcategories.passives, nestId: 'actions_passives' }
                 ]
             },
             {
                 nestId: 'inventory',
                 id: 'inventory',
-                name: game.i18n.localize('PF2E.TabInventoryLabel'),
+                name: coreModule.api.Utils.i18n('PF2E.TabInventoryLabel'),
                 subcategories: [
-                    {
-                        nestId: 'inventory_weapons',
-                        id: 'weapons',
-                        name: game.i18n.localize('PF2E.InventoryWeaponsHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'inventory_armor',
-                        id: 'armor',
-                        name: game.i18n.localize('PF2E.InventoryArmorHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'inventory_equipment',
-                        id: 'equipment',
-                        name: game.i18n.localize('PF2E.InventoryEquipmentHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'inventory_consumables',
-                        id: 'consumables',
-                        name: game.i18n.localize('PF2E.InventoryConsumablesHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'inventory_containers',
-                        id: 'containers',
-                        name: game.i18n.localize('PF2E.InventoryBackpackHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'inventory_treasure',
-                        id: 'treasure',
-                        name: game.i18n.localize('PF2E.InventoryTreasureHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    }
+                    { ...subcategories.weapons, nestId: 'inventory_weapons' },
+                    { ...subcategories.armor, nestId: 'inventory_armor' },
+                    { ...subcategories.equipment, nestId: 'inventory_equipment' },
+                    { ...subcategories.consumables, nestId: 'inventory_consumables' },
+                    { ...subcategories.containers, nestId: 'inventory_containers' },
+                    { ...subcategories.treasure, nestId: 'inventory_treasure' }
                 ]
             },
             {
                 nestId: 'feats',
                 id: 'feats',
-                name: game.i18n.localize('PF2E.TabFeatsLabel'),
+                name: coreModule.api.Utils.i18n('PF2E.TabFeatsLabel'),
                 subcategories: [
-                    {
-                        nestId: 'feats_ancestry-features',
-                        id: 'ancestry-features',
-                        name: game.i18n.localize('PF2E.FeaturesAncestryHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'feats_class-features',
-                        id: 'class-features',
-                        name: game.i18n.localize('PF2E.FeaturesClassHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'feats_ancestry-feats',
-                        id: 'ancestry-feats',
-                        name: game.i18n.localize('PF2E.FeatAncestryHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'feats_class-feats',
-                        id: 'class-feats',
-                        name: game.i18n.localize('PF2E.FeatClassHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'feats_skill-feats',
-                        id: 'skill-feats',
-                        name: game.i18n.localize('PF2E.FeatSkillHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'feats_general-feats',
-                        id: 'general-feats',
-                        name: game.i18n.localize('PF2E.FeatGeneralHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'feats_general-feats',
-                        id: 'general-feats',
-                        name: game.i18n.localize('PF2E.FeatBonusHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    }
+                    { ...subcategories.ancestryFeatures, nestId: 'feats_ancestry-features' },
+                    { ...subcategories.classFeatures, nestId: 'feats_class-features' },
+                    { ...subcategories.ancestryFeats, nestId: 'feats_ancestry-feats' },
+                    { ...subcategories.classFeats, nestId: 'feats_class-feats' },
+                    { ...subcategories.skillFeats, nestId: 'feats_skill-feats' },
+                    { ...subcategories.generalFeats, nestId: 'feats_general-feats' },
+                    { ...subcategories.bonusFeats, nestId: 'feats_bonus-feats' }
                 ]
             },
             {
                 nestId: 'spells',
                 id: 'spells',
-                name: game.i18n.localize('PF2E.SpellLabelPlural'),
+                name: coreModule.api.Utils.i18n('PF2E.SpellLabelPlural'),
                 subcategories: [
-                    {
-                        nestId: 'spells_spells',
-                        id: 'spells',
-                        name: game.i18n.localize('PF2E.SpellLabelPlural'),
-                        type: 'system',
-                        hasDerivedSubcategories: true
-                    }
+                    { ...subcategories.spells, nestId: 'spells_spells' }
                 ]
             },
             {
                 nestId: 'attributes',
                 id: 'attributes',
-                name: game.i18n.localize('tokenActionHud.pf2e.attributes'),
+                name: coreModule.api.Utils.i18n('tokenActionHud.pf2e.attributes'),
                 subcategories: [
-                    {
-                        nestId: 'attributes_hero-points',
-                        id: 'hero-points',
-                        name: game.i18n.localize('PF2E.HeroPointsLabel'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'attributes_initiative',
-                        id: 'initiative',
-                        name: game.i18n.localize('PF2E.InitiativeLabel'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'attributes_perception-check',
-                        id: 'perception-check',
-                        name: game.i18n.localize('PF2E.PerceptionLabel'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'attributes_saves',
-                        id: 'saves',
-                        name: game.i18n.localize('PF2E.SavesHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    }
+                    { ...subcategories.heroPoints, nestId: 'attributes_hero-points' },
+                    { ...subcategories.initiative, nestId: 'attributes_initiative' },
+                    { ...subcategories.perceptionCheck, nestId: 'attributes_perception-check' },
+                    { ...subcategories.saves, nestId: 'attributes_saves' }
                 ]
             },
             {
                 nestId: 'skills',
                 id: 'skills',
-                name: game.i18n.localize('PF2E.SkillsLabel'),
+                name: coreModule.api.Utils.i18n('PF2E.SkillsLabel'),
                 subcategories: [
-                    {
-                        nestId: 'skills_core-skills',
-                        id: 'core-skills',
-                        name: game.i18n.localize('PF2E.CoreSkillsHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'skills_lore-skills',
-                        id: 'lore-skills',
-                        name: game.i18n.localize('PF2E.LoreSkillsHeader'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    }
+                    { ...subcategories.coreSkills, nestId: 'skills_core-skills' },
+                    { ...subcategories.loreSkills, nestId: 'skills_lore-skills' }
                 ]
             },
             {
                 nestId: 'effects',
                 id: 'effects',
-                name: game.i18n.localize('PF2E.EffectsLabel'),
+                name: coreModule.api.Utils.i18n('PF2E.EffectsLabel'),
                 subcategories: [
-                    {
-                        nestId: 'effects_conditions',
-                        id: 'conditions',
-                        name: game.i18n.localize('PF2E.ConditionsLabel'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'effects_effects',
-                        id: 'effects',
-                        name: game.i18n.localize('PF2E.EffectsLabel'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    }
+                    { ...subcategories.conditions, nestId: 'effects_conditions' },
+                    { ...subcategories.effects, nestId: 'effects_effects' }
                 ]
             },
             {
                 nestId: 'utility',
                 id: 'utility',
-                name: game.i18n.localize('tokenActionHud.utility'),
+                name: coreModule.api.Utils.i18n('tokenActionHud.utility'),
                 subcategories: [
-                    {
-                        nestId: 'utility_combat',
-                        id: 'combat',
-                        name: game.i18n.localize('tokenActionHud.combat'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'utility_token',
-                        id: 'token',
-                        name: game.i18n.localize('tokenActionHud.token'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'utility_recovery-check',
-                        id: 'recovery-check',
-                        name: game.i18n.localize('PF2E.Check.Specific.Recovery'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'utility_rests',
-                        id: 'rests',
-                        name: game.i18n.localize('tokenActionHud.pf2e.rests'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    },
-                    {
-                        nestId: 'utility_utility',
-                        id: 'utility',
-                        name: game.i18n.localize('tokenActionHud.utility'),
-                        type: 'system',
-                        hasDerivedSubcategories: false
-                    }
+                    { ...subcategories.combat, nestId: 'utility_combat' },
+                    { ...subcategories.token, nestId: 'utility_token' },
+                    { ...subcategories.recoveryCheck, nestId: 'utility_recovery-check' },
+                    { ...subcategories.rests, nestId: 'utility_rests' },
+                    { ...subcategories.utility, nestId: 'utility_utility' }
                 ]
             }
         ],
-        subcategories: [
-            { id: 'attack', name: game.i18n.localize('PF2E.AttackLabel'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'toggles', name: game.i18n.localize('PF2E.TogglesLabel'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'strikes', name: game.i18n.localize('PF2E.StrikesLabel'), type: 'system', hasDerivedSubcategories: true },
-            { id: 'actions', name: game.i18n.localize('PF2E.ActionsActionsHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'reactions', name: game.i18n.localize('PF2E.ActionsReactionsHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'free-actions', name: game.i18n.localize('PF2E.ActionsFreeActionsHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'passives', name: game.i18n.localize('PF2E.NPC.PassivesLabel'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'weapons', name: game.i18n.localize('PF2E.InventoryWeaponsHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'armor', name: game.i18n.localize('PF2E.InventoryArmorHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'equipment', name: game.i18n.localize('PF2E.InventoryEquipmentHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'consumables', name: game.i18n.localize('PF2E.InventoryConsumablesHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'containers', name: game.i18n.localize('PF2E.InventoryBackpackHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'treasure', name: game.i18n.localize('PF2E.InventoryTreasureHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'ancestry-features', name: game.i18n.localize('PF2E.FeaturesAncestryHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'class-features', name: game.i18n.localize('PF2E.FeaturesClassHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'ancestry-feats', name: game.i18n.localize('PF2E.FeatAncestryHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'class-feats', name: game.i18n.localize('PF2E.FeatClassHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'skill-feats', name: game.i18n.localize('PF2E.FeatSkillHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'general-feats', name: game.i18n.localize('PF2E.FeatGeneralHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'bonus-feats', name: game.i18n.localize('PF2E.FeatBonusHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'spells', name: game.i18n.localize('PF2E.SpellLabelPlural'), type: 'system', hasDerivedSubcategories: true },
-            { id: 'hero-points', name: game.i18n.localize('PF2E.HeroPointsLabel'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'initiative', name: game.i18n.localize('PF2E.InitiativeLabel'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'perception-check', name: game.i18n.localize('PF2E.PerceptionLabel'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'core-skills', name: game.i18n.localize('PF2E.CoreSkillsHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'lore-skills', name: game.i18n.localize('PF2E.LoreSkillsHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'conditions', name: game.i18n.localize('PF2E.ConditionsLabel'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'effects', name: game.i18n.localize('PF2E.EffectsLabel'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'combat', name: game.i18n.localize('tokenActionHud.combat'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'token', name: game.i18n.localize('tokenActionHud.token'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'recovery-check', name: game.i18n.localize('PF2E.Check.Specific.Recovery'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'rests', name: game.i18n.localize('tokenActionHud.pf2e.rests'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'saves', name: game.i18n.localize('PF2E.SavesHeader'), type: 'system', hasDerivedSubcategories: false },
-            { id: 'utility', name: game.i18n.localize('tokenActionHud.utility'), type: 'system', hasDerivedSubcategories: false }
-        ]
+        subcategories: subcategoriesArray
     }
 })

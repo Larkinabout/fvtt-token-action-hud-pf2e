@@ -1,9 +1,13 @@
 {
   "tokenActionHud": {
     "pf2e": {
+      "attribute": "Attribute",
       "attributes": "Attributes",
+      "noAmmo": "No Ammo",
       "rests": "Rests",
+      "save": "Save",
       "takeBreather": "Take a Breather",
+      "toggle": "Toggle",
       "settings": {
         "calculateAttackPenalty": {
           "hint": "Display the calculated attack penalty (Attack Modifier minus MAP) for Strikes",
