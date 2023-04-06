@@ -738,7 +738,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 // Add spell slot info to subcategory
                 this.addSubcategoryInfo(bookSubcategoryData)
 
-                const spellInfo = await spellcastingEntry[1].getSpellData()
+                const spellInfo = await (spellcastingEntry[1].getSpellData ? spellcastingEntry[1].getSpellData() : spellcastingEntry[1].getSheetData());
                 const activeLevels = spellInfo.levels.filter((level) => level.active.length > 0)
 
                 for (const level of Object.entries(activeLevels)) {
