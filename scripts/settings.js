@@ -16,4 +16,20 @@ export function register (updateFunc) {
             updateFunc(value)
         }
     })
+
+    game.settings.register(MODULE.ID, 'colorSkills', {
+        name: game.i18n.localize(
+            'tokenActionHud.pf2e.settings.colorSkills.name'
+        ),
+        hint: game.i18n.localize(
+            'tokenActionHud.pf2e.settings.colorSkills.hint'
+        ),
+        scope: 'client',
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: (value) => {
+            updateFunc(value)
+        }
+    })
 }
