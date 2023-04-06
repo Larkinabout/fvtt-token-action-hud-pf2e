@@ -2,16 +2,16 @@
   "tokenActionHud": {
     "pf2e": {
       "attribute": "Attribute",
-      "attributes": "Attributes",
+      "attributes": "属性",
       "noAmmo": "No Ammo",
-      "rests": "Rests",
+      "rests": "休息",
       "save": "Save",
-      "takeBreather": "Take a Breather",
+      "takeBreather": "小憩一刻",
       "toggle": "Toggle",
       "settings": {
         "calculateAttackPenalty": {
-          "hint": "Display the calculated attack penalty (Attack Modifier minus MAP) for Strikes",
-          "name": "Display Calculated Attack Penalty"
+          "hint": "为打击显示自动计算的攻击减值 (即攻击加值-多重攻击减值)",
+          "name": "显示多重攻击减值"
         },
         "colorSkills": {
           "hint": "Color skills based on its rank",
