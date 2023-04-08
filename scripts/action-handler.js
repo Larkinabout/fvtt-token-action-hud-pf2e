@@ -446,7 +446,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Build inventory
          * @private
          */
-        _buildInventory () {
+        async _buildInventory () {
         // Exit early if no items exist
             if (this.items.size === 0) return
 
@@ -497,7 +497,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
             }
 
-            // Loop through inventory subcateogry ids
+            // Loop through inventory subcategory ids
             for (const [key, value] of inventoryMap) {
                 const subcategoryId = key
                 const inventory = value
@@ -507,6 +507,39 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                 // Build actions
                 this._addActions(inventory, subcategoryData)
+            }
+
+            // Add container contents
+            if (inventoryMap.has('containers')) {
+                // Create parent subcategory data
+                const parentSubcategoryData = { id: 'containers', type: 'system' }
+
+                const containers = inventoryMap.get('containers')
+
+                for (const [key, value] of containers) {
+                    const container = value
+                    const contents = container.contents
+
+                    // Skip if container has no contents
+                    if (!contents.size) continue
+
+                    // Create subcategory data
+                    const subcategoryData = {
+                        id: key,
+                        name: container.name,
+                        listName: `Subcategory: ${container.name}`,
+                        type: 'system-derived',
+                        hasDerivedSubcategories: false
+                    }
+
+                    // Add subcategory to action list
+                    await this.addSubcategoryToActionList(parentSubcategoryData, subcategoryData)
+
+                    const contentsMap = new Map(contents.map(content => [content.id, content]))
+
+                    // Add actions to action list
+                    this._addActions(contentsMap, subcategoryData)
+                }
             }
         }
 
@@ -750,7 +783,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 // Add spell slot info to subcategory
                 this.addSubcategoryInfo(bookSubcategoryData)
 
-                const spellInfo = await (spellcastingEntry[1].getSpellData ? spellcastingEntry[1].getSpellData() : spellcastingEntry[1].getSheetData());
+                const spellInfo = await (spellcastingEntry[1].getSpellData ? spellcastingEntry[1].getSpellData() : spellcastingEntry[1].getSheetData())
                 const activeLevels = spellInfo.levels.filter((level) => level.active.length > 0)
 
                 for (const level of Object.entries(activeLevels)) {

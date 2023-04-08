@@ -114,7 +114,7 @@ export const SUBCATEGORY = {
     armor: { id: 'armor', name: 'PF2E.InventoryArmorHeader', type: 'system', hasDerivedSubcategories: false },
     equipment: { id: 'equipment', name: 'PF2E.InventoryEquipmentHeader', type: 'system', hasDerivedSubcategories: false },
     consumables: { id: 'consumables', name: 'PF2E.InventoryConsumablesHeader', type: 'system', hasDerivedSubcategories: false },
-    containers: { id: 'containers', name: 'PF2E.InventoryBackpackHeader', type: 'system', hasDerivedSubcategories: false },
+    containers: { id: 'containers', name: 'PF2E.InventoryBackpackHeader', type: 'system', hasDerivedSubcategories: true },
     treasure: { id: 'treasure', name: 'PF2E.InventoryTreasureHeader', type: 'system', hasDerivedSubcategories: false },
     ancestryFeatures: { id: 'ancestry-features', name: 'PF2E.FeaturesAncestryHeader', type: 'system', hasDerivedSubcategories: false },
     classFeatures: { id: 'class-features', name: 'PF2E.FeaturesClassHeader', type: 'system', hasDerivedSubcategories: false },
