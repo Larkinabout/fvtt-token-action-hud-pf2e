@@ -517,6 +517,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'perceptionCheck'
 
             const perception = (this.actor) ? this.actor.system.attributes.perception : CONFIG.PF2E.attributes.perception
+
+            // Exit if no totalModifer exists
+            if (!perception.totalModifier) return
+
             const totalModifier = perception.totalModifier
             const modifier = (totalModifier || totalModifier === 0) ? `${(totalModifier >= 0) ? '+' : ''}${totalModifier}` : ''
 
@@ -605,7 +609,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'save'
 
             // Get saves
-            const saves = (this.actor) ? Object.entries(this.actor.saves) : Object.entries(CONFIG.PF2E.saves)
+            const saves = (this.actor) ? Object.entries(this.actor.saves || []) : Object.entries(CONFIG.PF2E.saves)
+
+            // Exit if no saves exist
+            if (!saves) return
 
             // Get actions
             const actions = saves.map((save) => {
