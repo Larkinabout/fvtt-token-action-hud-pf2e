@@ -152,7 +152,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // Exit early if no items exist
             if (this.items.size === 0) return
 
-            const actionItems = new Map([...this.items].filter(item => item[1].type === 'action'))
+            const actionTypes = ['action', 'reaction', 'free', 'passive']
+
+            const actionItems = new Map([...this.items].filter(item => item[1].type === 'action' || actionTypes.includes(item[1].system?.actionType?.value)))
 
             const actionsMap = new Map()
 
@@ -364,7 +366,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'effect'
 
             // Get effects
-            const effects = new Map([...this.items].filter(item => item[1].type === 'effect' && (!(item.unidentified ?? false) || game.user.isGM)))
+            // 'unidentified' property moved to 'system.unidentified' post pf2e 4.10+
+            const effects = new Map([...this.items].filter(item => item[1].type === 'effect' && ((!(item[1].system?.unidentified ?? false) && !(item[1].unidentified ?? false)) || game.user.isGM)))
 
             // Create subcategory data
             const subcategoryData = { id: 'effects', type: 'system' }
@@ -393,7 +396,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const featsMap = new Map()
 
             for (const [key, value] of this.items) {
-                const featType = value.featType
+                if (value.type !== 'feat') continue
+                // 'featType' changed to 'system.category' post pf2e 4.10+
+                const featType = value.system?.category ?? value.featType
                 const subcategoryId = featTypes[featType]
                 if (!featsMap.has(subcategoryId)) featsMap.set(subcategoryId, new Map())
                 featsMap.get(subcategoryId).set(key, value)
@@ -441,7 +446,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Build inventory
          * @private
          */
-        _buildInventory () {
+        async _buildInventory () {
         // Exit early if no items exist
             if (this.items.size === 0) return
 
@@ -492,7 +497,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
             }
 
-            // Loop through inventory subcateogry ids
+            // Loop through inventory subcategory ids
             for (const [key, value] of inventoryMap) {
                 const subcategoryId = key
                 const inventory = value
@@ -502,6 +507,39 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                 // Build actions
                 this._addActions(inventory, subcategoryData)
+            }
+
+            // Add container contents
+            if (inventoryMap.has('containers')) {
+                // Create parent subcategory data
+                const parentSubcategoryData = { id: 'containers', type: 'system' }
+
+                const containers = inventoryMap.get('containers')
+
+                for (const [key, value] of containers) {
+                    const container = value
+                    const contents = container.contents
+
+                    // Skip if container has no contents
+                    if (!contents.size) continue
+
+                    // Create subcategory data
+                    const subcategoryData = {
+                        id: key,
+                        name: container.name,
+                        listName: `Subcategory: ${container.name}`,
+                        type: 'system-derived',
+                        hasDerivedSubcategories: false
+                    }
+
+                    // Add subcategory to action list
+                    await this.addSubcategoryToActionList(parentSubcategoryData, subcategoryData)
+
+                    const contentsMap = new Map(contents.map(content => [content.id, content]))
+
+                    // Add actions to action list
+                    this._addActions(contentsMap, subcategoryData)
+                }
             }
         }
 
@@ -513,6 +551,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'perceptionCheck'
 
             const perception = (this.actor) ? this.actor.system.attributes.perception : CONFIG.PF2E.attributes.perception
+
+            // Exit if no totalModifer exists
+            if (!perception.totalModifier) return
+
             const totalModifier = perception.totalModifier
             const modifier = (totalModifier || totalModifier === 0) ? `${(totalModifier >= 0) ? '+' : ''}${totalModifier}` : ''
 
@@ -601,7 +643,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'save'
 
             // Get saves
-            const saves = (this.actor) ? Object.entries(this.actor.saves) : Object.entries(CONFIG.PF2E.saves)
+            const saves = (this.actor) ? Object.entries(this.actor.saves || []) : Object.entries(CONFIG.PF2E.saves)
+
+            // Exit if no saves exist
+            if (!saves) return
 
             // Get actions
             const actions = saves.map((save) => {
@@ -738,7 +783,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 // Add spell slot info to subcategory
                 this.addSubcategoryInfo(bookSubcategoryData)
 
-                const spellInfo = await (spellcastingEntry[1].getSpellData ? spellcastingEntry[1].getSpellData() : spellcastingEntry[1].getSheetData());
+                const spellInfo = await (spellcastingEntry[1].getSpellData ? spellcastingEntry[1].getSpellData() : spellcastingEntry[1].getSheetData())
                 const activeLevels = spellInfo.levels.filter((level) => level.active.length > 0)
 
                 for (const level of Object.entries(activeLevels)) {
