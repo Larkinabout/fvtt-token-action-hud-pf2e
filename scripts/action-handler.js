@@ -393,9 +393,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
 
             // Get feats
-            const featsMap = new Map([...this.items].filter(item => item[1].type === 'feat'))
+            const featsMap = new Map()
 
             for (const [key, value] of this.items) {
+                if (value.type !== 'feat') continue
                 // 'featType' changed to 'system.category' post pf2e 4.10+
                 const featType = value.system?.category ?? value.featType
                 const subcategoryId = featTypes[featType]
