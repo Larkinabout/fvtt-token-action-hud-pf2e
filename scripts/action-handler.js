@@ -152,7 +152,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // Exit early if no items exist
             if (this.items.size === 0) return
 
-            const actionItems = new Map([...this.items].filter(item => item[1].type === 'action'))
+            const actionTypes = ['action', 'reaction', 'free', 'passive']
+
+            const actionItems = new Map([...this.items].filter(item => item[1].type === 'action' || actionTypes.includes(item[1].system?.actionType?.value)))
 
             const actionsMap = new Map()
 
@@ -364,7 +366,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'effect'
 
             // Get effects
-            // 'unidentified' property moved to 'system' post pf2e 4.10
+            // 'unidentified' property moved to 'system.unidentified' post pf2e 4.10+
             const effects = new Map([...this.items].filter(item => item[1].type === 'effect' && ((!(item[1].system?.unidentified ?? false) && !(item[1].unidentified ?? false)) || game.user.isGM)))
 
             // Create subcategory data
@@ -391,10 +393,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
 
             // Get feats
-            const featsMap = new Map()
+            const featsMap = new Map([...this.items].filter(item => item[1].type === 'feat'))
 
             for (const [key, value] of this.items) {
-                const featType = value.featType
+                // 'featType' changed to 'system.category' post pf2e 4.10+
+                const featType = value.system?.category ?? value.featType
                 const subcategoryId = featTypes[featType]
                 if (!featsMap.has(subcategoryId)) featsMap.set(subcategoryId, new Map())
                 featsMap.get(subcategoryId).set(key, value)
