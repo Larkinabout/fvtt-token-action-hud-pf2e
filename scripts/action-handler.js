@@ -364,7 +364,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'effect'
 
             // Get effects
-            const effects = new Map([...this.items].filter(item => item[1].type === 'effect' && (!(item.unidentified ?? false) || game.user.isGM)))
+            // 'unidentified' property moved to 'system' post pf2e 4.10
+            const effects = new Map([...this.items].filter(item => item[1].type === 'effect' && ((!(item[1].system?.unidentified ?? false) && !(item[1].unidentified ?? false)) || game.user.isGM)))
 
             // Create subcategory data
             const subcategoryData = { id: 'effects', type: 'system' }
