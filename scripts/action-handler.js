@@ -20,12 +20,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         calculateAttackPenalty = null
         colorSkills = null
 
-        // Initialize subcategoryIds variables
-        subcategoryIds = null
-        activationSubcategoryIds = null
-        effectSubcategoryIds = null
-        inventorySubcategoryIds = null
-        spellSubcategoryIds = null
+        // Initialize groupIds variables
+        groupIds = null
+        activationGroupIds = null
+        effectGroupIds = null
+        inventoryGroupIds = null
+        spellGroupIds = null
 
         // Initialize action variables
         featureActions = null
@@ -35,9 +35,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         /**
          * Build System Actions
          * @override
-         * @param {array} subcategoryIds
+         * @param {array} groupIds
          */
-        async buildSystemActions (subcategoryIds) {
+        async buildSystemActions (groupIds) {
         // Set actor and token variables
             this.actors = (!this.actor) ? this._getActors() : [this.actor]
             this.actorType = this.actor?.type
@@ -49,7 +49,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // Set items variable
             if (this.actor) {
                 let items = this.actor.items
-                items = this.sortItemsByName(items)
+                items = coreModule.api.Utils.sortItemsByName(items)
                 this.items = items
             }
 
@@ -58,8 +58,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.calculateAttackPenalty = Utils.getSetting('calculateAttackPenalty')
             this.colorSkills = Utils.getSetting('colorSkills')
 
-            // Set subcategory variables
-            this.subcategoryIds = subcategoryIds
+            // Set group variables
+            this.groupIds = groupIds
 
             if (this.actorType === 'character') {
                 await this._buildCharacterActions()
@@ -184,14 +184,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Loop through inventory subcateogry ids
             for (const [key, value] of actionsMap) {
-                const subcategoryId = key
+                const groupId = key
                 const actions = value
 
-                // Create subcategory data
-                const subcategoryData = { id: subcategoryId, type: 'system' }
+                // Create group data
+                const groupData = { id: groupId, type: 'system' }
 
                 // Build actions
-                this._addActions(actions, subcategoryData, actionType)
+                this._addActions(actions, groupData, actionType)
             }
         }
 
@@ -221,11 +221,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     info1
                 }]
 
-                // Create subcategory data
-                const subcategoryData = { id: 'attack', type: 'system' }
+                // Create group data
+                const groupData = { id: 'attack', type: 'system' }
 
                 // Add actions to action list
-                this.addActionsToActionList(actions, subcategoryData)
+                this.addActions(actions, groupData)
             }
         }
 
@@ -258,11 +258,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
             })
 
-            // Create subcategory data
-            const subcategoryData = { id: 'combat', type: 'system' }
+            // Create group data
+            const groupData = { id: 'combat', type: 'system' }
 
             // Add actions to action list
-            this.addActionsToActionList(actions, subcategoryData)
+            this.addActions(actions, groupData)
         }
 
         /**
@@ -326,11 +326,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
             })
 
-            // Create subcategory data
-            const subcategoryData = { id: 'conditions', type: 'system' }
+            // Create group data
+            const groupData = { id: 'conditions', type: 'system' }
 
             // Add actions to action list
-            await this.addActionsToActionList(actions, subcategoryData)
+            await this.addActions(actions, groupData)
         }
 
         /**
@@ -339,8 +339,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async _buildHeroPoints () {
             const actionType = 'heroPoints'
 
-            // Create subcategory data
-            const subcategoryData = { id: 'hero-points', type: 'system' }
+            // Create group data
+            const groupData = { id: 'hero-points', type: 'system' }
 
             const heroPoints = this.actor.system.resources?.heroPoints
             const value = heroPoints.value
@@ -355,7 +355,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }]
 
             // Add actions to action list
-            this.addActionsToActionList(actions, subcategoryData)
+            this.addActions(actions, groupData)
         }
 
         /**
@@ -369,11 +369,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // 'unidentified' property moved to 'system.unidentified' post pf2e 4.10+
             const effects = new Map([...this.items].filter(item => item[1].type === 'effect' && ((!(item[1].system?.unidentified ?? false) && !(item[1].unidentified ?? false)) || game.user.isGM)))
 
-            // Create subcategory data
-            const subcategoryData = { id: 'effects', type: 'system' }
+            // Create group data
+            const groupData = { id: 'effects', type: 'system' }
 
             // Build actions
-            this._addActions(effects, subcategoryData, actionType)
+            this._addActions(effects, groupData, actionType)
         }
 
         /**
@@ -399,20 +399,20 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 if (value.type !== 'feat') continue
                 // 'featType' changed to 'system.category' post pf2e 4.10+
                 const featType = value.system?.category ?? value.featType
-                const subcategoryId = featTypes[featType]
-                if (!featsMap.has(subcategoryId)) featsMap.set(subcategoryId, new Map())
-                featsMap.get(subcategoryId).set(key, value)
+                const groupId = featTypes[featType]
+                if (!featsMap.has(groupId)) featsMap.set(groupId, new Map())
+                featsMap.get(groupId).set(key, value)
             }
 
             for (const [key, value] of featsMap) {
-                const subcategoryId = key
+                const groupId = key
                 const feats = value
 
-                // Get subcategory data
-                const subcategoryData = { id: subcategoryId, type: 'system' }
+                // Get group data
+                const groupData = { id: groupId, type: 'system' }
 
                 // Build actions
-                this._addActions(feats, subcategoryData, actionType)
+                this._addActions(feats, groupData, actionType)
             }
         }
 
@@ -435,11 +435,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 info1: { text: modifier }
             }]
 
-            // Create subcategory data
-            const subcategoryData = { id: 'initiative', type: 'system' }
+            // Create group data
+            const groupData = { id: 'initiative', type: 'system' }
 
             // Add actions to action list
-            this.addActionsToActionList(actions, subcategoryData)
+            this.addActions(actions, groupData)
         }
 
         /**
@@ -497,22 +497,22 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
             }
 
-            // Loop through inventory subcategory ids
+            // Loop through inventory group ids
             for (const [key, value] of inventoryMap) {
-                const subcategoryId = key
+                const groupId = key
                 const inventory = value
 
-                // Create subcategory data
-                const subcategoryData = { id: subcategoryId, type: 'system' }
+                // Create group data
+                const groupData = { id: groupId, type: 'system' }
 
                 // Build actions
-                this._addActions(inventory, subcategoryData)
+                this._addActions(inventory, groupData)
             }
 
             // Add container contents
             if (inventoryMap.has('containers')) {
-                // Create parent subcategory data
-                const parentSubcategoryData = { id: 'containers', type: 'system' }
+                // Create parent group data
+                const parentGroupData = { id: 'containers', type: 'system' }
 
                 const containers = inventoryMap.get('containers')
 
@@ -523,22 +523,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     // Skip if container has no contents
                     if (!contents.size) continue
 
-                    // Create subcategory data
-                    const subcategoryData = {
+                    // Create group data
+                    const groupData = {
                         id: key,
                         name: container.name,
-                        listName: `Subcategory: ${container.name}`,
-                        type: 'system-derived',
-                        hasDerivedSubcategories: false
+                        listName: `Group: ${container.name}`,
+                        type: 'system-derived'
                     }
 
-                    // Add subcategory to action list
-                    await this.addSubcategoryToActionList(parentSubcategoryData, subcategoryData)
+                    // Add group to action list
+                    await this.addGroup(groupData, parentGroupData)
 
                     const contentsMap = new Map(contents.map(content => [content.id, content]))
 
                     // Add actions to action list
-                    this._addActions(contentsMap, subcategoryData)
+                    this._addActions(contentsMap, groupData)
                 }
             }
         }
@@ -566,11 +565,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 info1: { text: modifier }
             }]
 
-            // Create subcategory data
-            const subcategoryData = { id: 'perception-check', type: 'system' }
+            // Create group data
+            const groupData = { id: 'perception-check', type: 'system' }
 
             // Add actions to action list
-            this.addActionsToActionList(actions, subcategoryData)
+            this.addActions(actions, groupData)
         }
 
         /**
@@ -589,11 +588,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     encodedValue: [actionType, actionType].join(this.delimiter)
                 }]
 
-                // Create subcategory data
-                const subcategoryData = { id: 'recovery-check', type: 'system' }
+                // Create group data
+                const groupData = { id: 'recovery-check', type: 'system' }
 
                 // Add actions to action list
-                this.addActionsToActionList(actions, subcategoryData)
+                this.addActions(actions, groupData)
             }
         }
 
@@ -628,11 +627,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 })
             }
 
-            // Create subcategory data
-            const subcategoryData = { id: 'rests', type: 'system' }
+            // Create group data
+            const groupData = { id: 'rests', type: 'system' }
 
             // Add actions to action list
-            this.addActionsToActionList(actions, subcategoryData)
+            this.addActions(actions, groupData)
         }
 
         /**
@@ -663,11 +662,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
             })
 
-            // Get subcategory data
-            const subcategoryData = { id: 'saves', type: 'system' }
+            // Get group data
+            const groupData = { id: 'saves', type: 'system' }
 
             // Add actions to action list
-            this.addActionsToActionList(actions, subcategoryData)
+            this.addActions(actions, groupData)
         }
 
         /**
@@ -705,11 +704,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Loop through inventory subcateogry ids
             for (const [key, value] of skillsMap) {
-                const subcategoryId = key
+                const groupId = key
                 const skills = value
 
-                // Create subcategory data
-                const subcategoryData = { id: subcategoryId, type: 'system' }
+                // Create group data
+                const groupData = { id: groupId, type: 'system' }
 
                 // Get actions
                 const actions = [...skills].map(skill => {
@@ -735,7 +734,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 })
 
                 // Add actions to action list
-                this.addActionsToActionList(actions, subcategoryData)
+                this.addActions(actions, groupData)
             }
         }
 
@@ -758,50 +757,49 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async _buildSpells () {
             const actionType = 'spell'
 
-            // Create parent subcategory data
-            const parentSubcategoryData = { id: 'spells', type: 'system' }
+            // Create parent group data
+            const parentGroupData = { id: 'spells', type: 'system' }
 
             const spellcastingEntries = [...this.items].filter(item => item[1].type === 'spellcastingEntry')
 
             for (const spellcastingEntry of spellcastingEntries) {
-                const bookSubcategoryId = `spells+${spellcastingEntry[1].name.slugify({ replacement: '-', strict: true })}`
-                const bookSubcategoryName = spellcastingEntry[1].name
+                const bookGroupId = `spells+${spellcastingEntry[1].name.slugify({ replacement: '-', strict: true })}`
+                const bookGroupName = spellcastingEntry[1].name
                 const bookInfo1 = this._getSpellDcInfo(spellcastingEntry[1])
 
-                // Create book subcategory data
-                const bookSubcategoryData = {
-                    id: bookSubcategoryId,
-                    name: bookSubcategoryName,
+                // Create book group data
+                const bookGroupData = {
+                    id: bookGroupId,
+                    name: bookGroupName,
                     type: 'system-derived',
-                    info1: bookInfo1,
-                    hasDerivedSubcategories: true
+                    info1: bookInfo1
                 }
 
-                // Add subcategory to action list
-                await this.addSubcategoryToActionList(parentSubcategoryData, bookSubcategoryData)
+                // Add group to action list
+                await this.addGroup(bookGroupData, parentGroupData)
 
-                // Add spell slot info to subcategory
-                this.addSubcategoryInfo(bookSubcategoryData)
+                // Add spell slot info to group
+                this.addGroupInfo(bookGroupData)
 
                 const spellInfo = await (spellcastingEntry[1].getSpellData ? spellcastingEntry[1].getSpellData() : spellcastingEntry[1].getSheetData())
                 const activeLevels = spellInfo.levels.filter((level) => level.active.length > 0)
 
                 for (const level of Object.entries(activeLevels)) {
                     const spellLevel = level[1].level
-                    const levelSubcategoryId = `${bookSubcategoryId}+${spellLevel}`
-                    const levelSubcategoryName = String(coreModule.api.Utils.i18n(level[1].label))
+                    const levelGroupId = `${bookGroupId}+${spellLevel}`
+                    const levelGroupName = String(coreModule.api.Utils.i18n(level[1].label))
 
-                    // Create level subcategory data
-                    const levelSubcategoryData = {
-                        id: levelSubcategoryId,
-                        name: levelSubcategoryName,
+                    // Create level group data
+                    const levelGroupData = {
+                        id: levelGroupId,
+                        name: levelGroupName,
                         type: 'system-derived'
                     }
 
-                    // Add subcategory to action list
-                    await this.addSubcategoryToActionList(bookSubcategoryData, levelSubcategoryData)
+                    // Add group to action list
+                    await this.addGroup(levelGroupData, bookGroupData)
 
-                    await this._addSpellSlotInfo(bookSubcategoryData, levelSubcategoryData, level, spellInfo)
+                    await this._addSpellSlotInfo(bookGroupData, levelGroupData, level, spellInfo)
 
                     // Get available spells
                     const activeSpells = level[1].active
@@ -811,15 +809,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     const spellsMap = new Map(activeSpells.map(spell => [spell.id, spell]))
 
                     // Build actions
-                    await this._addActions(spellsMap, levelSubcategoryData, actionType, spellLevel)
+                    await this._addActions(spellsMap, levelGroupData, actionType, spellLevel)
                 }
             }
         }
 
         /** @private */
         async _addSpellSlotInfo (
-            bookSubcategoryData,
-            levelSubcategoryData,
+            bookGroupData,
+            levelGroupData,
             level,
             spellInfo
         ) {
@@ -842,10 +840,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const availableSlots = (spellSlot === 'focus') ? focus?.value : slots?.value
             const info1 = { text: (maxSlots >= 0) ? `${availableSlots ?? 0}/${maxSlots}` : '' }
 
-            levelSubcategoryData.info = { info1 }
+            levelGroupData.info = { info1 }
 
-            // Add subcategory info to the subcategory
-            this.addSubcategoryInfo(levelSubcategoryData)
+            // Add group info to the group
+            this.addGroupInfo(levelGroupData)
 
             const actionTypeName = coreModule.api.Utils.i18n(ACTION_TYPE.spell)
 
@@ -854,21 +852,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 {
                     id: `${spellInfo.id}>${spellSlot}>slotIncrease`,
                     name: '+',
-                    listName: `${actionTypeName}: ${bookSubcategoryData.name}: ${levelSubcategoryData.name}: +`,
+                    listName: `${actionTypeName}: ${bookGroupData.name}: ${levelGroupData.name}: +`,
                     encodedValue: [actionType, `${spellInfo.id}>${spellSlot}>slotIncrease`].join(this.delimiter),
                     cssClass: 'shrink'
                 },
                 {
                     id: `${spellInfo.id}>${spellSlot}>slotDecrease`,
                     name: '-',
-                    listName: `${actionTypeName}: ${bookSubcategoryData.name}: ${levelSubcategoryData.name}: -`,
+                    listName: `${actionTypeName}: ${bookGroupData.name}: ${levelGroupData.name}: -`,
                     encodedValue: [actionType, `${spellInfo.id}>${spellSlot}>slotDecrease`].join(this.delimiter),
                     cssClass: 'shrink'
                 }
             ]
 
             // Add actions to action list
-            this.addActionsToActionList(actions, levelSubcategoryData)
+            this.addActions(actions, levelGroupData)
         }
 
         /**
@@ -877,36 +875,34 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         _buildStrikes () {
             const actionType = 'strike'
 
-            // Create parent subcategory data
-            const parentSubcategoryData = { id: 'strikes', type: 'system' }
+            // Create parent group data
+            const parentGroupData = { id: 'strikes', type: 'system' }
 
             // Get strikes
-            let strikes = this.actor.system.actions
+            const strikes = this.actor.system.actions
                 .filter(action => action.type === actionType && (action.item.system.quantity > 0 || this.actor.type === 'npc'))
-            strikes = strikes
-                .filter((strike, index) => index === strikes.findIndex(other => strike.label === other.label && strike.attackRollType === other.attackRollType))
 
             // Exit if no strikes exist
             if (!strikes) return
 
             for (const strike of strikes) {
                 const strikeId = strike.item.id
-                const strikeSubcategoryId = `strikes+${encodeURIComponent(strike.label)}`
-                const strikeSubcategoryName = strike.label
+                const strikeGroupId = `strikes+${strikeId}`
+                const strikeGroupName = strike.label
+                const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ${strike.label} (${strike.item.id})`
 
-                // Create subcategory data
-                const strikeSubcategoryData = { id: strikeSubcategoryId, name: strikeSubcategoryName, hasDerivedSubcategories: true, type: 'system-derived' }
+                // Create group data
+                const strikeGroupData = { id: strikeGroupId, name: strikeGroupName, listName: strikeGroupListName, type: 'system-derived' }
 
-                // Add subcategory to action list
-                this.addSubcategoryToActionList(parentSubcategoryData, strikeSubcategoryData)
+                // Add group to action list
+                this.addGroup(strikeGroupData, parentGroupData)
 
                 if (strike.auxiliaryActions?.length) {
                     const actionType = 'auxAction'
                     const auxiliaryActionEntities = strike.auxiliaryActions.map((auxiliaryAction, index) => {
                         const id = encodeURIComponent(`${strikeId}>${index}>`)
                         const name = auxiliaryAction.label
-                        const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ${strikeSubcategoryName}: ` ?? ''
-                        const listName = `${actionTypeName}${name}`
+                        const listName = `${strikeGroupListName}: ${name}`
                         const actionIcon = auxiliaryAction.img
                         return { id, name, listName, actionIcon }
                     })
@@ -917,7 +913,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     const actions = auxiliaryActionEntities.map(entity => this._getAction(actionType, entity))
 
                     // Add actions to action list
-                    this.addActionsToActionList(actions, strikeSubcategoryData)
+                    this.addActions(actions, strikeGroupData)
                 }
 
                 const strikeUsages = (strike.altUsages) ? [strike, ...strike.altUsages] : [strike]
@@ -937,28 +933,29 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         usage = 'ranged'
                         break
                     }
-                    const usageSubcategoryId = `${strikeSubcategoryId}+${usage}`
-                    const usageSubcategoryName = (strikeUsage.attackRollType)
+                    const usageGroupId = `${strikeGroupId}+${usage}`
+                    const usageGroupName = (strikeUsage.attackRollType)
                         ? coreModule.api.Utils.i18n(strikeUsage.attackRollType)
                         : coreModule.api.Utils.i18n(STRIKE_USAGE[usage].name)
-                    const usageSubcategoryIcon = (usage !== 'thrown' && glyph)
+                    const usageGroupListName = `${strikeGroupListName}: ${usageGroupName}`
+                    const usageGroupIcon = (usage !== 'thrown' && glyph)
                         ? `<span style='font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);'>${glyph}</span>`
                         : STRIKE_ICON[usage]
-                    const advancedCategoryOptions = { showTitle: (strikeUsages.length > 1) }
+                    const settings = { showTitle: (strikeUsages.length > 1) }
 
-                    // Create subcategory data
-                    const usageSubcategoryData = {
-                        id: usageSubcategoryId,
-                        name: usageSubcategoryName,
-                        icon: usageSubcategoryIcon,
+                    // Create group data
+                    const usageGroupData = {
+                        id: usageGroupId,
+                        name: usageGroupName,
+                        listName: usageGroupListName,
+                        icon: usageGroupIcon,
                         type: 'system-derived',
-                        advancedCategoryOptions
+                        settings
                     }
 
-                    // Add subcategory to action list
-                    this.addSubcategoryToActionList(strikeSubcategoryData, usageSubcategoryData)
+                    // Add group to action list
+                    this.addGroup(usageGroupData, strikeGroupData)
 
-                    const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ${strikeSubcategoryName}: ${usageSubcategoryName}: ` ?? ''
                     const systemSelected = strikeUsage.ready
 
                     const entities = strikeUsage.variants.map((variant, index) => {
@@ -966,20 +963,20 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         const isMap = variant.label.includes('MAP')
                         const bonus = (isMap) ? strike.totalModifier + parseInt(variant.label.split(' ')[1]) : parseInt(variant.label.split(' ')[1])
                         const name = (this.calculateAttackPenalty) ? (bonus >= 0) ? `+${bonus}` : `${bonus}` : variant.label
-                        const listName = `${actionTypeName}${name}`
+                        const listName = `${usageGroupListName}: ${name}`
                         return { actionType, id, name, listName, systemSelected }
                     })
 
                     // Get Damage
                     const damageId = encodeURIComponent(`${strikeId}>damage>${usage}`)
                     const damageName = coreModule.api.Utils.i18n('PF2E.DamageLabel')
-                    const damageListName = `${actionTypeName}${damageName}`
+                    const damageListName = `${usageGroupListName}: ${damageName}`
                     entities.push({ actionType, id: damageId, name: damageName, listName: damageListName, systemSelected })
 
                     // Get Critical
                     const criticalId = encodeURIComponent(`${strikeId}>critical>${usage}`)
                     const criticalName = coreModule.api.Utils.i18n('PF2E.CriticalDamageLabel')
-                    const criticalListName = `${actionTypeName}${criticalName}`
+                    const criticalListName = `${usageGroupListName}: ${criticalName}`
                     entities.push({ actionType, id: criticalId, name: criticalName, listName: criticalListName, systemSelected })
 
                     // Get Ammo
@@ -989,7 +986,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         if (!item) {
                             const id = 'noAmmo'
                             const name = coreModule.api.Utils.i18n('tokenActionHud.pf2e.noAmmo')
-                            const listName = `${actionTypeName}${name}`
+                            const listName = `${usageGroupListName}: ${name}`
                             entities.push({ actionType, id, name, listName, systemSelected })
                         } else {
                             item.actionType = actionType
@@ -1001,7 +998,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     const actions = entities.map(entity => this._getAction(actionType, entity))
 
                     // Add actions to action list
-                    this.addActionsToActionList(actions, usageSubcategoryData)
+                    this.addActions(actions, usageGroupData)
                 }
             }
         }
@@ -1018,8 +1015,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // Exit if no toggles exist
             if (!toggles.length) return
 
-            // Create subcategory data
-            const subcategoryData = { id: 'toggles', type: 'system' }
+            // Create group data
+            const groupData = { id: 'toggles', type: 'system' }
 
             // Get actions
             const actions = toggles.map(toggle => {
@@ -1033,7 +1030,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             })
 
             // Add actions to action list
-            this.addActionsToActionList(actions, subcategoryData)
+            this.addActions(actions, groupData)
         }
 
         /**
@@ -1056,7 +1053,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         /** @private */
         /*
-    _addContainerSubcategories (tokenId, actionType, category, actor, items) {
+    _addContainerSublayout (tokenId, actionType, category, actor, items) {
         const allContainerIds = [
             ...new Set(
                 actor.items
@@ -1075,7 +1072,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 .sort(this.foundrySort)
             if (contents.length === 0) return
 
-            const containerCategory = this.initializeEmptySubcategory(containerId)
+            const containerCategory = this.initializeEmptyGroup(containerId)
             const containerActions = this._buildItemActions(
                 tokenId,
                 actionType,
@@ -1084,7 +1081,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             containerCategory.actions = containerActions
             containerCategory.info1 = container.system.bulkCapacity.value
 
-            this._combineSubcategoryWithCategory(
+            this._combineGroupWithCategory(
                 category,
                 container.name,
                 containerCategory
@@ -1096,22 +1093,22 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Build actions
          * @private
          * @param {object} items
-         * @param {object} subcategoryData
+         * @param {object} groupData
          * @param {string} actionType
          */
-        async _addActions (items, subcategoryData, actionType = 'item', spellLevel = null) {
+        async _addActions (items, groupData, actionType = 'item', spellLevel = null) {
         // Exit if there are no items
             if (items.size === 0) return
 
-            // Exit if there is no subcategoryId
-            const subcategoryId = (typeof subcategoryData === 'string' ? subcategoryData : subcategoryData?.id)
-            if (!subcategoryId) return
+            // Exit if there is no groupId
+            const groupId = (typeof groupData === 'string' ? groupData : groupData?.id)
+            if (!groupId) return
 
             // Get actions
             const actions = [...items].map(item => this._getAction(actionType, item[1], spellLevel))
 
             // Add actions to action list
-            await this.addActionsToActionList(actions, subcategoryData)
+            await this.addActions(actions, groupData)
         }
 
         /**

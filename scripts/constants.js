@@ -15,7 +15,7 @@ export const CORE_MODULE = {
 /**
  * Core module version required by the system module
  */
-export const REQUIRED_CORE_MODULE_VERSION = '1.3'
+export const REQUIRED_CORE_MODULE_VERSION = '1.4'
 
 /**
  * Action icons
@@ -102,39 +102,39 @@ export const STRIKE_USAGE = {
     thrown: { name: 'PF2E.TraitThrown' }
 }
 
-export const SUBCATEGORY = {
-    attack: { id: 'attack', name: 'PF2E.AttackLabel', type: 'system', hasDerivedSubcategories: false },
-    toggles: { id: 'toggles', name: 'PF2E.TogglesLabel', type: 'system', hasDerivedSubcategories: false },
-    strikes: { id: 'strikes', name: 'PF2E.StrikesLabel', type: 'system', hasDerivedSubcategories: true },
-    actions: { id: 'actions', name: 'PF2E.ActionsActionsHeader', type: 'system', hasDerivedSubcategories: false },
-    reactions: { id: 'reactions', name: 'PF2E.ActionsReactionsHeader', type: 'system', hasDerivedSubcategories: false },
-    freeActions: { id: 'free-actions', name: 'PF2E.ActionsFreeActionsHeader', type: 'system', hasDerivedSubcategories: false },
-    passives: { id: 'passives', name: 'PF2E.NPC.PassivesLabel', type: 'system', hasDerivedSubcategories: false },
-    weapons: { id: 'weapons', name: 'PF2E.InventoryWeaponsHeader', type: 'system', hasDerivedSubcategories: false },
-    armor: { id: 'armor', name: 'PF2E.InventoryArmorHeader', type: 'system', hasDerivedSubcategories: false },
-    equipment: { id: 'equipment', name: 'PF2E.InventoryEquipmentHeader', type: 'system', hasDerivedSubcategories: false },
-    consumables: { id: 'consumables', name: 'PF2E.InventoryConsumablesHeader', type: 'system', hasDerivedSubcategories: false },
-    containers: { id: 'containers', name: 'PF2E.InventoryBackpackHeader', type: 'system', hasDerivedSubcategories: true },
-    treasure: { id: 'treasure', name: 'PF2E.InventoryTreasureHeader', type: 'system', hasDerivedSubcategories: false },
-    ancestryFeatures: { id: 'ancestry-features', name: 'PF2E.FeaturesAncestryHeader', type: 'system', hasDerivedSubcategories: false },
-    classFeatures: { id: 'class-features', name: 'PF2E.FeaturesClassHeader', type: 'system', hasDerivedSubcategories: false },
-    ancestryFeats: { id: 'ancestry-feats', name: 'PF2E.FeatAncestryHeader', type: 'system', hasDerivedSubcategories: false },
-    classFeats: { id: 'class-feats', name: 'PF2E.FeatClassHeader', type: 'system', hasDerivedSubcategories: false },
-    skillFeats: { id: 'skill-feats', name: 'PF2E.FeatSkillHeader', type: 'system', hasDerivedSubcategories: false },
-    generalFeats: { id: 'general-feats', name: 'PF2E.FeatGeneralHeader', type: 'system', hasDerivedSubcategories: false },
-    bonusFeats: { id: 'bonus-feats', name: 'PF2E.FeatBonusHeader', type: 'system', hasDerivedSubcategories: false },
-    spells: { id: 'spells', name: 'PF2E.SpellLabelPlural', type: 'system', hasDerivedSubcategories: true },
-    heroPoints: { id: 'hero-points', name: 'PF2E.HeroPointsLabel', type: 'system', hasDerivedSubcategories: false },
-    initiative: { id: 'initiative', name: 'PF2E.InitiativeLabel', type: 'system', hasDerivedSubcategories: false },
-    perceptionCheck: { id: 'perception-check', name: 'PF2E.PerceptionLabel', type: 'system', hasDerivedSubcategories: false },
-    coreSkills: { id: 'core-skills', name: 'PF2E.CoreSkillsHeader', type: 'system', hasDerivedSubcategories: false },
-    loreSkills: { id: 'lore-skills', name: 'PF2E.LoreSkillsHeader', type: 'system', hasDerivedSubcategories: false },
-    conditions: { id: 'conditions', name: 'PF2E.ConditionsLabel', type: 'system', hasDerivedSubcategories: false },
-    effects: { id: 'effects', name: 'PF2E.EffectsLabel', type: 'system', hasDerivedSubcategories: false },
-    combat: { id: 'combat', name: 'tokenActionHud.combat', type: 'system', hasDerivedSubcategories: false },
-    token: { id: 'token', name: 'tokenActionHud.token', type: 'system', hasDerivedSubcategories: false },
-    recoveryCheck: { id: 'recovery-check', name: 'PF2E.Check.Specific.Recovery', type: 'system', hasDerivedSubcategories: false },
-    rests: { id: 'rests', name: 'tokenActionHud.pf2e.rests', type: 'system', hasDerivedSubcategories: false },
-    saves: { id: 'saves', name: 'PF2E.SavesHeader', type: 'system', hasDerivedSubcategories: false },
-    utility: { id: 'utility', name: 'tokenActionHud.utility', type: 'system', hasDerivedSubcategories: false }
+export const GROUP = {
+    attack: { id: 'attack', name: 'PF2E.AttackLabel', type: 'system' },
+    toggles: { id: 'toggles', name: 'PF2E.TogglesLabel', type: 'system' },
+    strikes: { id: 'strikes', name: 'PF2E.StrikesLabel', type: 'system' },
+    actions: { id: 'actions', name: 'PF2E.ActionsActionsHeader', type: 'system' },
+    reactions: { id: 'reactions', name: 'PF2E.ActionsReactionsHeader', type: 'system' },
+    freeActions: { id: 'free-actions', name: 'PF2E.ActionsFreeActionsHeader', type: 'system' },
+    passives: { id: 'passives', name: 'PF2E.NPC.PassivesLabel', type: 'system' },
+    weapons: { id: 'weapons', name: 'PF2E.InventoryWeaponsHeader', type: 'system' },
+    armor: { id: 'armor', name: 'PF2E.InventoryArmorHeader', type: 'system' },
+    equipment: { id: 'equipment', name: 'PF2E.InventoryEquipmentHeader', type: 'system' },
+    consumables: { id: 'consumables', name: 'PF2E.InventoryConsumablesHeader', type: 'system' },
+    containers: { id: 'containers', name: 'PF2E.InventoryBackpackHeader', type: 'system' },
+    treasure: { id: 'treasure', name: 'PF2E.InventoryTreasureHeader', type: 'system' },
+    ancestryFeatures: { id: 'ancestry-features', name: 'PF2E.FeaturesAncestryHeader', type: 'system' },
+    classFeatures: { id: 'class-features', name: 'PF2E.FeaturesClassHeader', type: 'system' },
+    ancestryFeats: { id: 'ancestry-feats', name: 'PF2E.FeatAncestryHeader', type: 'system' },
+    classFeats: { id: 'class-feats', name: 'PF2E.FeatClassHeader', type: 'system' },
+    skillFeats: { id: 'skill-feats', name: 'PF2E.FeatSkillHeader', type: 'system' },
+    generalFeats: { id: 'general-feats', name: 'PF2E.FeatGeneralHeader', type: 'system' },
+    bonusFeats: { id: 'bonus-feats', name: 'PF2E.FeatBonusHeader', type: 'system' },
+    spells: { id: 'spells', name: 'PF2E.SpellLabelPlural', type: 'system' },
+    heroPoints: { id: 'hero-points', name: 'PF2E.HeroPointsLabel', type: 'system' },
+    initiative: { id: 'initiative', name: 'PF2E.InitiativeLabel', type: 'system' },
+    perceptionCheck: { id: 'perception-check', name: 'PF2E.PerceptionLabel', type: 'system' },
+    coreSkills: { id: 'core-skills', name: 'PF2E.CoreSkillsHeader', type: 'system' },
+    loreSkills: { id: 'lore-skills', name: 'PF2E.LoreSkillsHeader', type: 'system' },
+    conditions: { id: 'conditions', name: 'PF2E.ConditionsLabel', type: 'system' },
+    effects: { id: 'effects', name: 'PF2E.EffectsLabel', type: 'system' },
+    combat: { id: 'combat', name: 'tokenActionHud.combat', type: 'system' },
+    token: { id: 'token', name: 'tokenActionHud.token', type: 'system' },
+    recoveryCheck: { id: 'recovery-check', name: 'PF2E.Check.Specific.Recovery', type: 'system' },
+    rests: { id: 'rests', name: 'tokenActionHud.pf2e.rests', type: 'system' },
+    saves: { id: 'saves', name: 'PF2E.SavesHeader', type: 'system' },
+    utility: { id: 'utility', name: 'tokenActionHud.utility', type: 'system' }
 }

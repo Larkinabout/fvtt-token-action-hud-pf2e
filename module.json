@@ -106,9 +106,9 @@
         "type": "module",
         "compatibility": [
           {
-            "minimum": "1.3.0",
-            "maximum": "1.3",
-            "verified": "1.3.0"
+            "minimum": "1.4.0",
+            "maximum": "1.4",
+            "verified": "1.4.0"
           }
         ]
       }
