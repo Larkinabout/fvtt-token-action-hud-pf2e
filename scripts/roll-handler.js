@@ -343,7 +343,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 strike.critical({ event })
                 break
             default:
-                strike.variants[strikeType]?.roll({ event })
+                strike.variants[strikeType]?.roll({ event, altUsage })
                 break
             }
         }
