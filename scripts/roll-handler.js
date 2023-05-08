@@ -315,7 +315,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             const strikeId = actionParts[0]
             const strikeType = actionParts[1]
-            const altUsage = actionParts[2] ? actionParts[2] : null
+            const usage = actionParts[2] ? actionParts[2] : null
+            let altUsage = null
 
             let strike = actor.system.actions
                 .filter(action => action.type === 'strike')
@@ -326,12 +327,20 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 if (item && item.id !== 'xxPF2ExUNARMEDxx') return this.doRenderItem(actor, item.id)
             }
 
-            if (altUsage !== null && strike.altUsages?.length) {
-                if (altUsage === 'melee' && !strike.item.isMelee) {
+            if (strike.altUsages?.length) {
+                switch (true) {
+                case usage === 'melee' && !strike.item.isMelee:
+                    altUsage = usage
                     strike = strike.altUsages.find(strike => strike.item.isMelee)
-                }
-                if (altUsage === 'thrown') {
+                    break
+                case usage === 'ranged' && !strike.item.isRanged:
+                    altUsage = usage
+                    strike = strike.altUsages.find(strike => strike.item.isRanged)
+                    break
+                case usage === 'thrown' && !strike.item.isThrown:
+                    altUsage = usage
                     strike = strike.altUsages.find(strike => strike.item.isThrown)
+                    break
                 }
             }
 
