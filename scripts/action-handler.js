@@ -886,7 +886,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (!strikes) return
 
             for (const strike of strikes) {
-                const strikeId = strike.item.id
+                const strikeId = `${strike.item.id}-${strike.slug}`
                 const strikeGroupId = `strikes+${strikeId}`
                 const strikeGroupName = strike.label
                 const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ${strike.label} (${strike.item.id})`
@@ -900,7 +900,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 if (strike.auxiliaryActions?.length) {
                     const actionType = 'auxAction'
                     const auxiliaryActionEntities = strike.auxiliaryActions.map((auxiliaryAction, index) => {
-                        const id = encodeURIComponent(`${strikeId}>${index}>`)
+                        const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>`)
                         const name = auxiliaryAction.label
                         const listName = `${strikeGroupListName}: ${name}`
                         const actionIcon = auxiliaryAction.img
@@ -959,7 +959,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     const systemSelected = strikeUsage.ready
 
                     const entities = strikeUsage.variants.map((variant, index) => {
-                        const id = encodeURIComponent(`${strikeId}>${index}>` + usage)
+                        const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>` + usage)
                         const isMap = variant.label.includes('MAP')
                         const bonus = (isMap) ? strike.totalModifier + parseInt(variant.label.split(' ')[1]) : parseInt(variant.label.split(' ')[1])
                         const name = (this.calculateAttackPenalty) ? (bonus >= 0) ? `+${bonus}` : `${bonus}` : variant.label
@@ -968,13 +968,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     })
 
                     // Get Damage
-                    const damageId = encodeURIComponent(`${strikeId}>damage>${usage}`)
+                    const damageId = encodeURIComponent(`${strike.item.id}>${strike.slug}>damage>${usage}`)
                     const damageName = coreModule.api.Utils.i18n('PF2E.DamageLabel')
                     const damageListName = `${usageGroupListName}: ${damageName}`
                     entities.push({ actionType, id: damageId, name: damageName, listName: damageListName, systemSelected })
 
                     // Get Critical
-                    const criticalId = encodeURIComponent(`${strikeId}>critical>${usage}`)
+                    const criticalId = encodeURIComponent(`${strike.item.id}>${strike.slug}>critical>${usage}`)
                     const criticalName = coreModule.api.Utils.i18n('PF2E.CriticalDamageLabel')
                     const criticalListName = `${usageGroupListName}: ${criticalName}`
                     entities.push({ actionType, id: criticalId, name: criticalName, listName: criticalListName, systemSelected })
