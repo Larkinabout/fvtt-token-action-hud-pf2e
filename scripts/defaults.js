@@ -9,7 +9,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     const groups = GROUP
     Object.values(groups).forEach(group => {
         group.name = coreModule.api.Utils.i18n(group.name)
-        group.listName = `Group: ${coreModule.api.Utils.i18n(group.name)}`
+        group.listName = `Group: ${coreModule.api.Utils.i18n(group.listName ?? group.name)}`
     })
     const groupsArray = Object.values(groups)
     DEFAULTS = {
@@ -23,12 +23,20 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 ]
             },
             {
+                nestId: 'strikes',
+                id: 'strikes',
+                name: coreModule.api.Utils.i18n('PF2E.StrikesLabel'),
+                groups: [
+                    { ...groups.toggles, nestId: 'strikes_toggles' },
+                    { ...groups.strikes, nestId: 'strikes_strikes' }
+                ],
+                settings: { customWidth: 500 }
+            },
+            {
                 nestId: 'actions',
                 id: 'actions',
                 name: coreModule.api.Utils.i18n('PF2E.ActionsActionsHeader'),
                 groups: [
-                    { ...groups.toggles, nestId: 'actions_toggles' },
-                    { ...groups.strikes, nestId: 'actions_strikes' },
                     { ...groups.actions, nestId: 'actions_actions' },
                     { ...groups.reactions, nestId: 'actions_reactions' },
                     { ...groups.freeActions, nestId: 'actions_free-actions' },

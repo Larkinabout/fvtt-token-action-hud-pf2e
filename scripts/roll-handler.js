@@ -313,14 +313,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         _rollStrikeChar (event, actor, actionId) {
             const actionParts = decodeURIComponent(actionId).split('>')
 
-            const strikeId = actionParts[0]
-            const strikeType = actionParts[1]
-            const usage = actionParts[2] ? actionParts[2] : null
+            const itemId = actionParts[0]
+            const slug = actionParts[1]
+            const strikeType = actionParts[2]
+            const usage = actionParts[3] ? actionParts[3] : null
             let altUsage = null
 
             let strike = actor.system.actions
                 .filter(action => action.type === 'strike')
-                .find(strike => (strike.item.id ?? strike.slug) === strikeId)
+                .find(strike => strike.item.id === itemId && strike.slug === slug)
 
             if (this.isRenderItem()) {
                 const item = strike.item
@@ -367,21 +368,22 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         _performAuxAction (actor, actionId) {
             const actionParts = decodeURIComponent(actionId).split('>')
 
-            const strikeId = actionParts[0]
-            const strikeType = actionParts[1]
-            const strikeUsage = actionParts[2]
+            const itemId = actionParts[0]
+            const slug = actionParts[1]
+            const strikeType = actionParts[2]
+            const usage = actionParts[3] ? actionParts[3] : null
 
             let strike = actor.system.actions
                 .filter(action => action.type === 'strike')
-                .find(strike => (strike.item.id ?? strike.slug) === strikeId)
+                .find(strike => strike.item.id === itemId && strike.slug === slug)
 
             if (this.isRenderItem()) {
                 const item = strike.origin
                 if (item) return this.doRenderItem(actor, item.id)
             }
 
-            if (strikeUsage !== '') {
-                strike = strike[strikeUsage]
+            if (usage) {
+                strike = strike[usage]
             }
 
             strike.auxiliaryActions[strikeType]?.execute()
@@ -398,10 +400,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         _rollStrikeNpc (event, actor, actionId) {
             const actionParts = decodeURIComponent(actionId).split('>')
 
-            const strikeId = actionParts[0]
-            const strikeType = actionParts[1]
+            const itemId = actionParts[0]
+            const slug = actionParts[1]
+            const strikeType = actionParts[2]
 
-            if (strikeId === 'plus') {
+            const strike = actor.system.actions
+                .filter(action => action.type === 'strike')
+                .find(strike => strike.item.id === itemId && strike.slug === slug)
+
+            if (itemId === 'plus') {
                 const item = actor.items.find(
                     (item) =>
                         strikeType
@@ -417,9 +424,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 return
             }
 
-            if (this.isRenderItem()) return this.doRenderItem(actor, strikeId)
-
-            const strike = actor.items.get(strikeId)
+            if (this.isRenderItem()) return this.doRenderItem(actor, itemId)
 
             switch (strikeType) {
             case 'damage':

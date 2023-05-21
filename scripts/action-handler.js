@@ -1,5 +1,5 @@
 // System Module Imports
-import { ACTION_ICON, ACTION_TYPE, SKILL_ABBREVIATION, STRIKE_ICON, STRIKE_USAGE } from './constants.js'
+import { ACTION_ICON, ACTION_TYPE, SKILL_ABBREVIATION, SKILL, SKILL_ACTION, STRIKE_ICON, STRIKE_USAGE } from './constants.js'
 import { Utils } from './utils.js'
 
 export let ActionHandler = null
@@ -92,6 +92,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this._buildRecoveryCheck()
             this._buildRests()
             this._buildSaves()
+            this._buildSkillActions()
             this._buildSkills()
             await this._buildSpells()
             this._buildStrikes()
@@ -126,6 +127,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this._buildInventory()
             this._buildPerceptionCheck()
             this._buildSaves()
+            this._buildSkillActions()
             this._buildSkills()
             this._buildStrikes()
             await this._buildSpells()
@@ -140,6 +142,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this._buildInitiative()
             this._buildPerceptionCheck()
             this._buildSaves()
+            this._buildSkillActions()
             this._buildSkills()
         }
 
@@ -670,6 +673,82 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
+         * Build skill actions
+         * @private
+         */
+        async _buildSkillActions () {
+            const actionType = 'compendiumMacro'
+
+            // Get skill actions
+            const actionMacros = await game.packs.get('pf2e.action-macros').getIndex()
+
+            if (!actionMacros.size) return
+
+            const skillActionsMap = new Map()
+
+            const actions = []
+
+            for (const actionMacro of actionMacros) {
+                const skillAction = SKILL_ACTION[actionMacro._id]
+
+                if (!skillAction) continue
+
+                const id = actionMacro._id
+                const actionName = coreModule.api.Utils.i18n(skillAction.name)
+                const skillName = coreModule.api.Utils.i18n(SKILL[skillAction.skill]?.name)
+                const name = `${actionName} - ${skillName}`
+                const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE.skillAction)}: ` ?? ''
+                const listName = `${actionTypeName}${name}`
+                const encodedValue = [actionType, 'pf2e.action-macros', id].join(this.delimiter)
+                const icon1 = this._getActionIcon(skillAction.actionCost)
+                const img = skillAction.image
+                const mod = this.actor?.skills[skillAction.skill]?.check?.mod
+                const info1 = (this.actor) ? { text: (mod || mod === 0) ? `${(mod >= 0) ? '+' : ''}${mod}` : '' } : ''
+
+                const action = {
+                    id,
+                    name,
+                    listName,
+                    encodedValue,
+                    icon1,
+                    img,
+                    info1
+                }
+
+                // Get actions
+                actions.push(action)
+
+                if (!skillActionsMap.has(skillAction.skill)) skillActionsMap.set(skillAction.skill, new Map())
+                skillActionsMap.get(skillAction.skill).set(actionMacro._id, { ...action, name: actionName })
+            }
+
+            // Add actions to HUD
+            this.addActions(actions, { id: 'skill-actions-ungrouped', type: 'system' })
+
+            for (const [key, value] of Object.entries(SKILL)) {
+                const groupId = key
+                const groupName = coreModule.api.Utils.i18n(value.name)
+                const skillActions = skillActionsMap.get(groupId)
+
+                if (!skillActions) continue
+
+                // Create group data
+                const groupData = { id: groupId, name: groupName, type: 'system-derived' }
+
+                // Add group to HUD
+                await this.addGroup(groupData, { id: 'skill-actions-grouped', type: 'system' })
+
+                // Get actions
+                const actions = [...skillActions].map(skillAction => {
+                    return skillAction[1]
+                })
+
+                // Add actions to HUD
+                this.addActions(actions, groupData)
+            }
+        }
+
+        /**
          * Build skills
          * @private
          */
@@ -886,7 +965,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (!strikes) return
 
             for (const strike of strikes) {
-                const strikeId = strike.item.id
+                const strikeId = `${strike.item.id}-${strike.slug}`
                 const strikeGroupId = `strikes+${strikeId}`
                 const strikeGroupName = strike.label
                 const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ${strike.label} (${strike.item.id})`
@@ -900,7 +979,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 if (strike.auxiliaryActions?.length) {
                     const actionType = 'auxAction'
                     const auxiliaryActionEntities = strike.auxiliaryActions.map((auxiliaryAction, index) => {
-                        const id = encodeURIComponent(`${strikeId}>${index}>`)
+                        const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>`)
                         const name = auxiliaryAction.label
                         const listName = `${strikeGroupListName}: ${name}`
                         const actionIcon = auxiliaryAction.img
@@ -959,7 +1038,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     const systemSelected = strikeUsage.ready
 
                     const entities = strikeUsage.variants.map((variant, index) => {
-                        const id = encodeURIComponent(`${strikeId}>${index}>` + usage)
+                        const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>` + usage)
                         const isMap = variant.label.includes('MAP')
                         const bonus = (isMap) ? strike.totalModifier + parseInt(variant.label.split(' ')[1]) : parseInt(variant.label.split(' ')[1])
                         const name = (this.calculateAttackPenalty) ? (bonus >= 0) ? `+${bonus}` : `${bonus}` : variant.label
@@ -968,13 +1047,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     })
 
                     // Get Damage
-                    const damageId = encodeURIComponent(`${strikeId}>damage>${usage}`)
+                    const damageId = encodeURIComponent(`${strike.item.id}>${strike.slug}>damage>${usage}`)
                     const damageName = coreModule.api.Utils.i18n('PF2E.DamageLabel')
                     const damageListName = `${usageGroupListName}: ${damageName}`
                     entities.push({ actionType, id: damageId, name: damageName, listName: damageListName, systemSelected })
 
                     // Get Critical
-                    const criticalId = encodeURIComponent(`${strikeId}>critical>${usage}`)
+                    const criticalId = encodeURIComponent(`${strike.item.id}>${strike.slug}>critical>${usage}`)
                     const criticalName = coreModule.api.Utils.i18n('PF2E.CriticalDamageLabel')
                     const criticalListName = `${usageGroupListName}: ${criticalName}`
                     entities.push({ actionType, id: criticalId, name: criticalName, listName: criticalListName, systemSelected })

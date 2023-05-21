@@ -6,6 +6,10 @@
       "noAmmo": "No Ammo",
       "rests": "休息",
       "save": "Save",
+      "skillAction": "Skill Action",
+      "skillActions": "Skill Actions",
+      "skillActionsGrouped": "Grouped Skill Actions",
+      "skillActionsUngrouped": "Ungrouped Skill Actions",
       "takeBreather": "小憩一刻",
       "toggle": "Toggle",
       "settings": {

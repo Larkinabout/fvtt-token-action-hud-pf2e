@@ -6,6 +6,10 @@
       "noAmmo": "No Ammo",
       "rests": "Rests",
       "save": "Save",
+      "skillAction": "Skill Action",
+      "skillActions": "Skill Actions",
+      "skillActionsGrouped": "Grouped Skill Actions",
+      "skillActionsUngrouped": "Ungrouped Skill Actions",
       "takeBreather": "Take a Breather",
       "toggle": "Toggle",
       "settings": {
