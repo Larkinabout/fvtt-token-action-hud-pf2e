@@ -700,6 +700,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE.skillAction)}: ` ?? ''
                 const listName = `${actionTypeName}${name}`
                 const encodedValue = [actionType, 'pf2e.action-macros', id].join(this.delimiter)
+                const icon1 = this._getActionIcon(skillAction.actionCost)
                 const img = skillAction.image
                 const mod = this.actor?.skills[skillAction.skill]?.check?.mod
                 const info1 = (this.actor) ? { text: (mod || mod === 0) ? `${(mod >= 0) ? '+' : ''}${mod}` : '' } : ''
@@ -709,6 +710,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     name,
                     listName,
                     encodedValue,
+                    icon1,
                     img,
                     info1
                 }
