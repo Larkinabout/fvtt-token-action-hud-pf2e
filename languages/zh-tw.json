@@ -1,13 +1,25 @@
 {
   "tokenActionHud": {
     "pf2e": {
+      "attribute": "Attribute",
       "attributes": "屬性",
+      "noAmmo": "No Ammo",
       "rests": "休息",
+      "save": "Save",
+      "skillAction": "Skill Action",
+      "skillActions": "Skill Actions",
+      "skillActionsGrouped": "Grouped Skill Actions",
+      "skillActionsUngrouped": "Ungrouped Skill Actions",
       "takeBreather": "小憩一刻",
+      "toggle": "Toggle",
       "settings": {
         "calculateAttackPenalty": {
           "hint": "為打擊顯示自動計算的攻擊減值 (即攻擊加值-多重攻擊減值)",
           "name": "顯示多重攻擊減值"
+        },
+        "colorSkills": {
+          "hint": "Color skills based on its rank",
+          "name": "Color skills based on its rank"
         }
       }
     }

@@ -1,5 +1,5 @@
 // System Module Imports
-import { ACTION_ICON, ACTION_TYPE, SKILL_ABBREVIATION, STRIKE_ICON, STRIKE_USAGE } from './constants.js'
+import { ACTION_ICON, ACTION_TYPE, SKILL_ABBREVIATION, SKILL, SKILL_ACTION, STRIKE_ICON, STRIKE_USAGE } from './constants.js'
 import { Utils } from './utils.js'
 
 export let ActionHandler = null
@@ -92,6 +92,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this._buildRecoveryCheck()
             this._buildRests()
             this._buildSaves()
+            this._buildSkillActions()
             this._buildSkills()
             await this._buildSpells()
             this._buildStrikes()
@@ -126,6 +127,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this._buildInventory()
             this._buildPerceptionCheck()
             this._buildSaves()
+            this._buildSkillActions()
             this._buildSkills()
             this._buildStrikes()
             await this._buildSpells()
@@ -140,6 +142,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this._buildInitiative()
             this._buildPerceptionCheck()
             this._buildSaves()
+            this._buildSkillActions()
             this._buildSkills()
         }
 
@@ -667,6 +670,80 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Add actions to action list
             this.addActions(actions, groupData)
+        }
+
+        /**
+         * Build skill actions
+         * @private
+         */
+        async _buildSkillActions () {
+            const actionType = 'compendiumMacro'
+
+            // Get skill actions
+            const actionMacros = await game.packs.get('pf2e.action-macros').getIndex()
+
+            if (!actionMacros.size) return
+
+            const skillActionsMap = new Map()
+
+            const actions = []
+
+            for (const actionMacro of actionMacros) {
+                const skillAction = SKILL_ACTION[actionMacro._id]
+
+                if (!skillAction) continue
+
+                const id = actionMacro._id
+                const actionName = coreModule.api.Utils.i18n(skillAction.name)
+                const skillName = coreModule.api.Utils.i18n(SKILL[skillAction.skill]?.name)
+                const name = `${actionName} - ${skillName}`
+                const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE.skillAction)}: ` ?? ''
+                const listName = `${actionTypeName}${name}`
+                const encodedValue = [actionType, 'pf2e.action-macros', id].join(this.delimiter)
+                const img = skillAction.image
+                const mod = this.actor?.skills[skillAction.skill]?.check?.mod
+                const info1 = (this.actor) ? { text: (mod || mod === 0) ? `${(mod >= 0) ? '+' : ''}${mod}` : '' } : ''
+
+                const action = {
+                    id,
+                    name,
+                    listName,
+                    encodedValue,
+                    img,
+                    info1
+                }
+
+                // Get actions
+                actions.push(action)
+
+                if (!skillActionsMap.has(skillAction.skill)) skillActionsMap.set(skillAction.skill, new Map())
+                skillActionsMap.get(skillAction.skill).set(actionMacro._id, { ...action, name: actionName })
+            }
+
+            // Add actions to HUD
+            this.addActions(actions, { id: 'skill-actions-ungrouped', type: 'system' })
+
+            for (const [key, value] of Object.entries(SKILL)) {
+                const groupId = key
+                const groupName = coreModule.api.Utils.i18n(value.name)
+                const skillActions = skillActionsMap.get(groupId)
+
+                if (!skillActions) continue
+
+                // Create group data
+                const groupData = { id: groupId, name: groupName, type: 'system-derived' }
+
+                // Add group to HUD
+                await this.addGroup(groupData, { id: 'skill-actions-grouped', type: 'system' })
+
+                // Get actions
+                const actions = [...skillActions].map(skillAction => {
+                    return skillAction[1]
+                })
+
+                // Add actions to HUD
+                this.addActions(actions, groupData)
+            }
         }
 
         /**
