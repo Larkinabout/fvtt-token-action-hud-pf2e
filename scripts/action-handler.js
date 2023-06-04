@@ -211,7 +211,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (attack) {
                 const id = attack.slug
-                const name = attack.label.charAt(0).toUpperCase() + attack.label.slice(1)
+                const name = attack.name.charAt(0).toUpperCase() + attack.name.slice(1)
                 const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
                 const listName = `${actionTypeName}${name}`
                 const encodedValue = [actionType, id].join(this.delimiter)
