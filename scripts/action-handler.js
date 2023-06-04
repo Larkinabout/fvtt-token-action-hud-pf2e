@@ -1,5 +1,5 @@
 // System Module Imports
-import { ACTION_ICON, ACTION_TYPE, SKILL_ABBREVIATION, SKILL, SKILL_ACTION, STRIKE_ICON, STRIKE_USAGE } from './constants.js'
+import { ACTION_ICON, ACTION_TYPE, MODULAR_OPTION, SKILL_ABBREVIATION, SKILL, SKILL_ACTION, STRIKE_ICON, STRIKE_USAGE } from './constants.js'
 import { Utils } from './utils.js'
 
 export let ActionHandler = null
@@ -19,6 +19,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         abbreviateSkills = null
         calculateAttackPenalty = null
         colorSkills = null
+        showStrikeNames = null
 
         // Initialize groupIds variables
         groupIds = null
@@ -57,6 +58,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.abbreviateSkills = Utils.getSetting('abbreviateSkills')
             this.calculateAttackPenalty = Utils.getSetting('calculateAttackPenalty')
             this.colorSkills = Utils.getSetting('colorSkills')
+            this.showStrikeNames = Utils.getSetting('showStrikeNames')
 
             // Set group variables
             this.groupIds = groupIds
@@ -209,7 +211,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (attack) {
                 const id = attack.slug
-                const name = attack.name.charAt(0).toUpperCase() + attack.name.slice(1)
+                const name = attack.label.charAt(0).toUpperCase() + attack.label.slice(1)
                 const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
                 const listName = `${actionTypeName}${name}`
                 const encodedValue = [actionType, id].join(this.delimiter)
@@ -969,24 +971,38 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const strikeGroupId = `strikes+${strikeId}`
                 const strikeGroupName = strike.label
                 const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ${strike.label} (${strike.item.id})`
-
+                const image = strike.imageUrl
+                const showTitle = this.showStrikeNames
                 // Create group data
-                const strikeGroupData = { id: strikeGroupId, name: strikeGroupName, listName: strikeGroupListName, type: 'system-derived' }
+                const strikeGroupData = { id: strikeGroupId, name: strikeGroupName, listName: strikeGroupListName, type: 'system-derived', settings: { image, showTitle } }
 
                 // Add group to action list
                 this.addGroup(strikeGroupData, parentGroupData)
 
                 if (strike.auxiliaryActions?.length) {
                     const actionType = 'auxAction'
-                    const auxiliaryActionEntities = strike.auxiliaryActions.map((auxiliaryAction, index) => {
-                        const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>`)
-                        const name = auxiliaryAction.label
-                        const listName = `${strikeGroupListName}: ${name}`
-                        const actionIcon = auxiliaryAction.img
-                        return { id, name, listName, actionIcon }
-                    })
-                    const image = { img: strike.imageUrl }
-                    if (auxiliaryActionEntities[0]) auxiliaryActionEntities[0].img = coreModule.api.Utils.getImage(image)
+                    const auxiliaryActionEntities = []
+                    for (const [index, auxiliaryAction] of strike.auxiliaryActions.entries()) {
+                        if (auxiliaryAction.purpose === 'Modular') {
+                            const modularOptions = strike.item.system.traits.toggles.modular.options
+                            const modularSelection = strike.item.system.traits.toggles.modular.selection
+                            const modularEntities = modularOptions.map(modularOption => {
+                                const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>${modularOption}`)
+                                const name = coreModule.api.Utils.i18n(MODULAR_OPTION[modularOption])
+                                const listName = `${strikeGroupListName}: ${name}`
+                                const actionIcon = auxiliaryAction.glyph
+                                const selected = modularOption === modularSelection
+                                return { id, name, listName, actionIcon, selected }
+                            })
+                            auxiliaryActionEntities.push(...modularEntities)
+                        } else {
+                            const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>`)
+                            const name = auxiliaryAction.label
+                            const listName = `${strikeGroupListName}: ${name}`
+                            const actionIcon = auxiliaryAction.glyph
+                            auxiliaryActionEntities.push({ id, name, listName, actionIcon })
+                        }
+                    }
 
                     // Get actions
                     const actions = auxiliaryActionEntities.map(entity => this._getAction(actionType, entity))
@@ -995,89 +1011,109 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     this.addActions(actions, strikeGroupData)
                 }
 
-                const strikeUsages = (strike.altUsages) ? [strike, ...strike.altUsages] : [strike]
+                if (strike.ready) {
+                    if (strike.versatileOptions?.length) {
+                        const actionType = 'versatileOption'
+                        const versatileOptionEntities = strike.versatileOptions.map(versatileOption => {
+                            const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${versatileOption.value}>`)
+                            const name = ''
+                            const label = coreModule.api.Utils.i18n(versatileOption.label)
+                            const fullName = label
+                            const listName = `${strikeGroupListName}: ${label}`
+                            const actionIcon = versatileOption.glyph
+                            const selected = versatileOption.selected
+                            return { id, name, fullName, listName, actionIcon, selected }
+                        })
 
-                for (const strikeUsage of strikeUsages) {
-                    const glyph = strike.glyph
-                    const encodedUsage = `${strikeUsage.item.isMelee}_${strikeUsage.item.isThrown}_${strikeUsage.item.isRanged}`
-                    let usage
-                    switch (encodedUsage) {
-                    case 'true_false_false':
-                        usage = 'melee'
-                        break
-                    case 'false_true_true':
-                        usage = 'thrown'
-                        break
-                    case 'false_false_true':
-                        usage = 'ranged'
-                        break
-                    }
-                    const usageGroupId = `${strikeGroupId}+${usage}`
-                    const usageGroupName = (strikeUsage.attackRollType)
-                        ? coreModule.api.Utils.i18n(strikeUsage.attackRollType)
-                        : coreModule.api.Utils.i18n(STRIKE_USAGE[usage].name)
-                    const usageGroupListName = `${strikeGroupListName}: ${usageGroupName}`
-                    const usageGroupIcon = (usage !== 'thrown' && glyph)
-                        ? `<span style='font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);'>${glyph}</span>`
-                        : STRIKE_ICON[usage]
-                    const settings = { showTitle: (strikeUsages.length > 1) }
+                        // Get actions
+                        const actions = versatileOptionEntities.map(entity => this._getAction(actionType, entity))
 
-                    // Create group data
-                    const usageGroupData = {
-                        id: usageGroupId,
-                        name: usageGroupName,
-                        listName: usageGroupListName,
-                        icon: usageGroupIcon,
-                        type: 'system-derived',
-                        settings
+                        // Add actions to action list
+                        this.addActions(actions, strikeGroupData)
                     }
 
-                    // Add group to action list
-                    this.addGroup(usageGroupData, strikeGroupData)
+                    const strikeUsages = (strike.altUsages) ? [strike, ...strike.altUsages] : [strike]
 
-                    const systemSelected = strikeUsage.ready
-
-                    const entities = strikeUsage.variants.map((variant, index) => {
-                        const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>` + usage)
-                        const isMap = variant.label.includes('MAP')
-                        const bonus = (isMap) ? strike.totalModifier + parseInt(variant.label.split(' ')[1]) : parseInt(variant.label.split(' ')[1])
-                        const name = (this.calculateAttackPenalty) ? (bonus >= 0) ? `+${bonus}` : `${bonus}` : variant.label
-                        const listName = `${usageGroupListName}: ${name}`
-                        return { actionType, id, name, listName, systemSelected }
-                    })
-
-                    // Get Damage
-                    const damageId = encodeURIComponent(`${strike.item.id}>${strike.slug}>damage>${usage}`)
-                    const damageName = coreModule.api.Utils.i18n('PF2E.DamageLabel')
-                    const damageListName = `${usageGroupListName}: ${damageName}`
-                    entities.push({ actionType, id: damageId, name: damageName, listName: damageListName, systemSelected })
-
-                    // Get Critical
-                    const criticalId = encodeURIComponent(`${strike.item.id}>${strike.slug}>critical>${usage}`)
-                    const criticalName = coreModule.api.Utils.i18n('PF2E.CriticalDamageLabel')
-                    const criticalListName = `${usageGroupListName}: ${criticalName}`
-                    entities.push({ actionType, id: criticalId, name: criticalName, listName: criticalListName, systemSelected })
-
-                    // Get Ammo
-                    if (strikeUsage.selectedAmmoId && !strikeUsage.ammunition) {
-                        const item = this.actor.items.get(strikeUsage.selectedAmmoId)
-
-                        if (!item) {
-                            const id = 'noAmmo'
-                            const name = coreModule.api.Utils.i18n('tokenActionHud.pf2e.noAmmo')
-                            const listName = `${usageGroupListName}: ${name}`
-                            entities.push({ actionType, id, name, listName, systemSelected })
-                        } else {
-                            item.actionType = actionType
-                            entities.push(item)
+                    for (const strikeUsage of strikeUsages) {
+                        const glyph = strike.glyph
+                        const encodedUsage = `${strikeUsage.item.isMelee}_${strikeUsage.item.isThrown}_${strikeUsage.item.isRanged}`
+                        let usage
+                        switch (encodedUsage) {
+                        case 'true_false_false':
+                            usage = 'melee'
+                            break
+                        case 'false_true_true':
+                            usage = 'thrown'
+                            break
+                        case 'false_false_true':
+                            usage = 'ranged'
+                            break
                         }
+                        const usageGroupId = `${strikeGroupId}+${usage}`
+                        const usageGroupName = (strikeUsage.attackRollType)
+                            ? coreModule.api.Utils.i18n(strikeUsage.attackRollType)
+                            : coreModule.api.Utils.i18n(STRIKE_USAGE[usage].name)
+                        const usageGroupListName = `${strikeGroupListName}: ${usageGroupName}`
+                        const usageGroupIcon = (usage !== 'thrown' && glyph)
+                            ? `<span style='font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);'>${glyph}</span>`
+                            : STRIKE_ICON[usage]
+                        const settings = { showTitle: (usage !== 'melee' && strikeUsages.length > 1) }
+
+                        // Create group data
+                        const usageGroupData = {
+                            id: usageGroupId,
+                            name: usageGroupName,
+                            listName: usageGroupListName,
+                            icon: usageGroupIcon,
+                            type: 'system-derived',
+                            settings
+                        }
+
+                        // Add group to action list
+                        this.addGroup(usageGroupData, strikeGroupData)
+
+                        const entities = strikeUsage.variants.map((variant, index) => {
+                            const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>` + usage)
+                            const isMap = variant.label.includes('MAP')
+                            const bonus = (isMap) ? strike.totalModifier + parseInt(variant.label.split(' ')[1]) : parseInt(variant.label.split(' ')[1])
+                            const name = (this.calculateAttackPenalty) ? (bonus >= 0) ? `+${bonus}` : `${bonus}` : variant.label
+                            const listName = `${usageGroupListName}: ${name}`
+                            return { actionType, id, name, listName }
+                        })
+
+                        // Get Damage
+                        const damageId = encodeURIComponent(`${strike.item.id}>${strike.slug}>damage>${usage}`)
+                        const damageName = coreModule.api.Utils.i18n('PF2E.DamageLabel')
+                        const damageListName = `${usageGroupListName}: ${damageName}`
+                        entities.push({ actionType, id: damageId, name: damageName, listName: damageListName })
+
+                        // Get Critical
+                        const criticalId = encodeURIComponent(`${strike.item.id}>${strike.slug}>critical>${usage}`)
+                        const criticalName = coreModule.api.Utils.i18n('PF2E.CriticalDamageLabel')
+                        const criticalListName = `${usageGroupListName}: ${criticalName}`
+                        entities.push({ actionType, id: criticalId, name: criticalName, listName: criticalListName })
+
+                        // Get Ammo
+                        if (strikeUsage.selectedAmmoId && !strikeUsage.ammunition) {
+                            const item = this.actor.items.get(strikeUsage.selectedAmmoId)
+
+                            if (!item) {
+                                const id = 'noAmmo'
+                                const name = coreModule.api.Utils.i18n('tokenActionHud.pf2e.noAmmo')
+                                const listName = `${usageGroupListName}: ${name}`
+                                entities.push({ actionType, id, name, listName })
+                            } else {
+                                item.actionType = actionType
+                                entities.push(item)
+                            }
+                        }
+
+                        // Get actions
+                        const actions = entities.map(entity => this._getAction(actionType, entity))
+
+                        // Add actions to action list
+                        this.addActions(actions, usageGroupData)
                     }
-
-                    // Get actions
-                    const actions = entities.map(entity => this._getAction(actionType, entity))
-
-                    // Add actions to action list
-                    this.addActions(actions, usageGroupData)
                 }
             }
         }
@@ -1199,12 +1235,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         _getAction (actionType, entity, spellLevel) {
             const id = (actionType === 'spell') ? `${entity.id ?? entity._id}-${spellLevel}` : entity.id ?? entity._id
-            const name = entity?.name ?? entity?.label
+            const name = entity?.name ?? entity?.label ?? ''
+            const fullName = entity?.fullName
             const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
             const listName = entity.listName ?? `${actionTypeName}${name}`
             let cssClass = ''
             if (Object.hasOwn(entity, 'disabled')) {
                 const active = (!entity.disabled) ? ' active' : ''
+                cssClass = `toggle${active}`
+            }
+            if (Object.hasOwn(entity, 'selected')) {
+                const active = (entity.selected) ? ' active' : ''
                 cssClass = `toggle${active}`
             }
             const spellcastingId = entity?.spellcasting?.id
@@ -1217,7 +1258,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const timeValue = entity.system?.time?.value
             const actionIcon = entity.actionIcon
             const iconType = (actionType === 'spell') ? timeValue : (actionTypes.includes(actionTypeValue)) ? actionTypeValue : actionsCost ?? actionIcon
-            const icon1 = this._getActionIcon(iconType)
+            const icon1 = this._getActionIcon(iconType, fullName)
             const img = coreModule.api.Utils.getImage(entity)
             const info = (actionType === 'spell') ? this._getSpellInfo(entity) : this._getItemInfo(entity)
             const info1 = info?.info1
@@ -1234,6 +1275,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 info1,
                 info2,
                 info3,
+                fullName,
                 listName,
                 systemSelected
             }
@@ -1366,7 +1408,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {object} action
          * @returns {string}
          */
-        _getActionIcon (action) {
+        _getActionIcon (action, title = '') {
+            if (['bow-arrow', 'axe'].includes(action)) {
+                return `<i class="${ACTION_ICON[action]}" data-tooltip="${title}"></i>`
+            }
             return ACTION_ICON[action]
         }
 

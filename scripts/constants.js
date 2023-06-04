@@ -31,7 +31,9 @@ export const ACTION_ICON = {
     D: '<span style=\'font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);\'>D</span>',
     T: '<span style=\'font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);\'>T</span>',
     F: '<span style=\'font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);\'>F</span>',
-    R: '<span style=\'font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);\'>R</span>'
+    R: '<span style=\'font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);\'>R</span>',
+    'bow-arrow': 'fa-solid fa-bow-arrow fa-fw',
+    axe: 'fa-solid fa-axe fa-fw'
 }
 
 /**
@@ -53,6 +55,12 @@ export const ACTION_TYPE = {
     strike: 'PF2E.WeaponStrikeLabel',
     toggle: 'tokenActionHud.pf2e.toggle',
     utility: 'tokenActionHud.utility'
+}
+
+export const MODULAR_OPTION = {
+    bludgeoning: 'PF2E.TraitBludgeoning',
+    piercing: 'PF2E.TraitPiercing',
+    slashing: 'PF2E.TraitSlashing'
 }
 
 /**

@@ -20,6 +20,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = payload[0]
             const actionId = payload[1]
 
+            this.rollMode = (this.shift) ? 'gmroll' : null
+            this.skipDialog = this.ctrl
+
             const renderable = ['item', 'feat', 'action', 'lore', 'ammo']
             if (renderable.includes(actionType) && this.isRenderItem()) {
                 return this.doRenderItem(this.actor, actionId)
@@ -92,7 +95,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'action':
             case 'feat':
             case 'item':
-                this._rollItem(actor, actionId)
+                this._rollItem(event, actor, actionId)
                 break
             case 'condition':
                 this._toggleCondition(actor, actionId)
@@ -130,15 +133,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async _handleUniqueActionsChar (event, actionType, actor, token, actionId) {
             switch (actionType) {
             case 'save':
-                this._rollSave(event, actor, actionId)
+                this._rollSave(actor, actionId)
                 break
             case 'initiative':
-                actor.initiative.roll()
+            {
+                const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
+                actor.initiative.roll(args)
                 break
+            }
             case 'attribute':
             case 'perceptionCheck':
-                this._rollAttributeChar(event, actor, actionId)
+            {
+                const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
+                this.actor.perception.roll(args)
                 break
+            }
             case 'spellSlot':
                 await this._adjustSpellSlot(actor, actionId)
                 break
@@ -153,6 +162,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 break
             case 'auxAction':
                 this._performAuxAction(actor, actionId)
+                break
+            case 'versatileOption':
+                this._performVersatileOption(actor, actionId)
                 break
             }
         }
@@ -173,7 +185,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 await this._rollAttributeNpc(event, actor, actionId)
                 break
             case 'save':
-                this._rollSave(event, actor, actionId)
+                this._rollSave(actor, actionId)
                 break
             case 'strike':
                 this._rollStrikeNpc(event, actor, actionId)
@@ -285,21 +297,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         /**
      * Roll Save
      * @private
-     * @param {object} event    The event
      * @param {object} actor    The actor
      * @param {string} actionId The action id
      */
-        _rollSave (event, actor, actionId) {
-            actor.saves[actionId].check.roll({ event })
-        }
-
-        /**
-     * Update Roll Mode
-     * @private
-     * @param {string} rollMode The roll mode
-     */
-        async _updateRollMode (rollMode) {
-            await game.settings.set('core', 'rollMode', rollMode)
+        _rollSave (actor, actionId) {
+            const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
+            actor.saves[actionId].check.roll(args)
         }
 
         /**
@@ -371,9 +374,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const itemId = actionParts[0]
             const slug = actionParts[1]
             const strikeType = actionParts[2]
-            const usage = actionParts[3] ? actionParts[3] : null
+            const selection = actionParts[3] ? actionParts[3] : null
 
-            let strike = actor.system.actions
+            const strike = actor.system.actions
                 .filter(action => action.type === 'strike')
                 .find(strike => strike.item.id === itemId && strike.slug === slug)
 
@@ -382,11 +385,43 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 if (item) return this.doRenderItem(actor, item.id)
             }
 
-            if (usage) {
-                strike = strike[usage]
-            }
+            strike.auxiliaryActions[strikeType]?.execute({ selection })
+        }
 
-            strike.auxiliaryActions[strikeType]?.execute()
+        /**
+     * Perform Versatile Option
+     * @private
+     * @param {object} actor    The actor
+     * @param {string} actionId The action id
+     * @returns
+     */
+        async _performVersatileOption (actor, actionId) {
+            const actionParts = decodeURIComponent(actionId).split('>')
+
+            const itemId = actionParts[0]
+            const selection = actionParts[2]
+            const trait = 'versatile'
+            const weapon = coreModule.api.Utils.getItem(actor, itemId)
+
+            await toggleWeaponTrait({ weapon, trait, selection })
+
+            // Copied from pf2e.js
+            async function toggleWeaponTrait ({ weapon, trait, selection }) {
+                const current = weapon.system.traits.toggles[trait].selection
+                if (current === selection) return false
+
+                const item = weapon.actor?.items.get(weapon.id)
+                if (item?.isOfType('weapon') && item === weapon) {
+                    await item.update({ [`system.traits.toggles.${trait}.selection`]: selection })
+                } else if (item?.isOfType('weapon') && weapon.altUsageType === 'melee') {
+                    item.update({ [`system.meleeUsage.traitToggles.${trait}`]: selection })
+                } else {
+                    const rule = item?.rules.find(r => r.key === 'Strike' && !r.ignored && r.slug === weapon.slug)
+                    await rule?.toggleTrait({ trait, selection })
+                }
+
+                return true
+            }
         }
 
         /**
@@ -420,7 +455,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                 if (this.isRenderItem()) return this.doRenderItem(actor, item.id)
 
-                item.toChat()
+                item.toChat(event)
                 return
             }
 
@@ -448,13 +483,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         /**
      * Roll Item
      * @private
+     * @param {object} event    The event
      * @param {object} actor    The actor
      * @param {string} actionId The action id
      */
-        _rollItem (actor, actionId) {
+        _rollItem (event, actor, actionId) {
             const item = actor.items.get(actionId)
 
-            item.toChat()
+            item.toChat(event)
         }
 
         /**
