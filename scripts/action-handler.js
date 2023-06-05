@@ -512,9 +512,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         inventoryMap.get('unequipped').set(key, value)
                     }
                     if (isEquippedItem) {
-                        if (type === 'armor' && this.actorType === 'character') {
-                            if (!inventoryMap.has('armors')) inventoryMap.set('armors', new Map())
-                            inventoryMap.get('armors').set(key, value)
+                        if (type === 'armor') {
+                            if (!inventoryMap.has('armor')) inventoryMap.set('armor', new Map())
+                            inventoryMap.get('armor').set(key, value)
                         }
                         if (type === 'consumable') {
                             if (!inventoryMap.has('consumables')) inventoryMap.set('consumables', new Map())

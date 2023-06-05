@@ -20,8 +20,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = payload[0]
             const actionId = payload[1]
 
-            this.rollMode = (this.shift) ? 'gmroll' : null
-            this.skipDialog = this.ctrl
+            this.rollMode = (this.ctrl) ? 'gmroll' : null
+            this.skipDialog = this.shift
 
             const renderable = ['item', 'feat', 'action', 'lore', 'ammo']
             if (renderable.includes(actionType) && this.isRenderItem()) {
