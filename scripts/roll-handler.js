@@ -136,11 +136,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this._rollSave(actor, actionId)
                 break
             case 'initiative':
-            {
-                const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
-                actor.initiative.roll(args)
+                this._rollInitiative(event, actor, actionId)
                 break
-            }
             case 'attribute':
             case 'perceptionCheck':
             {
@@ -178,7 +175,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async _handleUniqueActionsNpc (event, actionType, actor, token, actionId) {
             switch (actionType) {
             case 'initiative':
-                actor.initiative.roll()
+                this._rollInitiative(event, actor, actionId)
                 break
             case 'attribute':
             case 'perceptionCheck':
@@ -214,6 +211,18 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
      */
         _rollAbility (event, actor, actionId) {
             actor.rollAbility(event, actionId)
+        }
+
+        /**
+     * Roll Initiative
+     * @param {object} event The event
+     * @param {object} actor The actor
+     * @param {string} actionId The action id
+     */
+        async _rollInitiative (event, actor, actionId) {
+            await actor.update({ 'system.attributes.initiative.statistic': actionId })
+            const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
+            actor.initiative.roll(args)
         }
 
         /**

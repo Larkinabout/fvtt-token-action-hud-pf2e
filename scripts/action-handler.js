@@ -428,17 +428,55 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         _buildInitiative () {
             const actionType = 'initiative'
 
-            const initiative = (this.actor) ? this.actor.system.attributes.initiative : 'PF2E.InitiativeLabel'
-            const totalModifier = initiative.totalModifier
-            const modifier = (totalModifier || totalModifier === 0) ? `${(totalModifier >= 0) ? '+' : ''}${totalModifier}` : ''
+            // Get skills
+            const skills = (this.actor)
+                ? Object.entries(this.actor.skills).filter(skill => !!skill[1].label && skill[1].label.length > 1)
+                : this._getSharedSkills()
+
+            if (!skills) return
+
+            const initiativeStatistic = this.actor?.system.attributes.initiative.statistic ?? null
 
             // Get actions
-            const actions = [{
-                id: 'initiative',
-                name: (initiative.label) ? initiative.label : (typeof initiative === 'string') ? coreModule.api.Utils.i18n(initiative) : '',
-                encodedValue: [actionType, 'initiative'].join(this.delimiter),
-                info1: { text: modifier }
-            }]
+            const actions = []
+
+            const perception = (this.actor) ? this.actor.system.attributes.perception : CONFIG.PF2E.attributes.perception
+            const label = coreModule.api.Utils.i18n(CONFIG.PF2E.attributes.perception)
+            const name = this.abbreviatedSkills ? SKILL_ABBREVIATION.perception ?? label : label
+            const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
+            const listName = `${actionTypeName}${name}`
+            const encodedValue = [actionType, 'perception'].join(this.delimiter)
+            const active = (initiativeStatistic === 'perception') ? ' active' : ''
+            const cssClass = `toggle${active}`
+            const mod = perception?.totalModifier
+            const info1 = (this.actor) ? { text: (mod || mod === 0) ? `${(mod >= 0) ? '+' : ''}${mod}` : '' } : ''
+
+            // Get actions
+            actions.push({
+                id: 'initiative-perception',
+                name,
+                listName,
+                encodedValue,
+                cssClass,
+                info1
+            })
+
+            const skillActions = skills.map(skill => {
+                const id = `initiative-${skill[0]}`
+                const data = skill[1]
+                const label = coreModule.api.Utils.i18n(data.label) ?? coreModule.api.Utils.i18n(CONFIG.PF2E.skillList[skill[0]])
+                const name = this.abbreviatedSkills ? SKILL_ABBREVIATION[data.slug] ?? label : label
+                const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
+                const listName = `${actionTypeName}${name}`
+                const encodedValue = [actionType, skill[0]].join(this.delimiter)
+                const active = (initiativeStatistic === skill[0]) ? ' active' : ''
+                const cssClass = `toggle${active}`
+                const mod = data.check?.mod
+                const info1 = (this.actor) ? { text: (mod || mod === 0) ? `${(mod >= 0) ? '+' : ''}${mod}` : '' } : ''
+                return { id, name, listName, encodedValue, cssClass, info1 }
+            })
+
+            actions.push(...skillActions)
 
             // Create group data
             const groupData = { id: 'initiative', type: 'system' }

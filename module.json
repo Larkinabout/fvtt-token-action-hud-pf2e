@@ -95,7 +95,7 @@
         "compatibility": [
           {
             "minimum": "4.6.4",
-            "verified": "4.11.1"
+            "verified": "4.12.9"
           }
         ]
       }
@@ -106,9 +106,9 @@
         "type": "module",
         "compatibility": [
           {
-            "minimum": "1.4.0",
+            "minimum": "1.4.7",
             "maximum": "1.4",
-            "verified": "1.4.0"
+            "verified": "1.4.7"
           }
         ]
       }
