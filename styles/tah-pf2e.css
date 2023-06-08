@@ -35,3 +35,36 @@
 .tah-action button.tah-pf2e-skill-rank-4 .tah-info3 {
   color: #ddd;
 }
+
+.tah-tooltip .tag.tag_transparent,
+.tah-tooltip-wrapper .tag.tag_transparent {
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 30%);
+}
+
+.tah-tooltip .tah-tags-wrapper,
+.tah-tooltip-wrapper .tah-tags-wrapper  {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tah-tooltip  span[data-pf2-check],
+.tah-tooltip-wrapper span[data-pf2-check] {
+  background: none;
+  border: none;
+  color: var(--color-text-dark-inactive);
+  font-weight: 600;
+  line-height: 1em;
+  margin: 0;
+  padding: 0;
+}
+
+.tah-tooltip span[data-pf2-check] span,
+.tah-tooltip-wrapper span[data-pf2-check] span {
+  outline: none;
+  padding: 0;
+}
+
+.tah-tooltip-wrapper [data-visibility]:not([data-visibility=all])[data-visibility=owner] {
+  background: none;
+}

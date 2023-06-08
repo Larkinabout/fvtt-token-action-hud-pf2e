@@ -39,11 +39,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {array} groupIds
          */
         async buildSystemActions (groupIds) {
-        // Set actor and token variables
+            // Set actor and token variables
             this.actors = (!this.actor) ? this._getActors() : [this.actor]
             this.actorType = this.actor?.type
 
-            // Exit if actor is not required type
+            // Exit if actor is not a known type
             const knownActors = ['character', 'npc', 'familiar']
             if (this.actorType && !knownActors.includes(this.actorType)) return
 
@@ -65,14 +65,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (this.actorType === 'character') {
                 await this._buildCharacterActions()
-            }
-            if (this.actorType === 'familiar') {
+            } else if (this.actorType === 'familiar') {
                 await this._buildFamiliarActions()
-            }
-            if (this.actorType === 'npc') {
+            } else if (this.actorType === 'npc') {
                 await this._buildNpcActions()
-            }
-            if (!this.actor) {
+            } else if (!this.actor) {
                 this._buildMultipleTokenActions()
             }
         }
@@ -82,22 +79,25 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @private
          */
         async _buildCharacterActions () {
-            this._buildActions()
+            await Promise.all([
+                this._buildActions(),
+                this._buildConditions(),
+                this._buildEffects(),
+                this._buildFeats(),
+                this._buildInitiative(),
+                this._buildInventory(),
+                this._buildSaves(),
+                this._buildSkillActions(),
+                this._buildSkills(),
+                this._buildSpells(),
+                this._buildStrikes()
+            ])
+
             this._buildCombat()
-            await this._buildConditions()
-            this._buildEffects()
-            this._buildFeats()
             this._buildHeroPoints()
-            this._buildInitiative()
-            this._buildInventory()
             this._buildPerceptionCheck()
             this._buildRecoveryCheck()
             this._buildRests()
-            this._buildSaves()
-            this._buildSkillActions()
-            this._buildSkills()
-            await this._buildSpells()
-            this._buildStrikes()
             this._buildToggles()
         }
 
@@ -106,33 +106,39 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @private
          */
         async _buildFamiliarActions () {
+            await Promise.all([
+                this._buildConditions(),
+                this._buildInventory(),
+                this._buildSaves(),
+                this._buildSkills()
+            ])
+
             this._buildAttack()
             this._buildCombat()
-            await this._buildConditions()
             this._buildEffects()
-            this._buildInventory()
             this._buildPerceptionCheck()
-            this._buildSaves()
-            this._buildSkills()
         }
 
         /**
          * Build NPC actions
          */
         async _buildNpcActions () {
-            this._buildActions()
+            await Promise.all([
+                this._buildActions(),
+                this._buildConditions(),
+                this._buildEffects(),
+                this._buildFeats(),
+                this._buildInitiative(),
+                this._buildInventory(),
+                this._buildSaves(),
+                this._buildSkillActions(),
+                this._buildSkills(),
+                this._buildStrikes(),
+                this._buildSpells()
+            ])
+
             this._buildCombat()
-            await this._buildConditions()
-            this._buildEffects()
-            this._buildFeats()
-            this._buildInitiative()
-            this._buildInventory()
             this._buildPerceptionCheck()
-            this._buildSaves()
-            this._buildSkillActions()
-            this._buildSkills()
-            this._buildStrikes()
-            await this._buildSpells()
         }
 
         /**
@@ -140,18 +146,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @private
          * @returns {object}
          */
-        _buildMultipleTokenActions () {
-            this._buildInitiative()
+        async _buildMultipleTokenActions () {
+            await Promise.all([
+                this._buildInitiative(),
+                this._buildSaves(),
+                this._buildSkills()
+            ])
+
             this._buildPerceptionCheck()
-            this._buildSaves()
             this._buildSkillActions()
-            this._buildSkills()
         }
 
         /**
          * Build actions
          */
-        _buildActions () {
+        async _buildActions () {
             const actionType = 'action'
 
             // Exit early if no items exist
@@ -159,44 +168,76 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             const actionTypes = ['action', 'reaction', 'free', 'passive']
 
-            const actionItems = new Map([...this.items].filter(item => item[1].type === 'action' || actionTypes.includes(item[1].system?.actionType?.value)))
+            const actionItems = new Map([...this.items].filter(([_, itemData]) => itemData.type === 'action' || actionTypes.includes(itemData.system?.actionType?.value)))
 
             const actionsMap = new Map()
 
             for (const [key, value] of actionItems) {
-            // Set variables
+                // Set variables
                 const actionTypeValue = value.system.actionType?.value
 
                 switch (actionTypeValue) {
                 case 'action':
-                    if (!actionsMap.has('actions')) actionsMap.set('actions', new Map())
+                    actionsMap.set('actions', actionsMap.get('actions') || new Map())
                     actionsMap.get('actions').set(key, value)
                     break
                 case 'reaction':
-                    if (!actionsMap.has('reactions')) actionsMap.set('reactions', new Map())
+                    actionsMap.set('reactions', actionsMap.get('reactions') || new Map())
                     actionsMap.get('reactions').set(key, value)
                     break
                 case 'free':
-                    if (!actionsMap.has('free-actions')) actionsMap.set('free-actions', new Map())
+                    actionsMap.set('free-actions', actionsMap.get('free-actions') || new Map())
                     actionsMap.get('free-actions').set(key, value)
                     break
                 case 'passive':
-                    if (!actionsMap.has('passives')) actionsMap.set('passives', new Map())
+                    actionsMap.set('passives', actionsMap.get('passives') || new Map())
                     actionsMap.get('passives').set(key, value)
                     break
                 }
             }
 
-            // Loop through inventory subcateogry ids
+            // Loop through inventory subcategory ids
             for (const [key, value] of actionsMap) {
                 const groupId = key
-                const actions = value
+                const items = value
 
                 // Create group data
                 const groupData = { id: groupId, type: 'system' }
 
-                // Build actions
-                this._addActions(actions, groupData, actionType)
+                const actions = await Promise.all(
+                    [...items].map(async ([_, itemData]) => {
+                        const id = this._getActionId(itemData)
+                        const name = this._getActionName(itemData)
+                        const listName = this._getActionListName(itemData, actionType)
+                        const cssClass = this._getActionCss(itemData)
+                        const encodedValue = [actionType, id].join(this.delimiter)
+                        const icon1 = this._getIcon1(itemData, actionType)
+                        const img = coreModule.api.Utils.getImage(itemData)
+                        const info = this._getItemInfo(itemData)
+                        const chatData = await itemData.getChatData()
+                        const tooltipData = {
+                            name,
+                            description: chatData.description.value,
+                            properties: chatData.properties,
+                            traits: chatData.traits
+                        }
+                        const tooltip = await this._getTooltip(tooltipData)
+                        return {
+                            id,
+                            name,
+                            encodedValue,
+                            cssClass,
+                            img,
+                            icon1,
+                            info,
+                            listName,
+                            tooltip
+                        }
+                    })
+                )
+
+                // Add actions to action list
+                this.addActions(actions, groupData)
             }
         }
 
@@ -276,7 +317,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         async _buildConditions () {
             const actionType = 'condition'
-
             const limitedConditions = ['doomed', 'dying', 'wounded']
 
             // Get active conditions
@@ -294,42 +334,60 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Get conditions
             // Conditions are duplicated in the ConditionManager and the name scaled conditions is suffixed with ' 1'
-            const conditions = [...game.pf2e.ConditionManager.conditions].filter(condition => !condition[0].startsWith('Compendium'))
-            conditions.forEach(condition => { condition[1].name = condition[1].name.replace(' 1', '') })
+            const conditions = [...game.pf2e.ConditionManager.conditions]
+                .filter(([conditionId]) => !conditionId.startsWith('Compendium'))
+                .map(([conditionId, conditionData]) => {
+                    conditionData.name = conditionData.name.replace(' 1', '')
+                    return [conditionId, conditionData]
+                })
 
             // Build actions
-            const actions = conditions.map(condition => {
-                const id = condition[1].slug
-                const activeCondition = activeConditions.get(condition[0])
-                const activeConditionId = activeCondition?.id
-                const name = condition[1].name
-                const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
-                const listName = `${actionTypeName}${name}`
-                const encodedValue = [actionType, id].join(this.delimiter)
-                const img = coreModule.api.Utils.getImage(condition[1])
-                const active = (activeConditionId) ? ' active' : ''
-                const cssClass = `toggle${active}`
-                let info1 = ''
-                if (activeConditionId) {
-                    if (limitedConditions.includes(activeCondition.slug)) {
-                        const attribute = this.actor.system.attributes[activeCondition.slug]
-                        const value = attribute.value
-                        const max = attribute.max
-                        info1 = { text: (max > 0) ? `${value ?? 0}/${max}` : '' }
-                    } else if (activeCondition.system.value.isValued) {
-                        info1 = { text: activeCondition.system.value.value }
+            const actions = await Promise.all(
+                conditions.map(async ([conditionId, conditionData]) => {
+                    const id = conditionData.slug
+                    const activeCondition = activeConditions.get(conditionId)
+                    const activeConditionId = activeCondition?.id
+                    const name = conditionData.name
+                    const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
+                    const listName = `${actionTypeName}${name}`
+                    const encodedValue = [actionType, id].join(this.delimiter)
+                    const img = coreModule.api.Utils.getImage(conditionData)
+                    const active = activeConditionId ? ' active' : ''
+                    const cssClass = `toggle${active}`
+                    let info1 = ''
+                    let attributeValue = ''
+
+                    if (activeConditionId) {
+                        if (limitedConditions.includes(activeCondition.slug)) {
+                            const attribute = this.actor.system.attributes[activeCondition.slug]
+                            attributeValue = attribute.value
+                            const max = attribute.max
+                            info1 = { text: (max > 0) ? `${attributeValue ?? 0}/${max}` : '' }
+                        } else if (activeCondition.system.value.isValued) {
+                            attributeValue = activeCondition.system.value.value
+                            info1 = { text: attributeValue }
+                        }
                     }
-                }
-                return {
-                    id,
-                    name,
-                    listName,
-                    encodedValue,
-                    cssClass,
-                    img,
-                    info1
-                }
-            })
+
+                    const tooltipName = `${name}${(attributeValue) ? ` ${attributeValue}` : ''}`
+                    const tooltipData = {
+                        name: tooltipName,
+                        description: conditionData.description
+                    }
+                    const tooltip = await this._getTooltip(tooltipData)
+
+                    return {
+                        id,
+                        name,
+                        listName,
+                        encodedValue,
+                        cssClass,
+                        img,
+                        info1,
+                        tooltip
+                    }
+                })
+            )
 
             // Create group data
             const groupData = { id: 'conditions', type: 'system' }
@@ -367,25 +425,58 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Build effects
          * @private
          */
-        _buildEffects () {
+        async _buildEffects () {
             const actionType = 'effect'
 
             // Get effects
             // 'unidentified' property moved to 'system.unidentified' post pf2e 4.10+
-            const effects = new Map([...this.items].filter(item => item[1].type === 'effect' && ((!(item[1].system?.unidentified ?? false) && !(item[1].unidentified ?? false)) || game.user.isGM)))
+            const items = new Map([...this.items]
+                .filter(item =>
+                    item[1].type === 'effect' &&
+                    ((!(item[1].system?.unidentified ?? false) &&
+                    !(item[1].unidentified ?? false)) || game.user.isGM)))
 
             // Create group data
             const groupData = { id: 'effects', type: 'system' }
 
-            // Build actions
-            this._addActions(effects, groupData, actionType)
+            const actions = await Promise.all(
+                [...items].map(async ([_$, itemData]) => {
+                    const id = this._getActionId(itemData)
+                    const name = this._getActionName(itemData)
+                    const listName = this._getActionListName(itemData, actionType)
+                    const cssClass = this._getActionCss(itemData)
+                    const encodedValue = [actionType, id].join(this.delimiter)
+                    const icon1 = this._getIcon1(itemData, actionType)
+                    const img = coreModule.api.Utils.getImage(itemData)
+                    const info = this._getItemInfo(itemData)
+                    const tooltipData = {
+                        name,
+                        description: itemData.description
+                    }
+                    const tooltip = await this._getTooltip(tooltipData)
+                    return {
+                        id,
+                        name,
+                        listName,
+                        encodedValue,
+                        cssClass,
+                        img,
+                        icon1,
+                        info,
+                        tooltip
+                    }
+                })
+            )
+
+            // Add actions to action list
+            this.addActions(actions, groupData)
         }
 
         /**
          * Build Feats
          * @private
          */
-        _buildFeats () {
+        async _buildFeats () {
             const actionType = 'feat'
             const featTypes = {
                 ancestryfeature: 'ancestry-features',
@@ -405,19 +496,52 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 // 'featType' changed to 'system.category' post pf2e 4.10+
                 const featType = value.system?.category ?? value.featType
                 const groupId = featTypes[featType]
-                if (!featsMap.has(groupId)) featsMap.set(groupId, new Map())
+
+                featsMap.set(groupId, featsMap.get(groupId) || new Map())
                 featsMap.get(groupId).set(key, value)
             }
 
             for (const [key, value] of featsMap) {
                 const groupId = key
-                const feats = value
+                const items = value
 
                 // Get group data
                 const groupData = { id: groupId, type: 'system' }
 
-                // Build actions
-                this._addActions(feats, groupData, actionType)
+                const actions = await Promise.all(
+                    [...items].map(async ([_, itemData]) => {
+                        const id = this._getActionId(itemData)
+                        const name = this._getActionName(itemData)
+                        const listName = this._getActionListName(itemData, actionType)
+                        const cssClass = this._getActionCss(itemData)
+                        const encodedValue = [actionType, id].join(this.delimiter)
+                        const icon1 = this._getIcon1(itemData, actionType)
+                        const img = coreModule.api.Utils.getImage(itemData)
+                        const info = this._getItemInfo(itemData)
+                        const chatData = await itemData.getChatData()
+                        const tooltipData = {
+                            name,
+                            description: chatData?.description.value,
+                            properties: chatData.properties,
+                            traits: chatData.traits
+                        }
+                        const tooltip = await this._getTooltip(tooltipData)
+                        return {
+                            id,
+                            name,
+                            encodedValue,
+                            cssClass,
+                            img,
+                            icon1,
+                            info,
+                            listName,
+                            tooltip
+                        }
+                    })
+                )
+
+                // Add actions to action list
+                this.addActions(actions, groupData)
             }
         }
 
@@ -425,12 +549,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Build initiative
          * @private
          */
-        _buildInitiative () {
+        async _buildInitiative () {
             const actionType = 'initiative'
 
             // Get skills
             const skills = (this.actor)
-                ? Object.entries(this.actor.skills).filter(skill => !!skill[1].label && skill[1].label.length > 1)
+                ? Object.entries(this.actor.skills).filter(([_, skillData]) => !!skillData.label && skillData.label.length > 1)
                 : this._getSharedSkills()
 
             if (!skills) return
@@ -441,15 +565,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actions = []
 
             const perception = (this.actor) ? this.actor.system.attributes.perception : CONFIG.PF2E.attributes.perception
-            const label = coreModule.api.Utils.i18n(CONFIG.PF2E.attributes.perception)
-            const name = this.abbreviatedSkills ? SKILL_ABBREVIATION.perception ?? label : label
+            const fullName = coreModule.api.Utils.i18n(CONFIG.PF2E.attributes.perception)
+            const name = this.abbreviatedSkills ? SKILL_ABBREVIATION.perception ?? fullName : fullName
             const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
             const listName = `${actionTypeName}${name}`
             const encodedValue = [actionType, 'perception'].join(this.delimiter)
             const active = (initiativeStatistic === 'perception') ? ' active' : ''
             const cssClass = `toggle${active}`
-            const mod = perception?.totalModifier
-            const info1 = (this.actor) ? { text: (mod || mod === 0) ? `${(mod >= 0) ? '+' : ''}${mod}` : '' } : ''
+            const modifier = coreModule.api.Utils.getModifier(perception?.totalModifier)
+            const info1 = this.actor ? { text: modifier } : ''
+            const tooltipName = `${fullName}${(this.actor && modifier) ? ` ${modifier}` : ''}`
+            const tooltipData = {
+                name: tooltipName,
+                modifiers: perception?.modifiers
+            }
+            const tooltip = (this.actor) ? await this._getTooltip(tooltipData) : null
 
             // Get actions
             actions.push({
@@ -458,23 +588,41 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 listName,
                 encodedValue,
                 cssClass,
-                info1
+                info1,
+                tooltip
             })
 
-            const skillActions = skills.map(skill => {
-                const id = `initiative-${skill[0]}`
-                const data = skill[1]
-                const label = coreModule.api.Utils.i18n(data.label) ?? coreModule.api.Utils.i18n(CONFIG.PF2E.skillList[skill[0]])
-                const name = this.abbreviatedSkills ? SKILL_ABBREVIATION[data.slug] ?? label : label
-                const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
-                const listName = `${actionTypeName}${name}`
-                const encodedValue = [actionType, skill[0]].join(this.delimiter)
-                const active = (initiativeStatistic === skill[0]) ? ' active' : ''
-                const cssClass = `toggle${active}`
-                const mod = data.check?.mod
-                const info1 = (this.actor) ? { text: (mod || mod === 0) ? `${(mod >= 0) ? '+' : ''}${mod}` : '' } : ''
-                return { id, name, listName, encodedValue, cssClass, info1 }
-            })
+            const skillActions = await Promise.all(
+                skills.map(async ([skillId, skillData]) => {
+                    const id = `initiative-${skillId}`
+                    const data = skillData
+                    const fullName = coreModule.api.Utils.i18n(data.label) ?? coreModule.api.Utils.i18n(CONFIG.PF2E.skillList[skillId])
+                    const name = this.abbreviatedSkills ? SKILL_ABBREVIATION[data.slug] ?? fullName : fullName
+                    const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
+                    const listName = `${actionTypeName}${name}`
+                    const encodedValue = [actionType, skillId].join(this.delimiter)
+                    const active = (initiativeStatistic === skillId) ? ' active' : ''
+                    const cssClass = `toggle${active}`
+                    const modifier = coreModule.api.Utils.getModifier(skillData.check?.mod)
+                    const info1 = this.actor ? { text: modifier } : ''
+                    const tooltipName = `${fullName}${(this.actor && modifier) ? ` ${modifier}` : ''}`
+                    const tooltipData = {
+                        name: tooltipName,
+                        modifiers: skillData?.modifiers
+                    }
+                    const tooltip = (this.actor) ? await this._getTooltip(tooltipData) : null
+
+                    return {
+                        id,
+                        name,
+                        listName,
+                        encodedValue,
+                        cssClass,
+                        info1,
+                        tooltip
+                    }
+                })
+            )
 
             actions.push(...skillActions)
 
@@ -493,74 +641,97 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         // Exit early if no items exist
             if (this.items.size === 0) return
 
+            const actionType = 'item'
             const inventoryMap = new Map()
 
             for (const [key, value] of this.items) {
-            // Set variables
                 const hasQuantity = value.system?.quantity > 0
                 const isEquippedItem = this._isEquippedItem(value)
                 const type = value.type
 
-                // Set items into maps
                 if (hasQuantity) {
+                    const itemType = isEquippedItem ? 'equipped' : 'unequipped'
+                    const itemCategoryMap = inventoryMap.get(itemType) ?? new Map()
+                    itemCategoryMap.set(key, value)
+                    inventoryMap.set(itemType, itemCategoryMap)
+
                     if (isEquippedItem) {
-                        if (!inventoryMap.has('equipped')) inventoryMap.set('equipped', new Map())
-                        inventoryMap.get('equipped').set(key, value)
+                        const categoryTypeMap = inventoryMap.get(type) ?? new Map()
+                        categoryTypeMap.set(key, value)
+                        inventoryMap.set(type, categoryTypeMap)
                     }
-                    if (!isEquippedItem) {
-                        if (!inventoryMap.has('unequipped')) inventoryMap.set('unequipped', new Map())
-                        inventoryMap.get('unequipped').set(key, value)
-                    }
+                }
+            }
+
+            for (const [key, value] of this.items) {
+                const hasQuantity = value.system?.quantity > 0
+                const isEquippedItem = this._isEquippedItem(value)
+                const type = value.type
+
+                if (hasQuantity) {
+                    const itemType = isEquippedItem ? 'equipped' : 'unequipped'
+                    const itemCategoryMap = inventoryMap.get(itemType) ?? new Map()
+                    itemCategoryMap.set(key, value)
+                    inventoryMap.set(itemType, itemCategoryMap)
+
                     if (isEquippedItem) {
-                        if (type === 'armor') {
-                            if (!inventoryMap.has('armor')) inventoryMap.set('armor', new Map())
-                            inventoryMap.get('armor').set(key, value)
-                        }
-                        if (type === 'consumable') {
-                            if (!inventoryMap.has('consumables')) inventoryMap.set('consumables', new Map())
-                            inventoryMap.get('consumables').set(key, value)
-                        }
-                        if (type === 'backpack') {
-                            if (!inventoryMap.has('containers')) inventoryMap.set('containers', new Map())
-                            inventoryMap.get('containers').set(key, value)
-                        }
-                        if (type === 'equipment') {
-                            if (!inventoryMap.has('equipment')) inventoryMap.set('equipment', new Map())
-                            inventoryMap.get('equipment').set(key, value)
-                        }
-                        if (type === 'treasure') {
-                            if (!inventoryMap.has('treasure')) inventoryMap.set('treasure', new Map())
-                            inventoryMap.get('treasure').set(key, value)
-                        }
-                        if (type === 'weapon') {
-                            if (!inventoryMap.has('weapons')) inventoryMap.set('weapons', new Map())
-                            inventoryMap.get('weapons').set(key, value)
-                        }
+                        const categoryTypeMap = inventoryMap.get(type) ?? new Map()
+                        categoryTypeMap.set(key, value)
+                        inventoryMap.set(type, categoryTypeMap)
                     }
                 }
             }
 
             // Loop through inventory group ids
-            for (const [key, value] of inventoryMap) {
-                const groupId = key
-                const inventory = value
-
+            for (const [groupId, items] of inventoryMap) {
                 // Create group data
                 const groupData = { id: groupId, type: 'system' }
 
-                // Build actions
-                this._addActions(inventory, groupData)
+                // Get actions
+                const actions = await Promise.all(
+                    [...items].map(async ([_, itemData]) => {
+                        const id = this._getActionId(itemData)
+                        const name = this._getActionName(itemData)
+                        const listName = this._getActionListName(itemData, actionType)
+                        const cssClass = this._getActionCss(itemData)
+                        const encodedValue = [actionType, id].join(this.delimiter)
+                        const icon1 = this._getIcon1(itemData, actionType)
+                        const img = coreModule.api.Utils.getImage(itemData)
+                        const info = this._getItemInfo(itemData)
+                        const chatData = await itemData.getChatData()
+                        const tooltipData = {
+                            name,
+                            description: chatData?.description.value,
+                            rarity: chatData.rarity,
+                            traits: chatData.traits,
+                            traits2: chatData.properties
+                        }
+                        const tooltip = await this._getTooltip(tooltipData)
+                        return {
+                            id,
+                            name,
+                            encodedValue,
+                            cssClass,
+                            img,
+                            icon1,
+                            info,
+                            listName,
+                            tooltip
+                        }
+                    })
+                )
+
+                // Add actions to action list
+                this.addActions(actions, groupData)
             }
 
             // Add container contents
             if (inventoryMap.has('containers')) {
                 // Create parent group data
                 const parentGroupData = { id: 'containers', type: 'system' }
-
                 const containers = inventoryMap.get('containers')
 
-                for (const [key, value] of containers) {
-                    const container = value
+                for (const [groupId, container] of containers) {
                     const contents = container.contents
 
                     // Skip if container has no contents
@@ -568,7 +739,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                     // Create group data
                     const groupData = {
-                        id: key,
+                        id: groupId,
                         name: container.name,
                         listName: `Group: ${container.name}`,
                         type: 'system-derived'
@@ -577,10 +748,43 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     // Add group to action list
                     await this.addGroup(groupData, parentGroupData)
 
-                    const contentsMap = new Map(contents.map(content => [content.id, content]))
+                    const items = new Map(contents.map(content => [content.id, content]))
+
+                    const actions = await Promise.all(
+                        [...items].map(async ([_, itemData]) => {
+                            const id = this._getActionId(itemData)
+                            const name = this._getActionName(itemData)
+                            const listName = this._getActionListName(itemData, actionType)
+                            const cssClass = this._getActionCss(itemData)
+                            const encodedValue = [actionType, id].join(this.delimiter)
+                            const icon1 = this._getIcon1(itemData, actionType)
+                            const img = coreModule.api.Utils.getImage(itemData)
+                            const info = this._getItemInfo(itemData)
+                            const chatData = await itemData.getChatData()
+                            const tooltipData = {
+                                name,
+                                description: chatData?.description.value,
+                                properties: chatData.properties,
+                                rarity: chatData.rarity,
+                                traits: chatData.traits
+                            }
+                            const tooltip = await this._getTooltip(tooltipData)
+                            return {
+                                id,
+                                name,
+                                encodedValue,
+                                cssClass,
+                                img,
+                                icon1,
+                                info,
+                                listName,
+                                tooltip
+                            }
+                        })
+                    )
 
                     // Add actions to action list
-                    this._addActions(contentsMap, groupData)
+                    this.addActions(actions, groupData)
                 }
             }
         }
@@ -591,14 +795,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         _buildPerceptionCheck () {
             const actionType = 'perceptionCheck'
-
             const perception = (this.actor) ? this.actor.system.attributes.perception : CONFIG.PF2E.attributes.perception
-
-            // Exit if no totalModifer exists
-            if (!perception.totalModifier) return
-
-            const totalModifier = perception.totalModifier
-            const modifier = (totalModifier || totalModifier === 0) ? `${(totalModifier >= 0) ? '+' : ''}${totalModifier}` : ''
+            const modifierValue = perception?.totalModifier
+            const modifierSign = (modifierValue >= 0) ? '+' : ''
+            const modifier = `${modifierSign}${modifierValue}`
 
             // Get actions
             const actions = [{
@@ -620,8 +820,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         _buildRecoveryCheck () {
             const actionType = 'recoveryCheck'
-
-            const dyingPoints = this.actor.system.attributes?.dying
+            const dyingPoints = this.actor?.system.attributes?.dying
 
             if (dyingPoints?.value >= 1) {
             // Get actions
@@ -681,29 +880,40 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Build saves
          * @private
          */
-        _buildSaves () {
+        async _buildSaves () {
             const actionType = 'save'
 
             // Get saves
-            const saves = (this.actor) ? Object.entries(this.actor.saves || []) : Object.entries(CONFIG.PF2E.saves)
+            const saves = this.actor ? Object.entries(this.actor.saves || []) : Object.entries(CONFIG.PF2E.saves)
 
             // Exit if no saves exist
-            if (!saves) return
+            if (!saves || saves.length === 0) return
 
             // Get actions
-            const actions = saves.map((save) => {
-                const id = save[0]
-                const name = save[1].label ?? (typeof save[1] === 'string' ? coreModule.api.Utils.i18n(save[1]) : '')
-                const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
-                const listName = `${actionTypeName}${name}`
-                const encodedValue = [actionType, id].join(this.delimiter)
-                return {
-                    id,
-                    name,
-                    listName,
-                    encodedValue
-                }
-            })
+            const actions = await Promise.all(
+                saves.map(async ([id, saveData]) => {
+                    const name = saveData.label ?? (typeof saveData === 'string' ? coreModule.api.Utils.i18n(saveData) : '')
+                    const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
+                    const listName = `${actionTypeName}${name}`
+                    const encodedValue = [actionType, id].join(this.delimiter)
+                    const modifier = coreModule.api.Utils.getModifier(saveData.mod)
+                    const info1 = this.actor ? { text: modifier } : ''
+                    const tooltipName = `${name}${(this.actor && modifier) ? ` ${modifier}` : ''}`
+                    const tooltipData = {
+                        name: tooltipName,
+                        modifiers: saveData?.modifiers
+                    }
+                    const tooltip = (this.actor) ? await this._getTooltip(tooltipData) : null
+                    return {
+                        id,
+                        name,
+                        listName,
+                        encodedValue,
+                        info1,
+                        tooltip
+                    }
+                })
+            )
 
             // Get group data
             const groupData = { id: 'saves', type: 'system' }
@@ -742,8 +952,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const encodedValue = [actionType, 'pf2e.action-macros', id].join(this.delimiter)
                 const icon1 = this._getActionIcon(skillAction.actionCost)
                 const img = skillAction.image
-                const mod = this.actor?.skills[skillAction.skill]?.check?.mod
-                const info1 = (this.actor) ? { text: (mod || mod === 0) ? `${(mod >= 0) ? '+' : ''}${mod}` : '' } : ''
+                const modifier = coreModule.api.Utils.getModifier(this.actor?.skills[skillAction.skill]?.check?.mod)
+                const info1 = (this.actor) ? { text: modifier } : null
 
                 const action = {
                     id,
@@ -758,12 +968,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 // Get actions
                 actions.push(action)
 
-                if (!skillActionsMap.has(skillAction.skill)) skillActionsMap.set(skillAction.skill, new Map())
+                skillActionsMap.set(skillAction.skill, skillActionsMap.get(skillAction.skill) || new Map())
                 skillActionsMap.get(skillAction.skill).set(actionMacro._id, { ...action, name: actionName })
             }
 
             // Add actions to HUD
-            this.addActions(actions, { id: 'skill-actions-ungrouped', type: 'system' })
+            await this.addActions(actions, { id: 'skill-actions-ungrouped', type: 'system' })
 
             for (const [key, value] of Object.entries(SKILL)) {
                 const groupId = key
@@ -779,12 +989,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 await this.addGroup(groupData, { id: 'skill-actions-grouped', type: 'system' })
 
                 // Get actions
-                const actions = [...skillActions].map(skillAction => {
-                    return skillAction[1]
+                const actions = [...skillActions].map(([_, skillAction]) => {
+                    return skillAction
                 })
 
                 // Add actions to HUD
-                this.addActions(actions, groupData)
+                await this.addActions(actions, groupData)
             }
         }
 
@@ -792,7 +1002,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Build skills
          * @private
          */
-        _buildSkills () {
+        async _buildSkills () {
             const actionType = 'skill'
 
             // Get skills
@@ -830,27 +1040,37 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const groupData = { id: groupId, type: 'system' }
 
                 // Get actions
-                const actions = [...skills].map(skill => {
-                    const id = skill[0]
-                    const data = skill[1]
-                    const label = coreModule.api.Utils.i18n(data.label) ?? coreModule.api.Utils.i18n(CONFIG.PF2E.skillList[skill[0]])
-                    const name = this.abbreviatedSkills ? SKILL_ABBREVIATION[data.slug] ?? label : label
-                    const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
-                    const listName = `${actionTypeName}${name}`
-                    const encodedValue = [actionType, id].join(this.delimiter)
-                    const cssClass = (this.actor && this.colorSkills && data.rank > 0) ? `tah-pf2e-skill-rank-${data.rank}` : ''
-                    const mod = data.check?.mod
-                    const info1 = (this.actor) ? { text: (mod || mod === 0) ? `${(mod >= 0) ? '+' : ''}${mod}` : '' } : ''
+                const actions = await Promise.all(
+                    [...skills].map(async ([skillId, skillData]) => {
+                        const id = skillId
+                        const label = coreModule.api.Utils.i18n(skillData.label) ?? coreModule.api.Utils.i18n(CONFIG.PF2E.skillList[skillId])
+                        const name = this.abbreviatedSkills ? SKILL_ABBREVIATION[skillData.slug] ?? label : label
+                        const fullName = label
+                        const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
+                        const listName = `${actionTypeName}${name}`
+                        const encodedValue = [actionType, id].join(this.delimiter)
+                        const cssClass = (this.actor && this.colorSkills && skillData.rank > 0) ? `tah-pf2e-skill-rank-${skillData.rank}` : ''
+                        const modifier = coreModule.api.Utils.getModifier(skillData.check?.mod)
+                        const info1 = this.actor ? { text: modifier } : ''
+                        const tooltipName = `${fullName}${(this.actor && modifier) ? ` ${modifier}` : ''}`
+                        const tooltipData = {
+                            name: tooltipName,
+                            modifiers: skillData?.modifiers
+                        }
+                        const tooltip = (this.actor) ? await this._getTooltip(tooltipData) : null
 
-                    return {
-                        id,
-                        name,
-                        listName,
-                        encodedValue,
-                        cssClass,
-                        info1
-                    }
-                })
+                        return {
+                            id,
+                            name,
+                            fullName,
+                            listName,
+                            encodedValue,
+                            cssClass,
+                            info1,
+                            tooltip
+                        }
+                    })
+                )
 
                 // Add actions to action list
                 this.addActions(actions, groupData)
@@ -925,10 +1145,44 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         .filter(activeSpell => !activeSpell?.expended && activeSpell)
                         .map(spell => spell.spell)
 
-                    const spellsMap = new Map(activeSpells.map(spell => [spell.id, spell]))
+                    const items = new Map(activeSpells.map(spell => [spell.id, spell]))
 
-                    // Build actions
-                    await this._addActions(spellsMap, levelGroupData, actionType, spellLevel)
+                    const actions = await Promise.all(
+                        [...items].map(async ([itemId, itemData]) => {
+                            const id = this._getActionId(itemData, actionType, spellLevel)
+                            const name = this._getActionName(itemData)
+                            const listName = this._getActionListName(itemData, actionType)
+                            const cssClass = this._getActionCss(itemData)
+                            const encodedValue = this._getActionEncodedValue(itemData, actionType, spellLevel)
+                            const icon1 = this._getIcon1(itemData, actionType)
+                            const img = coreModule.api.Utils.getImage(itemData)
+                            const info = this._getSpellInfo(itemData)
+                            const chatData = await itemData.getChatData()
+                            const tooltipData = {
+                                name,
+                                description: chatData.description.value,
+                                properties: chatData.properties,
+                                rarity: chatData.rarity,
+                                traits: chatData.actionTraits,
+                                traitsAlt: chatData.spellTraits
+                            }
+                            const tooltip = await this._getTooltip(tooltipData)
+                            return {
+                                id,
+                                name,
+                                listName,
+                                encodedValue,
+                                cssClass,
+                                img,
+                                icon1,
+                                info,
+                                tooltip
+                            }
+                        })
+                    )
+
+                    // Add actions to action list
+                    this.addActions(actions, levelGroupData)
                 }
             }
         }
@@ -991,7 +1245,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         /**
          * Build strikes
          */
-        _buildStrikes () {
+        async _buildStrikes () {
             const actionType = 'strike'
 
             // Create parent group data
@@ -1011,60 +1265,75 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ${strike.label} (${strike.item.id})`
                 const image = strike.imageUrl
                 const showTitle = this.showStrikeNames
+                const descriptionLocalised = this._getStrikeDescription({ description: strike.description, criticalSuccess: strike.criticalSuccess, success: strike.success })
+                const chatData = await strike?.item?.getChatData()
+                const properties = chatData?.properties.filter(property => property !== 'PF2E.WeaponTypeMartial')
+                const tooltipData = {
+                    name: strike.label,
+                    descriptionLocalised,
+                    modifiers: strike.modifiers,
+                    properties,
+                    traits: strike.traits,
+                    traitsAlt: strike.weaponTraits
+                }
+                const tooltip = await this._getTooltip(tooltipData)
                 // Create group data
-                const strikeGroupData = { id: strikeGroupId, name: strikeGroupName, listName: strikeGroupListName, type: 'system-derived', settings: { image, showTitle } }
+                const strikeGroupData = { id: strikeGroupId, name: strikeGroupName, listName: strikeGroupListName, type: 'system-derived', settings: { image, showTitle }, tooltip }
 
                 // Add group to action list
-                this.addGroup(strikeGroupData, parentGroupData)
+                this.addGroup(strikeGroupData, parentGroupData, true)
 
                 if (strike.auxiliaryActions?.length) {
-                    const actionType = 'auxAction'
-                    const auxiliaryActionEntities = []
-                    for (const [index, auxiliaryAction] of strike.auxiliaryActions.entries()) {
+                    // Get actions
+                    const actions = strike.auxiliaryActions.flatMap((auxiliaryAction, index) => {
                         if (auxiliaryAction.purpose === 'Modular') {
                             const modularOptions = strike.item.system.traits.toggles.modular.options
                             const modularSelection = strike.item.system.traits.toggles.modular.selection
-                            const modularEntities = modularOptions.map(modularOption => {
+                            return modularOptions.map(modularOption => {
                                 const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>${modularOption}`)
                                 const name = coreModule.api.Utils.i18n(MODULAR_OPTION[modularOption])
-                                const listName = `${strikeGroupListName}: ${name}`
-                                const actionIcon = auxiliaryAction.glyph
-                                const selected = modularOption === modularSelection
-                                return { id, name, listName, actionIcon, selected }
+                                return {
+                                    id,
+                                    name,
+                                    listName: `${strikeGroupListName}: ${name}`,
+                                    encodedValue: ['auxAction', id].join(this.delimiter),
+                                    icon1: this._getActionIcon(auxiliaryAction.glyph),
+                                    cssClass: this._getActionCss({ selected: (modularOption === modularSelection) })
+                                }
                             })
-                            auxiliaryActionEntities.push(...modularEntities)
                         } else {
                             const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>`)
                             const name = auxiliaryAction.label
-                            const listName = `${strikeGroupListName}: ${name}`
-                            const actionIcon = auxiliaryAction.glyph
-                            auxiliaryActionEntities.push({ id, name, listName, actionIcon })
+                            return {
+                                id,
+                                name,
+                                listName: `${strikeGroupListName}: ${name}`,
+                                encodedValue: ['auxAction', id].join(this.delimiter),
+                                icon1: this._getActionIcon(auxiliaryAction.glyph),
+                                info: this._getItemInfo(auxiliaryAction)
+                            }
                         }
-                    }
-
-                    // Get actions
-                    const actions = auxiliaryActionEntities.map(entity => this._getAction(actionType, entity))
+                    })
 
                     // Add actions to action list
                     this.addActions(actions, strikeGroupData)
                 }
-
                 if (strike.ready) {
                     if (strike.versatileOptions?.length) {
-                        const actionType = 'versatileOption'
-                        const versatileOptionEntities = strike.versatileOptions.map(versatileOption => {
-                            const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${versatileOption.value}>`)
-                            const name = ''
-                            const label = coreModule.api.Utils.i18n(versatileOption.label)
-                            const fullName = label
-                            const listName = `${strikeGroupListName}: ${label}`
-                            const actionIcon = versatileOption.glyph
-                            const selected = versatileOption.selected
-                            return { id, name, fullName, listName, actionIcon, selected }
-                        })
-
                         // Get actions
-                        const actions = versatileOptionEntities.map(entity => this._getAction(actionType, entity))
+                        const actions = strike.versatileOptions.map(versatileOption => {
+                            const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${versatileOption.value}>`)
+                            const fullName = coreModule.api.Utils.i18n(versatileOption.label)
+                            return {
+                                id: encodeURIComponent(`${strike.item.id}>${strike.slug}>${versatileOption.value}>`),
+                                name: '',
+                                fullName,
+                                listName: `${strikeGroupListName}: ${fullName}`,
+                                encodedValue: ['versatileOption', id].join(this.delimiter),
+                                cssClass: this._getActionCss(versatileOption),
+                                icon1: this._getActionIcon(versatileOption.glyph, fullName)
+                            }
+                        })
 
                         // Add actions to action list
                         this.addActions(actions, strikeGroupData)
@@ -1110,26 +1379,38 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         // Add group to action list
                         this.addGroup(usageGroupData, strikeGroupData)
 
-                        const entities = strikeUsage.variants.map((variant, index) => {
+                        const actions = strikeUsage.variants.map((variant, index) => {
                             const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>` + usage)
                             const isMap = variant.label.includes('MAP')
                             const bonus = (isMap) ? strike.totalModifier + parseInt(variant.label.split(' ')[1]) : parseInt(variant.label.split(' ')[1])
                             const name = (this.calculateAttackPenalty) ? (bonus >= 0) ? `+${bonus}` : `${bonus}` : variant.label
-                            const listName = `${usageGroupListName}: ${name}`
-                            return { actionType, id, name, listName }
+                            return {
+                                id,
+                                name,
+                                encodedValue: [actionType, id].join(this.delimiter),
+                                listName: `${usageGroupListName}: ${name}`
+                            }
                         })
 
                         // Get Damage
                         const damageId = encodeURIComponent(`${strike.item.id}>${strike.slug}>damage>${usage}`)
                         const damageName = coreModule.api.Utils.i18n('PF2E.DamageLabel')
-                        const damageListName = `${usageGroupListName}: ${damageName}`
-                        entities.push({ actionType, id: damageId, name: damageName, listName: damageListName })
+                        actions.push({
+                            id: damageId,
+                            name: damageName,
+                            listName: `${usageGroupListName}: ${damageName}`,
+                            encodedValue: [actionType, damageId].join(this.delimiter)
+                        })
 
                         // Get Critical
                         const criticalId = encodeURIComponent(`${strike.item.id}>${strike.slug}>critical>${usage}`)
                         const criticalName = coreModule.api.Utils.i18n('PF2E.CriticalDamageLabel')
-                        const criticalListName = `${usageGroupListName}: ${criticalName}`
-                        entities.push({ actionType, id: criticalId, name: criticalName, listName: criticalListName })
+                        actions.push({
+                            id: criticalId,
+                            name: criticalName,
+                            listName: `${usageGroupListName}: ${criticalName}`,
+                            encodedValue: [actionType, criticalId].join(this.delimiter)
+                        })
 
                         // Get Ammo
                         if (strikeUsage.selectedAmmoId && !strikeUsage.ammunition) {
@@ -1138,16 +1419,23 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             if (!item) {
                                 const id = 'noAmmo'
                                 const name = coreModule.api.Utils.i18n('tokenActionHud.pf2e.noAmmo')
-                                const listName = `${usageGroupListName}: ${name}`
-                                entities.push({ actionType, id, name, listName })
+                                actions.push({
+                                    id,
+                                    name,
+                                    listName: `${usageGroupListName}: ${name}`,
+                                    encodedValue: id
+                                })
                             } else {
-                                item.actionType = actionType
-                                entities.push(item)
+                                const id = this._getActionId(item)
+                                const name = this._getActionName(item)
+                                actions.push({
+                                    id,
+                                    name,
+                                    listName: `${usageGroupListName}: ${name}`,
+                                    encodedValue: [actionType, id].join(this.delimiter)
+                                })
                             }
                         }
-
-                        // Get actions
-                        const actions = entities.map(entity => this._getAction(actionType, entity))
 
                         // Add actions to action list
                         this.addActions(actions, usageGroupData)
@@ -1204,91 +1492,38 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
         }
 
-        /** @private */
-        /*
-    _addContainerSublayout (tokenId, actionType, category, actor, items) {
-        const allContainerIds = [
-            ...new Set(
-                actor.items
-                    .filter((i) => i.system.containerId?.value)
-                    .map((i) => i.system.containerId.value)
-            )
-        ]
-        const containers = (items ?? []).filter((i) =>
-            allContainerIds.includes(i.id)
-        )
-
-        containers.forEach((container) => {
-            const containerId = container.id
-            const contents = actor.items
-                .filter((i) => i.system.containerId?.value === containerId)
-                .sort(this.foundrySort)
-            if (contents.length === 0) return
-
-            const containerCategory = this.initializeEmptyGroup(containerId)
-            const containerActions = this._buildItemActions(
-                tokenId,
-                actionType,
-                contents
-            )
-            containerCategory.actions = containerActions
-            containerCategory.info1 = container.system.bulkCapacity.value
-
-            this._combineGroupWithCategory(
-                category,
-                container.name,
-                containerCategory
-            )
-        })
-    } */
-
-        /**
-         * Build actions
-         * @private
-         * @param {object} items
-         * @param {object} groupData
-         * @param {string} actionType
-         */
-        async _addActions (items, groupData, actionType = 'item', spellLevel = null) {
-        // Exit if there are no items
-            if (items.size === 0) return
-
-            // Exit if there is no groupId
-            const groupId = (typeof groupData === 'string' ? groupData : groupData?.id)
-            if (!groupId) return
-
-            // Get actions
-            const actions = [...items].map(item => this._getAction(actionType, item[1], spellLevel))
-
-            // Add actions to action list
-            await this.addActions(actions, groupData)
+        _getActionId (entity, actionType, spellLevel) {
+            return (actionType === 'spell') ? `${entity.id ?? entity._id}-${spellLevel}` : entity.id ?? entity._id
         }
 
-        /**
-         * Get Action
-         * @private
-         * @param {string} actionType
-         * @param {object} entity
-         * @returns {object}
-         */
-        _getAction (actionType, entity, spellLevel) {
-            const id = (actionType === 'spell') ? `${entity.id ?? entity._id}-${spellLevel}` : entity.id ?? entity._id
-            const name = entity?.name ?? entity?.label ?? ''
-            const fullName = entity?.fullName
+        _getActionName (entity) {
+            return entity?.name ?? entity?.label ?? ''
+        }
+
+        _getActionListName (entity, actionType) {
+            const name = this._getActionName(entity)
             const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
-            const listName = entity.listName ?? `${actionTypeName}${name}`
-            let cssClass = ''
+            return entity.listName ?? `${actionTypeName}${name}`
+        }
+
+        _getActionCss (entity) {
             if (Object.hasOwn(entity, 'disabled')) {
                 const active = (!entity.disabled) ? ' active' : ''
-                cssClass = `toggle${active}`
+                return `toggle${active}`
             }
             if (Object.hasOwn(entity, 'selected')) {
                 const active = (entity.selected) ? ' active' : ''
-                cssClass = `toggle${active}`
+                return `toggle${active}`
             }
+        }
+
+        _getActionEncodedValue (entity, actionType, spellLevel) {
             const spellcastingId = entity?.spellcasting?.id
-            const encodedId = (actionType === 'spell') ? `${spellcastingId}>${spellLevel}>${entity.id ?? entity._id}` : id
-            const encodedValue = [actionType, encodedId].join(this.delimiter)
+            const encodedId = (actionType === 'spell') ? `${spellcastingId}>${spellLevel}>${entity.id ?? entity._id}` : this._getActionId(entity, actionType, spellLevel)
+            return [actionType, encodedId].join(this.delimiter)
+        }
+
+        _getIcon1 (entity, actionType) {
             const actions = entity.system?.actions
             const actionTypes = ['free', 'reaction', 'passive']
             const actionTypeValue = entity.system?.actionType?.value
@@ -1296,27 +1531,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const timeValue = entity.system?.time?.value
             const actionIcon = entity.actionIcon
             const iconType = (actionType === 'spell') ? timeValue : (actionTypes.includes(actionTypeValue)) ? actionTypeValue : actionsCost ?? actionIcon
-            const icon1 = this._getActionIcon(iconType, fullName)
-            const img = coreModule.api.Utils.getImage(entity)
-            const info = (actionType === 'spell') ? this._getSpellInfo(entity) : this._getItemInfo(entity)
-            const info1 = info?.info1
-            const info2 = info?.info2
-            const info3 = info?.info3
-            const systemSelected = entity?.systemSelected ?? null
-            return {
-                id,
-                name,
-                encodedValue,
-                cssClass,
-                img,
-                icon1,
-                info1,
-                info2,
-                info3,
-                fullName,
-                listName,
-                systemSelected
-            }
+            const name = this._getActionName(entity)
+            return this._getActionIcon(iconType, name)
         }
 
         /**
@@ -1458,6 +1674,71 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (!(a?.sort || b?.sort)) return 0
 
             return a.sort - b.sort
+        }
+
+        /**
+         * Get tooltip
+         * @param {object} tooltipData The tooltip data
+         * @returns {string}           The tooltip
+         */
+        async _getTooltip (tooltipData) {
+            if (typeof tooltipData === 'string') return tooltipData
+
+            const name = coreModule.api.Utils.i18n(tooltipData.name)
+            const nameHtml = `<h3>${name}</h3>`
+
+            const description = coreModule.api.Utils.i18n(tooltipData?.description ?? tooltipData?.descriptionLocalised ?? '')
+
+            const rarityHtml = tooltipData?.rarity
+                ? `<span class="tag ${tooltipData.rarity.name}">${coreModule.api.Utils.i18n(tooltipData.rarity.label)}</span>`
+                : ''
+
+            const propertiesHtml = tooltipData?.properties
+                ? `<div class="tah-properties">${tooltipData.properties.map(property => `<span class="tah-property">${coreModule.api.Utils.i18n(property)}</span>`).join('')}</div>`
+                : ''
+
+            const traitsHtml = tooltipData?.traits
+                ? tooltipData.traits.map(trait => `<span class="tag">${coreModule.api.Utils.i18n(trait.label)}</span>`).join('')
+                : ''
+
+            const traits2Html = tooltipData?.traits2
+                ? tooltipData.traits2.map(trait => `<span class="tag tag_secondary">${coreModule.api.Utils.i18n(trait.label ?? trait)}</span>`).join('')
+                : ''
+
+            const traitsAltHtml = tooltipData?.traitsAlt
+                ? tooltipData.traitsAlt.map(trait => `<span class="tag tag_alt">${coreModule.api.Utils.i18n(trait.label)}</span>`).join('')
+                : ''
+
+            const modifiersHtml = tooltipData?.modifiers
+                ? `<div class="tags">${tooltipData.modifiers.filter(modifier => modifier.enabled).map(modifier => {
+                    const label = coreModule.api.Utils.i18n(modifier.label)
+                    const sign = modifier.modifier >= 0 ? '+' : ''
+                    const mod = `${sign}${modifier.modifier ?? ''}`
+                    return `<span class="tag tag_transparent">${label} ${mod}</span>`
+                }).join('')}</div>`
+                : ''
+
+            const tagsJoined = [rarityHtml, traitsHtml, traits2Html, traitsAltHtml].join('')
+
+            const tagsHtml = (tagsJoined) ? `<div class="tags">${tagsJoined}</div>` : ''
+
+            const headerTags = (tagsHtml || modifiersHtml) ? `<div class="tah-tags-wrapper">${tagsHtml}${modifiersHtml}</div>` : ''
+
+            if (!description && !tagsHtml && !modifiersHtml) return name
+
+            const tooltipHtml = await TextEditor.enrichHTML(
+                `<div>${nameHtml}${headerTags}${description}${propertiesHtml}</div>`,
+                { async: true }
+            )
+
+            return tooltipHtml
+        }
+
+        _getStrikeDescription (data) {
+            const description = (data?.description) ? `<p>${coreModule.api.Utils.i18n(data?.description)}</p>` : ''
+            const criticalSuccess = (data?.criticalSuccess) ? `<hr><h4>${coreModule.api.Utils.i18n('PF2E.Check.Result.Degree.Check.criticalSuccess')}</h4><p>${coreModule.api.Utils.i18n(data?.criticalSuccess)}</p>` : ''
+            const success = (data?.success) ? `<h4>${coreModule.api.Utils.i18n('PF2E.Check.Result.Degree.Check.success')}</h4><p>${coreModule.api.Utils.i18n(data?.success)}</p>` : ''
+            return `${description}${criticalSuccess}${success}`
         }
     }
 })
