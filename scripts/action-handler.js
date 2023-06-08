@@ -1,5 +1,5 @@
 // System Module Imports
-import { ACTION_ICON, ACTION_TYPE, MODULAR_OPTION, SKILL_ABBREVIATION, SKILL, SKILL_ACTION, STRIKE_ICON, STRIKE_USAGE } from './constants.js'
+import { ACTION_ICON, ACTION_TYPE, ITEM_TYPE, MODULAR_OPTION, SKILL_ABBREVIATION, SKILL, SKILL_ACTION, STRIKE_ICON, STRIKE_USAGE } from './constants.js'
 import { Utils } from './utils.js'
 
 export let ActionHandler = null
@@ -683,8 +683,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
 
             // Loop through inventory group ids
-            for (const [groupId, items] of inventoryMap) {
+            for (const [id, items] of inventoryMap) {
                 // Create group data
+                const groupId = ITEM_TYPE[id]?.groupId
+                if (!groupId) continue
                 const groupData = { id: groupId, type: 'system' }
 
                 // Get actions
@@ -726,18 +728,20 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
 
             // Add container contents
-            if (inventoryMap.has('containers')) {
+            if (inventoryMap.has('backpack')) {
                 // Create parent group data
                 const parentGroupData = { id: 'containers', type: 'system' }
-                const containers = inventoryMap.get('containers')
+                const containers = inventoryMap.get('backpack')
 
-                for (const [groupId, container] of containers) {
+                for (const [id, container] of containers) {
                     const contents = container.contents
 
                     // Skip if container has no contents
                     if (!contents.size) continue
 
                     // Create group data
+                    const groupId = ITEM_TYPE[id]?.groupId
+                    if (!groupId) continue
                     const groupData = {
                         id: groupId,
                         name: container.name,

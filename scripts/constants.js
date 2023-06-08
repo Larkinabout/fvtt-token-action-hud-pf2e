@@ -58,6 +58,15 @@ export const ACTION_TYPE = {
     utility: 'tokenActionHud.utility'
 }
 
+export const ITEM_TYPE = {
+    armor: { groupId: 'armor' },
+    consumable: { groupId: 'consumables' },
+    backpack: { groupId: 'containers' },
+    equipment: { groupId: 'equipment' },
+    treasure: { groupId: 'treasure' },
+    weapon: { groupId: 'weapons' }
+}
+
 export const MODULAR_OPTION = {
     bludgeoning: 'PF2E.TraitBludgeoning',
     piercing: 'PF2E.TraitPiercing',
