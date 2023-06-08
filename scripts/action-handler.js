@@ -1381,7 +1381,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                         const actions = strikeUsage.variants.map((variant, index) => {
                             const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>` + usage)
-                            const isMap = variant.label.includes('MAP')
+                            const isMap = variant.label.includes(coreModule.api.Utils.i18n('PF2E.MAPAbbreviationLabel'))
                             const bonus = (isMap) ? strike.totalModifier + parseInt(variant.label.split(' ')[1]) : parseInt(variant.label.split(' ')[1])
                             const name = (this.calculateAttackPenalty) ? (bonus >= 0) ? `+${bonus}` : `${bonus}` : variant.label
                             return {
