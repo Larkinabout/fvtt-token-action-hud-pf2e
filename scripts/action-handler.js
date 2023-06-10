@@ -663,25 +663,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
             }
 
-            for (const [key, value] of this.items) {
-                const hasQuantity = value.system?.quantity > 0
-                const isEquippedItem = this._isEquippedItem(value)
-                const type = value.type
-
-                if (hasQuantity) {
-                    const itemType = isEquippedItem ? 'equipped' : 'unequipped'
-                    const itemCategoryMap = inventoryMap.get(itemType) ?? new Map()
-                    itemCategoryMap.set(key, value)
-                    inventoryMap.set(itemType, itemCategoryMap)
-
-                    if (isEquippedItem) {
-                        const categoryTypeMap = inventoryMap.get(type) ?? new Map()
-                        categoryTypeMap.set(key, value)
-                        inventoryMap.set(type, categoryTypeMap)
-                    }
-                }
-            }
-
             // Loop through inventory group ids
             for (const [id, items] of inventoryMap) {
                 // Create group data
