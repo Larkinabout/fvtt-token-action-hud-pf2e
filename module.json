@@ -19,7 +19,7 @@
   "version": "This is auto replaced",
   "compatibility": {
     "minimum": "10",
-    "verified": "10.291"
+    "verified": "11.301"
   },
   "esmodules": [
     "./scripts/token-action-hud-pf2e.min.js"
@@ -95,7 +95,7 @@
         "compatibility": [
           {
             "minimum": "4.6.4",
-            "verified": "4.12.9"
+            "verified": "5.0.0-beta1"
           }
         ]
       }
@@ -108,7 +108,7 @@
           {
             "minimum": "1.4.8",
             "maximum": "1.4",
-            "verified": "1.4.8"
+            "verified": "1.4.9"
           }
         ]
       }

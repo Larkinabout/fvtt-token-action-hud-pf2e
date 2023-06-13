@@ -1436,7 +1436,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'toggle'
 
             // Get toggles
-            const toggles = this.actor.system.toggles
+            const toggles = (game.system.version.startsWith('4')) ? this.actor.system.toggles : this.actor.synthetics.toggles
 
             // Exit if no toggles exist
             if (!toggles.length) return
