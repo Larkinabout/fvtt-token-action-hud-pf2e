@@ -26,17 +26,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (renderable.includes(actionType) && this.isRenderItem()) {
                 return this.doRenderItem(this.actor, actionId)
             }
-            const knownCharacters = ['character', 'familiar', 'npc']
+            const knownCharacters = ['character', 'familiar', 'hazard', 'npc']
             if (!this.actor) {
                 const controlledTokens = canvas.tokens.controlled.filter((token) =>
                     knownCharacters.includes(token.actor?.type)
                 )
                 for (const token of controlledTokens) {
                     const actor = token.actor
-                    await this._handleMacros(event, actionType, actor, token, actionId)
+                    await this.#handleActions(event, actionType, actor, token, actionId)
                 }
             } else {
-                await this._handleMacros(event, actionType, this.actor, this.token, actionId)
+                await this.#handleActions(event, actionType, this.actor, this.token, actionId)
             }
         }
 
@@ -55,7 +55,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {object} token
          * @param {string} actionId
          */
-        async _handleMacros (event, actionType, actor, token, actionId) {
+        async #handleActions (event, actionType, actor, token, actionId) {
             let actorType
             if (actor) actorType = actor.type
 
@@ -82,6 +82,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     break
                 case 'character':
                 case 'familiar':
+                case 'hazard':
                     await this.#handleUniqueActionsChar(
                         event,
                         actionType,
@@ -498,7 +499,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         #rollFamiliarAttack (event, actor) {
             const options = actor.getRollOptions(['all', 'attack'])
-            actor.system.attack.roll(event, options)
+            actor.system.attack.roll({ event, options })
         }
 
         /**

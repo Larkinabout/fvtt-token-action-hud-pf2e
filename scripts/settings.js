@@ -48,4 +48,36 @@ export function register (updateFunc) {
             updateFunc(value)
         }
     })
+
+    game.settings.register(MODULE.ID, 'splitStrikes', {
+        name: game.i18n.localize(
+            'tokenActionHud.pf2e.settings.splitStrikes.name'
+        ),
+        hint: game.i18n.localize(
+            'tokenActionHud.pf2e.settings.splitStrikes.hint'
+        ),
+        scope: 'client',
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: (value) => {
+            updateFunc(value)
+        }
+    })
+
+    game.settings.register(MODULE.ID, 'addDamageAndCritical', {
+        name: game.i18n.localize(
+            'tokenActionHud.pf2e.settings.addDamageAndCritical.name'
+        ),
+        hint: game.i18n.localize(
+            'tokenActionHud.pf2e.settings.addDamageAndCritical.hint'
+        ),
+        scope: 'client',
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: (value) => {
+            updateFunc(value)
+        }
+    })
 }

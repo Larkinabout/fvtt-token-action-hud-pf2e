@@ -1,31 +1,39 @@
 {
-  "tokenActionHud": {
-    "pf2e": {
-      "attribute": "Attribute",
-      "attributes": "Attributes",
-      "noAmmo": "No Ammo",
-      "rests": "Rests",
-      "save": "Save",
-      "skillAction": "Skill Action",
-      "skillActions": "Skill Actions",
-      "skillActionsGrouped": "Grouped Skill Actions",
-      "skillActionsUngrouped": "Ungrouped Skill Actions",
-      "takeBreather": "Take a Breather",
-      "toggle": "Toggle",
-      "settings": {
-        "calculateAttackPenalty": {
-          "hint": "Display the calculated attack penalty (Attack Modifier minus MAP) for Strikes",
-          "name": "Display Calculated Attack Penalty"
-        },
-        "colorSkills": {
-          "hint": "Color skills based on its rank",
-          "name": "Color skills based on its rank"
-        },
-        "showStrikeNames": {
-          "hint": "Show strike names by default",
-          "name": "Show Strike Names"
+    "tokenActionHud": {
+        "pf2e": {
+            "attribute": "Attribute",
+            "attributes": "Attributes",
+            "noAmmo": "No Ammo",
+            "rests": "Rests",
+            "save": "Save",
+            "skillAction": "Skill Action",
+            "skillActions": "Skill Actions",
+            "skillActionsGrouped": "Grouped Skill Actions",
+            "skillActionsUngrouped": "Ungrouped Skill Actions",
+            "takeBreather": "Take a Breather",
+            "toggle": "Toggle",
+            "settings": {
+                "calculateAttackPenalty": {
+                    "hint": "Display the calculated attack penalty (Attack Modifier minus MAP) for Strikes",
+                    "name": "Display Calculated Attack Penalty"
+                },
+                "colorSkills": {
+                    "hint": "Choose whether to color skills by their rank",
+                    "name": "Color Skills by Rank"
+                },
+                "showStrikeNames": {
+                    "hint": "Choose whether to show strike names by default",
+                    "name": "Show Strike Names"
+                },
+                "splitStrikes": {
+                    "hint": "Choose whether to split the main usage of strikes into their own group by default",
+                    "name": "Split Strike Main Usage"
+                },
+                "addDamageAndCritical": {
+                    "hint": "Choose whether to add damage and critical actions for strikes by default",
+                    "name": "Add Damage and Critical"
+                }
+            }
         }
-      }
     }
-  }
 }

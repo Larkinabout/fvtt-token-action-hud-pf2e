@@ -1,27 +1,39 @@
 {
-  "tokenActionHud": {
-    "pf2e": {
-      "attribute": "Attribute",
-      "attributes": "属性",
-      "noAmmo": "No Ammo",
-      "rests": "休息",
-      "save": "Save",
-      "skillAction": "Skill Action",
-      "skillActions": "Skill Actions",
-      "skillActionsGrouped": "Grouped Skill Actions",
-      "skillActionsUngrouped": "Ungrouped Skill Actions",
-      "takeBreather": "小憩一刻",
-      "toggle": "Toggle",
-      "settings": {
-        "calculateAttackPenalty": {
-          "hint": "为打击显示自动计算的攻击减值 (即攻击加值-多重攻击减值)",
-          "name": "显示多重攻击减值"
-        },
-        "colorSkills": {
-          "hint": "Color skills based on its rank",
-          "name": "Color skills based on its rank"
+    "tokenActionHud": {
+        "pf2e": {
+            "attribute": "Attribute",
+            "attributes": "属性",
+            "noAmmo": "No Ammo",
+            "rests": "休息",
+            "save": "Save",
+            "skillAction": "Skill Action",
+            "skillActions": "Skill Actions",
+            "skillActionsGrouped": "Grouped Skill Actions",
+            "skillActionsUngrouped": "Ungrouped Skill Actions",
+            "takeBreather": "小憩一刻",
+            "toggle": "Toggle",
+            "settings": {
+                "calculateAttackPenalty": {
+                    "hint": "为打击显示自动计算的攻击减值 (即攻击加值-多重攻击减值)",
+                    "name": "显示多重攻击减值"
+                },
+                "colorSkills": {
+                    "hint": "Choose whether to color skills by their rank",
+                    "name": "Color Skills by Rank"
+                },
+                "showStrikeNames": {
+                    "hint": "Choose whether to show strike names by default",
+                    "name": "Show Strike Names"
+                },
+                "splitStrikes": {
+                    "hint": "Choose whether to split the main usage of strikes into their own group by default",
+                    "name": "Split Strike Main Usage"
+                },
+                "addDamageAndCritical": {
+                    "hint": "Choose whether to add damage and critical actions for strikes by default",
+                    "name": "Add Damage and Critical"
+                }
+            }
         }
-      }
     }
-  }
 }
