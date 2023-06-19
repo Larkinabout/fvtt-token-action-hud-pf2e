@@ -100,20 +100,8 @@ export const SKILL_ABBREVIATION = {
  * Strike icons
  */
 export const STRIKE_ICON = {
-    melee: `<img class="alt-usage-icon" src="systems/pf2e/icons/mdi/sword.svg" title="Melee Usage" style="
-            border: 0;
-            filter: invert(1) drop-shadow(1px 1px 1px rgba(0, 0, 0, 1));
-            left: 2px;
-            padding-top: 3px;
-            position: relative;
-            ">`,
-    thrown: `<img class="alt-usage-icon" src="systems/pf2e/icons/mdi/thrown.svg" title="Thrown Usage" style="
-            border: 0;
-            filter: invert(1) drop-shadow(1px 1px 1px rgba(0, 0, 0, 1));
-            left: 2px;
-            padding-top: 3px;
-            position: relative;
-            ">`
+    melee: 'systems/pf2e/icons/mdi/sword.svg',
+    thrown: 'systems/pf2e/icons/mdi/thrown.svg'
 }
 
 /**

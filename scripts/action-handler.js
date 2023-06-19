@@ -1374,7 +1374,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         const usageGroupIcon = (usage !== 'thrown' && glyph)
                             ? `<span style='font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);'>${glyph}</span>`
                             : STRIKE_ICON[usage]
-                        const settings = { showTitle: (usage !== 'melee' && strikeUsages.length > 1) }
+                        const usageGroupImage = (strikeUsages.length > 1) ? STRIKE_ICON[usage] : ''
+                        const usageGroupShowTitle = !((usageGroupImage || strikeUsages.length <= 1))
+                        const settings = { showTitle: usageGroupShowTitle, image: usageGroupImage }
 
                         const usageGroupData = {
                             id: usageGroupId,
