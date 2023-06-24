@@ -570,7 +570,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (!skills) return
 
-            const initiativeStatistic = this.actor?.system.attributes.initiative.statistic ?? null
+            const initiativeStatistic = this.actor?.system?.attributes?.initiative?.statistic ?? null
 
             // Get actions
             const actions = []
