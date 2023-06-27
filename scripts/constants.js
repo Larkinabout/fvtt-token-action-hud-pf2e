@@ -58,6 +58,35 @@ export const ACTION_TYPE = {
     utility: 'tokenActionHud.utility'
 }
 
+/**
+ * Carry types icons
+ */
+export const CARRY_TYPE_ICON = {
+    held1: {
+        icon: '<span class="fa-stack fa-fw fa-2xs" data-tooltip="placeholder"><i class="fa-solid fa-hand-back-fist fa-stack-2x"></i><i class="fab fa-1 fa-inverse fa-stack-1x" style="color:#000000; text-shadow: none;"></i></span>',
+        tooltip: 'PF2E.CarryType.held1'
+    },
+    held2: {
+        icon: '<span class="fa-stack fa-fw fa-2xs" data-tooltip="placeholder"><i class="fa-solid fa-hand-back-fist fa-stack-2x"></i><i class="fab fa-2 fa-inverse fa-stack-1x" style="color:#000000; text-shadow: none;"></i></span>',
+        tooltip: 'PF2E.CarryType.held2'
+    },
+    dropped: {
+        icon: '<i class="fas fa-grip-lines fa-fw" data-tooltip="placeholder"></i>',
+        tooltip: 'PF2E.CarryType.dropped'
+    },
+    stowed: {
+        icon: '<i class="fas fa-box fa-fw" data-tooltip="placeholder"></i>',
+        tooltip: 'PF2E.CarryType.stowed'
+    },
+    worn: {
+        icon: '<i class="fas fa-tshirt fa-fw" data-tooltip="placeholder"></i>',
+        tooltip: 'PF2E.CarryType.worn'
+    }
+}
+
+/**
+ * Item types
+ */
 export const ITEM_TYPE = {
     armor: { groupId: 'armor' },
     consumable: { groupId: 'consumables' },
@@ -67,6 +96,9 @@ export const ITEM_TYPE = {
     weapon: { groupId: 'weapons' }
 }
 
+/**
+ * Modular options
+ */
 export const MODULAR_OPTION = {
     bludgeoning: 'PF2E.TraitBludgeoning',
     piercing: 'PF2E.TraitPiercing',

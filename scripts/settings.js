@@ -80,4 +80,20 @@ export function register (updateFunc) {
             updateFunc(value)
         }
     })
+
+    game.settings.register(MODULE.ID, 'addUnequippedItems', {
+        name: game.i18n.localize(
+            'tokenActionHud.pf2e.settings.addUnequippedItems.name'
+        ),
+        hint: game.i18n.localize(
+            'tokenActionHud.pf2e.settings.addUnequippedItems.hint'
+        ),
+        scope: 'client',
+        config: true,
+        type: Boolean,
+        default: false,
+        onChange: (value) => {
+            updateFunc(value)
+        }
+    })
 }

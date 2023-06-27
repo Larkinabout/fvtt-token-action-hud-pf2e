@@ -32,6 +32,10 @@
                 "addDamageAndCritical": {
                     "hint": "Choose whether to add damage and critical actions for strikes by default",
                     "name": "Add Damage and Critical"
+                },
+                "addUnequippedItems": {
+                    "hint": "Choose whether to add unequipped items by default",
+                    "name": "Add Unequipped Items"
                 }
             }
         }

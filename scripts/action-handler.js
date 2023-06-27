@@ -1,5 +1,5 @@
 // System Module Imports
-import { ACTION_ICON, ACTION_TYPE, ITEM_TYPE, MODULAR_OPTION, SKILL_ABBREVIATION, SKILL, SKILL_ACTION, STRIKE_ICON, STRIKE_USAGE } from './constants.js'
+import { ACTION_ICON, ACTION_TYPE, CARRY_TYPE_ICON, ITEM_TYPE, MODULAR_OPTION, SKILL_ABBREVIATION, SKILL, SKILL_ACTION, STRIKE_ICON, STRIKE_USAGE } from './constants.js'
 import { Utils } from './utils.js'
 
 export let ActionHandler = null
@@ -55,6 +55,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.showStrikeNames = Utils.getSetting('showStrikeNames')
             this.splitStrikes = Utils.getSetting('splitStrikes')
             this.addDamageAndCritical = Utils.getSetting('addDamageAndCritical')
+            this.addUnequippedItems = Utils.getSetting('addUnequippedItems')
 
             // Set group variables
             this.groupIds = groupIds
@@ -692,6 +693,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         const cssClass = this.#getActionCss(itemData)
                         const encodedValue = [actionType, id].join(this.delimiter)
                         const icon1 = this.#getIcon1(itemData, actionType)
+                        const icon2 = this.#getCarryTypeIcon(itemData)
                         const img = coreModule.api.Utils.getImage(itemData)
                         const info = this.#getItemInfo(itemData)
                         const chatData = await itemData.getChatData()
@@ -710,6 +712,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             cssClass,
                             img,
                             icon1,
+                            icon2,
                             info,
                             listName,
                             tooltip
@@ -734,10 +737,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     if (!contents.size) continue
 
                     // Create group data
-                    const groupId = ITEM_TYPE[id]?.groupId
-                    if (!groupId) continue
                     const groupData = {
-                        id: groupId,
+                        id,
                         name: container.name,
                         listName: `Group: ${container.name}`,
                         type: 'system-derived'
@@ -756,6 +757,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             const cssClass = this.#getActionCss(itemData)
                             const encodedValue = [actionType, id].join(this.delimiter)
                             const icon1 = this.#getIcon1(itemData, actionType)
+                            const icon2 = this.#getCarryTypeIcon(itemData)
                             const img = coreModule.api.Utils.getImage(itemData)
                             const info = this.#getItemInfo(itemData)
                             const chatData = await itemData.getChatData()
@@ -774,6 +776,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                                 cssClass,
                                 img,
                                 icon1,
+                                icon2,
                                 info,
                                 listName,
                                 tooltip
@@ -1657,7 +1660,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const carryTypes = ['held', 'worn']
             const carryType = item.system.equipped?.carryType
 
-            if (this.showUnequippedItems) return true
+            if (this.addUnequippedItems) return true
             if (carryTypes.includes(carryType) && !item.system.containerId?.value?.length) return true
             return false
         }
@@ -1688,6 +1691,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         /**
          * Get action icon
+         * @private
          * @param {object} action
          * @returns {string}
          */
@@ -1696,6 +1700,30 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 return `<i class="${ACTION_ICON[action]}" data-tooltip="${title}"></i>`
             }
             return ACTION_ICON[action]
+        }
+
+        /**
+         * Get carry type icon
+         * @private
+         * @param {object} itemData The item data
+         * @returns {string}
+         */
+        #getCarryTypeIcon (itemData) {
+            let carryType = ''
+            switch (itemData?.carryType) {
+            case 'held':
+                if (itemData?.handsHeld === 2) {
+                    carryType = 'held2'
+                } else {
+                    carryType = 'held1'
+                }
+                break
+            default:
+                carryType = itemData?.carryType
+                break
+            }
+            const tooltip = coreModule.api.Utils.i18n(CARRY_TYPE_ICON[carryType]?.tooltip) ?? ''
+            return CARRY_TYPE_ICON[carryType]?.icon.replace('placeholder', tooltip) ?? ''
         }
 
         /** @protected */
