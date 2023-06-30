@@ -33,6 +33,22 @@ export function register (updateFunc) {
         }
     })
 
+    game.settings.register(MODULE.ID, 'showStrikeImages', {
+        name: game.i18n.localize(
+            'tokenActionHud.pf2e.settings.showStrikeImages.name'
+        ),
+        hint: game.i18n.localize(
+            'tokenActionHud.pf2e.settings.showStrikeImages.hint'
+        ),
+        scope: 'client',
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: (value) => {
+            updateFunc(value)
+        }
+    })
+
     game.settings.register(MODULE.ID, 'showStrikeNames', {
         name: game.i18n.localize(
             'tokenActionHud.pf2e.settings.showStrikeNames.name'
@@ -43,7 +59,7 @@ export function register (updateFunc) {
         scope: 'client',
         config: true,
         type: Boolean,
-        default: true,
+        default: false,
         onChange: (value) => {
             updateFunc(value)
         }

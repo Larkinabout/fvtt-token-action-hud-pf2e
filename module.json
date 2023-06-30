@@ -95,7 +95,7 @@
         "compatibility": [
           {
             "minimum": "4.6.4",
-            "verified": "5.0.0-beta2"
+            "verified": "5.0.2"
           }
         ]
       }

@@ -52,6 +52,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.abbreviateSkills = Utils.getSetting('abbreviateSkills')
             this.calculateAttackPenalty = Utils.getSetting('calculateAttackPenalty')
             this.colorSkills = Utils.getSetting('colorSkills')
+            this.showStrikeImages = Utils.getSetting('showStrikeImages')
             this.showStrikeNames = Utils.getSetting('showStrikeNames')
             this.splitStrikes = Utils.getSetting('splitStrikes')
             this.addDamageAndCritical = Utils.getSetting('addDamageAndCritical')
@@ -1297,10 +1298,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
                 const tooltip = await this.#getTooltip(tooltipData)
                 // Create group data
-                strikeGroupData = { id: strikeGroupId, name: strikeGroupName, listName: strikeGroupListName, type: 'system-derived', settings: { image, showTitle }, tooltip }
+                strikeGroupData = { id: strikeGroupId, name: strikeGroupName, listName: strikeGroupListName, type: 'system-derived', settings: { showTitle }, tooltip }
+                if (this.showStrikeImages) { strikeGroupData.settings.image = image }
 
                 // Add group to action list
-                this.addGroup(strikeGroupData, parentGroupData, true)
+                this.addGroup(strikeGroupData, parentGroupData)
 
                 if (strike.auxiliaryActions?.length) {
                     // Get actions

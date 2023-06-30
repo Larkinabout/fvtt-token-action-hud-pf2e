@@ -21,6 +21,10 @@
                     "hint": "Choose whether to color skills by their rank",
                     "name": "Color Skills by Rank"
                 },
+                "showStrikeImages": {
+                    "hint": "Choose whether to show strike images by default",
+                    "name": "Show Strike Images"
+                },
                 "showStrikeNames": {
                     "hint": "Choose whether to show strike names by default",
                     "name": "Show Strike Names"
