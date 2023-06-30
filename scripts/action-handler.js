@@ -56,6 +56,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.showStrikeNames = Utils.getSetting('showStrikeNames')
             this.splitStrikes = Utils.getSetting('splitStrikes')
             this.addDamageAndCritical = Utils.getSetting('addDamageAndCritical')
+            this.addStowedItems = Utils.getSetting('addStowedItems')
             this.addUnequippedItems = Utils.getSetting('addUnequippedItems')
 
             // Set group variables
@@ -662,9 +663,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             for (const [key, value] of this.items) {
                 const hasQuantity = value.system?.quantity > 0
                 const isEquippedItem = this.#isEquippedItem(value)
+                const isAddItem = this.#isAddItem('nonContainer', value)
                 const type = value.type
 
-                if (hasQuantity) {
+                if (hasQuantity && isAddItem) {
                     const itemType = isEquippedItem ? 'equipped' : 'unequipped'
                     const itemCategoryMap = inventoryMap.get(itemType) ?? new Map()
                     itemCategoryMap.set(key, value)
@@ -748,10 +750,18 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     // Add group to action list
                     await this.addGroup(groupData, parentGroupData)
 
-                    const items = new Map(contents.map(content => [content.id, content]))
+                    const contentsMap = new Map()
+
+                    for (const content of contents) {
+                        const isAddItem = this.#isAddItem('container', content)
+
+                        if (isAddItem) {
+                            contentsMap.set(content.id, content)
+                        }
+                    }
 
                     const actions = await Promise.all(
-                        [...items].map(async ([_, itemData]) => {
+                        [...contentsMap].map(async ([_, itemData]) => {
                             const id = this.#getActionId(itemData)
                             const name = this.#getActionName(itemData)
                             const listName = this.#getActionListName(itemData, actionType)
@@ -1664,6 +1674,26 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (this.addUnequippedItems) return true
             if (carryTypes.includes(carryType) && !item.system.containerId?.value?.length) return true
+            return false
+        }
+
+        #isAddItem (groupType, item) {
+            if (item.system.equipped?.carryType !== 'stowed') return true
+            return this.#isAddStowedItem(groupType, item)
+        }
+
+        /**
+         * Is add stowed item
+         * @private
+         * @param {string} groupType The group type: container or nonContainer
+         * @param {object} item      The item
+         * @returns {boolean}        Whether the stowed item should be added to the group
+         */
+        #isAddStowedItem (groupType, item) {
+            if (item.system.equipped?.carryType !== 'stowed') return true
+            if (this.addStowedItems === 'both') return true
+            if (groupType === 'container' && this.addStowedItems === 'containers') return true
+            if (groupType === 'nonContainer' && this.addStowedItems === 'nonContainers') return true
             return false
         }
 
