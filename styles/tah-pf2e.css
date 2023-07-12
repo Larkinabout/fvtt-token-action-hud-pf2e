@@ -92,3 +92,8 @@ img[src="systems/pf2e/icons/mdi/thrown.svg"].tah-list-image {
     min-width: 16px;
     width: 16px;
 }
+
+.tah-group[data-has-image="true"][data-level="4"] {
+    position: relative;
+    right: 21px;
+}
