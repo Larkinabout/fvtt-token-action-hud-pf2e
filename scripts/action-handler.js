@@ -54,6 +54,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.colorSkills = Utils.getSetting('colorSkills')
             this.showStrikeImages = Utils.getSetting('showStrikeImages')
             this.showStrikeNames = Utils.getSetting('showStrikeNames')
+            this.showAuxiliaryActions = Utils.getSetting('showAuxiliaryActions')
             this.splitStrikes = Utils.getSetting('splitStrikes')
             this.addDamageAndCritical = Utils.getSetting('addDamageAndCritical')
             this.addStowedItems = Utils.getSetting('addStowedItems')
@@ -1456,6 +1457,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                                 actions.push({
                                     id,
                                     name,
+
                                     listName: `${usageGroupListName}: ${name}`,
                                     encodedValue: [actionType, id].join(this.delimiter)
                                 })
@@ -1467,13 +1469,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
 
                 if (this.splitStrikes) {
-                    this.addActions([...auxiliaryActions, ...versatileOptionActions], strikeGroupData)
+                    if (this.showAuxiliaryActions) {
+                        this.addActions([...auxiliaryActions, ...versatileOptionActions], strikeGroupData)
+                    } else {
+                        this.addActions([...versatileOptionActions], strikeGroupData)
+                    }
                     for (const usage of usageData) {
                         this.addGroup(usage.usageGroupData, strikeGroupData)
                         this.addActions(usage.actions, usage.usageGroupData)
                     }
                 } else {
-                    this.addActions([...auxiliaryActions, ...(usageData[0]?.actions || []), ...versatileOptionActions], strikeGroupData)
+                    if (this.showAuxiliaryActions) {
+                        this.addActions([...auxiliaryActions, ...(usageData[0]?.actions || []), ...versatileOptionActions], strikeGroupData)
+                    } else {
+                        this.addActions([...(usageData[0]?.actions || []), ...versatileOptionActions], strikeGroupData)
+                    }
                     usageData.shift()
                     for (const usage of usageData) {
                         this.addGroup(usage.usageGroupData, strikeGroupData)

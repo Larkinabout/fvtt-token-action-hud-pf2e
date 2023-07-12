@@ -65,6 +65,22 @@ export function register (updateFunc) {
         }
     })
 
+    game.settings.register(MODULE.ID, 'showAuxiliaryActions', {
+        name: game.i18n.localize(
+            'tokenActionHud.pf2e.settings.showAuxiliaryActions.name'
+        ),
+        hint: game.i18n.localize(
+            'tokenActionHud.pf2e.settings.showAuxiliaryActions.hint'
+        ),
+        scope: 'client',
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: (value) => {
+            updateFunc(value)
+        }
+    })
+
     game.settings.register(MODULE.ID, 'splitStrikes', {
         name: game.i18n.localize(
             'tokenActionHud.pf2e.settings.splitStrikes.name'
