@@ -29,6 +29,10 @@
                     "hint": "Choose whether to show strike names by default",
                     "name": "Show Strike Names"
                 },
+                "showAuxiliaryActions": {
+                    "hint": "Choose wheter to show auxiliary actions by default",
+                    "name": "Show Auxiliary Actions"
+                },
                 "splitStrikes": {
                     "hint": "Choose whether to split the main usage of strikes into their own group by default",
                     "name": "Split Strike Main Usage"
