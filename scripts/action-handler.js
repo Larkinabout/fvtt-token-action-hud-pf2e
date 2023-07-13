@@ -1315,7 +1315,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 // Add group to action list
                 this.addGroup(strikeGroupData, parentGroupData)
 
-                if (strike.auxiliaryActions?.length) {
+                if (strike.auxiliaryActions?.length && this.showAuxiliaryActions) {
                     // Get actions
                     auxiliaryActions = strike.auxiliaryActions.flatMap((auxiliaryAction, index) => {
                         if (auxiliaryAction.purpose === 'Modular') {
@@ -1469,21 +1469,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
 
                 if (this.splitStrikes) {
-                    if (this.showAuxiliaryActions) {
-                        this.addActions([...auxiliaryActions, ...versatileOptionActions], strikeGroupData)
-                    } else {
-                        this.addActions([...versatileOptionActions], strikeGroupData)
-                    }
+                    this.addActions([...auxiliaryActions, ...versatileOptionActions], strikeGroupData)
                     for (const usage of usageData) {
                         this.addGroup(usage.usageGroupData, strikeGroupData)
                         this.addActions(usage.actions, usage.usageGroupData)
                     }
                 } else {
-                    if (this.showAuxiliaryActions) {
-                        this.addActions([...auxiliaryActions, ...(usageData[0]?.actions || []), ...versatileOptionActions], strikeGroupData)
-                    } else {
-                        this.addActions([...(usageData[0]?.actions || []), ...versatileOptionActions], strikeGroupData)
-                    }
+                    this.addActions([...auxiliaryActions, ...(usageData[0]?.actions || []), ...versatileOptionActions], strikeGroupData)
                     usageData.shift()
                     for (const usage of usageData) {
                         this.addGroup(usage.usageGroupData, strikeGroupData)
