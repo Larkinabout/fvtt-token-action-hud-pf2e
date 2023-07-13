@@ -54,6 +54,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.colorSkills = Utils.getSetting('colorSkills')
             this.showStrikeImages = Utils.getSetting('showStrikeImages')
             this.showStrikeNames = Utils.getSetting('showStrikeNames')
+            this.showAuxiliaryActions = Utils.getSetting('showAuxiliaryActions')
             this.splitStrikes = Utils.getSetting('splitStrikes')
             this.addDamageAndCritical = Utils.getSetting('addDamageAndCritical')
             this.addStowedItems = Utils.getSetting('addStowedItems')
@@ -1314,7 +1315,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 // Add group to action list
                 this.addGroup(strikeGroupData, parentGroupData)
 
-                if (strike.auxiliaryActions?.length) {
+                if (strike.auxiliaryActions?.length && this.showAuxiliaryActions) {
                     // Get actions
                     auxiliaryActions = strike.auxiliaryActions.flatMap((auxiliaryAction, index) => {
                         if (auxiliaryAction.purpose === 'Modular') {
@@ -1456,6 +1457,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                                 actions.push({
                                     id,
                                     name,
+
                                     listName: `${usageGroupListName}: ${name}`,
                                     encodedValue: [actionType, id].join(this.delimiter)
                                 })

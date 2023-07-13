@@ -29,6 +29,10 @@
                     "hint": "Wählen Sie, ob die Namen der Angriffe standardmäßig angezeigt werden sollen",
                     "name": "Angriffsnamen anzeigen"
                 },
+                "showAuxiliaryActions": {
+                    "hint": "Choose whether to show auxiliary actions by default",
+                    "name": "Show Auxiliary Actions"
+                },
                 "splitStrikes": {
                     "hint": "Wählen Sie, ob der Typ von Angriffen standardmäßig in eine eigene Gruppe aufgeteilt werden soll",
                     "name": "Angriffstypen aufteilen"
