@@ -30,7 +30,7 @@
                     "name": "Angriffsnamen anzeigen"
                 },
                 "showAuxiliaryActions": {
-                    "hint": "Choose wheter to show auxiliary actions by default",
+                    "hint": "Choose whether to show auxiliary actions by default",
                     "name": "Show Auxiliary Actions"
                 },
                 "splitStrikes": {
