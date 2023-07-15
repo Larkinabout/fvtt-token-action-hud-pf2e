@@ -1,61 +1,35 @@
 {
-    "tokenActionHud": {
-        "pf2e": {
-            "attribute": "Attribute",
-            "attributes": "屬性",
-            "noAmmo": "No Ammo",
-            "rests": "休息",
-            "save": "Save",
-            "skillAction": "Skill Action",
-            "skillActions": "Skill Actions",
-            "skillActionsGrouped": "Grouped Skill Actions",
-            "skillActionsUngrouped": "Ungrouped Skill Actions",
-            "takeBreather": "小憩一刻",
-            "toggle": "Toggle",
-            "settings": {
-                "calculateAttackPenalty": {
-                    "hint": "為打擊顯示自動計算的攻擊減值 (即攻擊加值-多重攻擊減值)",
-                    "name": "顯示多重攻擊減值"
-                },
-                "colorSkills": {
-                    "hint": "Choose whether to color skills by their rank",
-                    "name": "Color Skills by Rank"
-                },
-                "showStrikeImages": {
-                    "hint": "Choose whether to show strike images by default",
-                    "name": "Show Strike Images"
-                },
-                "showStrikeNames": {
-                    "hint": "Choose whether to show strike names by default",
-                    "name": "Show Strike Names"
-                },
-                "showAuxiliaryActions": {
-                    "hint": "Choose whether to show auxiliary actions by default",
-                    "name": "Show Auxiliary Actions"
-                },
-                "splitStrikes": {
-                    "hint": "Choose whether to split the main usage of strikes into their own group by default",
-                    "name": "Split Strike Main Usage"
-                },
-                "addDamageAndCritical": {
-                    "hint": "Choose whether to add damage and critical actions for strikes by default",
-                    "name": "Add Damage and Critical"
-                },
-                "addStowedItems": {
-                    "hint": "Choose where to add stowed items",
-                    "name": "Add Stowed Items",
-                    "choices": {
-                        "containers": "Container Groups Only",
-                        "nonContainers": "Non-Container Groups Only",
-                        "both": "Container and Non-Container Groups",
-                        "none": "No Groups"
-                    }
-                },
-                "addUnequippedItems": {
-                    "hint": "Choose whether to add unequipped items by default",
-                    "name": "Add Unequipped Items"
-                }
-            }
-        }
-    }
+    "tokenActionHud.pf2e.attribute": "屬性",
+    "tokenActionHud.pf2e.attributes": "屬性",
+    "tokenActionHud.pf2e.noAmmo": "無彈藥",
+    "tokenActionHud.pf2e.rests": "休息",
+    "tokenActionHud.pf2e.save": "保存",
+    "tokenActionHud.pf2e.setting.addAuxiliaryActions.hint": "是否默認添加額外行動以進行攻擊",
+    "tokenActionHud.pf2e.setting.addAuxiliaryActions.name": "添加額外行動",
+    "tokenActionHud.pf2e.setting.addDamageAndCritical.hint": "是否默認添加攻擊的傷害和致命值行動",
+    "tokenActionHud.pf2e.setting.addDamageAndCritical.name": "添加傷害和致命值",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.both": "容器和非容器群組",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.containers": "僅容器群組",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.nonContainers": "僅非容器群組",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.none": "無群組",
+    "tokenActionHud.pf2e.setting.addStowedItems.hint": "選擇在哪裡添加存放的物品",
+    "tokenActionHud.pf2e.setting.addStowedItemsname": "添加存放的物品",
+    "tokenActionHud.pf2e.setting.addUnequippedItems.hint": "是否默認添加未裝備的物品",
+    "tokenActionHud.pf2e.setting.addUnequippedItems.name": "添加未裝備的物品",
+    "tokenActionHud.pf2e.setting.calculateAttackPenalty.hint": "顯示計算的攻擊懲罰（攻擊修正減去MAP）",
+    "tokenActionHud.pf2e.setting.calculateAttackPenalty.name": "顯示計算的攻擊懲罰",
+    "tokenActionHud.pf2e.setting.colorSkills.hint": "選擇是否按照等級對技能進行著色",
+    "tokenActionHud.pf2e.setting.colorSkills.name": "按等級著色技能",
+    "tokenActionHud.pf2e.setting.showStrikeImages.hint": "選擇是否默認顯示攻擊的圖像",
+    "tokenActionHud.pf2e.setting.showStrikeImages.name": "顯示攻擊圖像",
+    "tokenActionHud.pf2e.setting.showStrikeNames.hint": "選擇是否默認顯示攻擊的名稱",
+    "tokenActionHud.pf2e.setting.showStrikeNames.name": "顯示攻擊名稱",
+    "tokenActionHud.pf2e.setting.splitStrikes.hint": "選擇是否默認將攻擊的主要用途分為單獨的群組",
+    "tokenActionHud.pf2e.setting.splitStrikes.name": "分割主要攻擊用途",
+    "tokenActionHud.pf2e.skillAction": "技能行動",
+    "tokenActionHud.pf2e.skillActions": "技能行動",
+    "tokenActionHud.pf2e.skillActionsGrouped": "分組的技能行動",
+    "tokenActionHud.pf2e.skillActionsUngrouped": "未分組的技能行動",
+    "tokenActionHud.pf2e.takeBreather": "休息一下",
+    "tokenActionHud.pf2e.toggle": "切換"
 }

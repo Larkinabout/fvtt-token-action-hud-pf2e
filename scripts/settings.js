@@ -3,10 +3,10 @@ import { MODULE } from './constants.js'
 export function register (updateFunc) {
     game.settings.register(MODULE.ID, 'calculateAttackPenalty', {
         name: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.calculateAttackPenalty.name'
+            'tokenActionHud.pf2e.setting.calculateAttackPenalty.name'
         ),
         hint: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.calculateAttackPenalty.hint'
+            'tokenActionHud.pf2e.setting.calculateAttackPenalty.hint'
         ),
         scope: 'client',
         config: true,
@@ -19,10 +19,10 @@ export function register (updateFunc) {
 
     game.settings.register(MODULE.ID, 'colorSkills', {
         name: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.colorSkills.name'
+            'tokenActionHud.pf2e.setting.colorSkills.name'
         ),
         hint: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.colorSkills.hint'
+            'tokenActionHud.pf2e.setting.colorSkills.hint'
         ),
         scope: 'client',
         config: true,
@@ -35,10 +35,10 @@ export function register (updateFunc) {
 
     game.settings.register(MODULE.ID, 'showStrikeImages', {
         name: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.showStrikeImages.name'
+            'tokenActionHud.pf2e.setting.showStrikeImages.name'
         ),
         hint: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.showStrikeImages.hint'
+            'tokenActionHud.pf2e.setting.showStrikeImages.hint'
         ),
         scope: 'client',
         config: true,
@@ -51,10 +51,10 @@ export function register (updateFunc) {
 
     game.settings.register(MODULE.ID, 'showStrikeNames', {
         name: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.showStrikeNames.name'
+            'tokenActionHud.pf2e.setting.showStrikeNames.name'
         ),
         hint: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.showStrikeNames.hint'
+            'tokenActionHud.pf2e.setting.showStrikeNames.hint'
         ),
         scope: 'client',
         config: true,
@@ -65,12 +65,12 @@ export function register (updateFunc) {
         }
     })
 
-    game.settings.register(MODULE.ID, 'showAuxiliaryActions', {
+    game.settings.register(MODULE.ID, 'splitStrikes', {
         name: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.showAuxiliaryActions.name'
+            'tokenActionHud.pf2e.setting.splitStrikes.name'
         ),
         hint: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.showAuxiliaryActions.hint'
+            'tokenActionHud.pf2e.setting.splitStrikes.hint'
         ),
         scope: 'client',
         config: true,
@@ -81,12 +81,12 @@ export function register (updateFunc) {
         }
     })
 
-    game.settings.register(MODULE.ID, 'splitStrikes', {
+    game.settings.register(MODULE.ID, 'addAuxiliaryActions', {
         name: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.splitStrikes.name'
+            'tokenActionHud.pf2e.setting.addAuxiliaryActions.name'
         ),
         hint: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.splitStrikes.hint'
+            'tokenActionHud.pf2e.setting.addAuxiliaryActions.hint'
         ),
         scope: 'client',
         config: true,
@@ -99,10 +99,10 @@ export function register (updateFunc) {
 
     game.settings.register(MODULE.ID, 'addDamageAndCritical', {
         name: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.addDamageAndCritical.name'
+            'tokenActionHud.pf2e.setting.addDamageAndCritical.name'
         ),
         hint: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.addDamageAndCritical.hint'
+            'tokenActionHud.pf2e.setting.addDamageAndCritical.hint'
         ),
         scope: 'client',
         config: true,
@@ -115,20 +115,20 @@ export function register (updateFunc) {
 
     game.settings.register(MODULE.ID, 'addStowedItems', {
         name: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.addStowedItems.name'
+            'tokenActionHud.pf2e.setting.addStowedItems.name'
         ),
         hint: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.addStowedItems.hint'
+            'tokenActionHud.pf2e.setting.addStowedItems.hint'
         ),
         scope: 'client',
         config: true,
         type: String,
         default: 'containers',
         choices: {
-            containers: game.i18n.localize('tokenActionHud.pf2e.settings.addStowedItems.choices.containers'),
-            nonContainers: game.i18n.localize('tokenActionHud.pf2e.settings.addStowedItems.choices.nonContainers'),
-            both: game.i18n.localize('tokenActionHud.pf2e.settings.addStowedItems.choices.both'),
-            none: game.i18n.localize('tokenActionHud.pf2e.settings.addStowedItems.choices.none')
+            containers: game.i18n.localize('tokenActionHud.pf2e.setting.addStowedItems.choice.containers'),
+            nonContainers: game.i18n.localize('tokenActionHud.pf2e.setting.addStowedItems.choice.nonContainers'),
+            both: game.i18n.localize('tokenActionHud.pf2e.setting.addStowedItems.choice.both'),
+            none: game.i18n.localize('tokenActionHud.pf2e.setting.addStowedItems.choice.none')
         },
         onChange: (value) => {
             updateFunc(value)
@@ -137,10 +137,10 @@ export function register (updateFunc) {
 
     game.settings.register(MODULE.ID, 'addUnequippedItems', {
         name: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.addUnequippedItems.name'
+            'tokenActionHud.pf2e.setting.addUnequippedItems.name'
         ),
         hint: game.i18n.localize(
-            'tokenActionHud.pf2e.settings.addUnequippedItems.hint'
+            'tokenActionHud.pf2e.setting.addUnequippedItems.hint'
         ),
         scope: 'client',
         config: true,

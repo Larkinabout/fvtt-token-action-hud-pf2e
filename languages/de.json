@@ -1,61 +1,35 @@
 {
-    "tokenActionHud": {
-        "pf2e": {
-            "attribute": "Attribut",
-            "attributes": "Attribute",
-            "noAmmo": "Keine Munition",
-            "rests": "Erholung",
-            "save": "Speichern",
-            "skillAction": "Fertigkeitsaktion",
-            "skillActions": "Fertigkeitsaktionen",
-            "skillActionsGrouped": "Gruppierte Fertigkeitsaktionen",
-            "skillActionsUngrouped": "Ungruppierte Fertigkeitsaktionen",
-            "takeBreather": "Verschnaufen",
-            "toggle": "Umschalten",
-            "settings": {
-                "calculateAttackPenalty": {
-                    "hint": "Anzeige des berechneten Malus für Mehrfachangriffe (Angriffsmodifikator minus Malus)",
-                    "name": "Anzeige des berechneten Malus"
-                },
-                "colorSkills": {
-                    "hint": "Wählen Sie, ob Sie Fertigkeiten nach ihrem Rang einfärben möchten",
-                    "name": "Fertigkeiten auf Basis des Rangs einfärben"
-                },
-                "showStrikeImages": {
-                    "hint": "Wählen Sie, ob Angriffsbilder standardmäßig angezeigt werden sollen",
-                    "name": "Angriffsbilder anzeigen"
-                },
-                "showStrikeNames": {
-                    "hint": "Wählen Sie, ob die Namen der Angriffe standardmäßig angezeigt werden sollen",
-                    "name": "Angriffsnamen anzeigen"
-                },
-                "showAuxiliaryActions": {
-                    "hint": "Choose whether to show auxiliary actions by default",
-                    "name": "Show Auxiliary Actions"
-                },
-                "splitStrikes": {
-                    "hint": "Wählen Sie, ob der Typ von Angriffen standardmäßig in eine eigene Gruppe aufgeteilt werden soll",
-                    "name": "Angriffstypen aufteilen"
-                },
-                "addDamageAndCritical": {
-                    "hint": "Wählen Sie, ob Schaden und kritische Aktionen für Angriffe standardmäßig hinzugefügt werden sollen",
-                    "name": "Schaden und kritische Aktionen hinzufügen"
-                },
-                "addStowedItems": {
-                    "hint": "Wählen Sie, wo Gegenstände verstaut werden",
-                    "name": "Verstaute Gegenstände hinzufügen",
-                    "choices": {
-                        "containers": "Behälter Gruppierung",
-                        "nonContainers": "Nicht-Behälter Gruppierung",
-                        "both": "Behälter sowie Nicht-Behälter Gruppierung",
-                        "none": "Keine Gruppierung"
-                    }
-                },
-                "addUnequippedItems": {
-                    "hint": "Wählen Sie, ob ungetragene Gegenstände standardmäßig hinzugefügt werden sollen",
-                    "name": "Ungetragene Gegenstände hinzufügen"
-                }
-            }
-        }
-    }
+    "tokenActionHud.pf2e.attribute": "Attribut",
+    "tokenActionHud.pf2e.attributes": "Attribute",
+    "tokenActionHud.pf2e.noAmmo": "Keine Munition",
+    "tokenActionHud.pf2e.rests": "Erholung",
+    "tokenActionHud.pf2e.save": "Speichern",
+    "tokenActionHud.pf2e.setting.addAuxiliaryActions.hint": "Wähle aus, ob standardmäßig Hilfsaktionen für Angriffe hinzugefügt werden sollen",
+    "tokenActionHud.pf2e.setting.addAuxiliaryActions.name": "Hilfsaktionen hinzufügen",
+    "tokenActionHud.pf2e.setting.addDamageAndCritical.hint": "Wählen Sie, ob Schaden und kritische Aktionen für Angriffe standardmäßig hinzugefügt werden sollen",
+    "tokenActionHud.pf2e.setting.addDamageAndCritical.name": "Schaden und kritische Aktionen hinzufügen",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.both": "Behälter sowie Nicht-Behälter Gruppierung",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.containers": "Behälter Gruppierung",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.nonContainers": "Nicht-Behälter Gruppierung",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.none": "Keine Gruppierung",
+    "tokenActionHud.pf2e.setting.addStowedItems.hint": "Wählen Sie, wo Gegenstände verstaut werden",
+    "tokenActionHud.pf2e.setting.addStowedItems.name": "Verstaute Gegenstände hinzufügen",
+    "tokenActionHud.pf2e.setting.addUnequippedItems.hint": "Wählen Sie, ob ungetragene Gegenstände standardmäßig hinzugefügt werden sollen",
+    "tokenActionHud.pf2e.setting.addUnequippedItems.name": "Ungetragene Gegenstände hinzufügen",
+    "tokenActionHud.pf2e.setting.calculateAttackPenalty.hint": "Anzeige des berechneten Malus für Mehrfachangriffe (Angriffsmodifikator minus Malus)",
+    "tokenActionHud.pf2e.setting.calculateAttackPenalty.name": "Anzeige des berechneten Malus",
+    "tokenActionHud.pf2e.setting.colorSkills.hint": "Wählen Sie, ob Sie Fertigkeiten nach ihrem Rang einfärben möchten",
+    "tokenActionHud.pf2e.setting.colorSkills.name": "Fertigkeiten auf Basis des Rangs einfärben",
+    "tokenActionHud.pf2e.setting.showStrikeImages.hint": "Wählen Sie, ob Angriffsbilder standardmäßig angezeigt werden sollen",
+    "tokenActionHud.pf2e.setting.showStrikeImages.name": "Angriffsbilder anzeigen",
+    "tokenActionHud.pf2e.setting.showStrikeNames.hint": "Wählen Sie, ob die Namen der Angriffe standardmäßig angezeigt werden sollen",
+    "tokenActionHud.pf2e.setting.showStrikeNames.name": "Angriffsnamen anzeigen",
+    "tokenActionHud.pf2e.setting.splitStrikes.hint": "Wählen Sie, ob der Typ von Angriffen standardmäßig in eine eigene Gruppe aufgeteilt werden soll",
+    "tokenActionHud.pf2e.setting.splitStrikes.name": "Angriffstypen aufteilen",
+    "tokenActionHud.pf2e.skillAction": "Fertigkeitsaktion",
+    "tokenActionHud.pf2e.skillActions": "Fertigkeitsaktionen",
+    "tokenActionHud.pf2e.skillActionsGrouped": "Gruppierte Fertigkeitsaktionen",
+    "tokenActionHud.pf2e.skillActionsUngrouped": "Ungruppierte Fertigkeitsaktionen",
+    "tokenActionHud.pf2e.takeBreather": "Verschnaufen",
+    "tokenActionHud.pf2e.toggle": "Umschalten"
 }

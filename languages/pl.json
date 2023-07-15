@@ -1,61 +1,35 @@
 {
-    "tokenActionHud": {
-        "pf2e": {
-            "attribute": "Attribute",
-            "attributes": "Attributes",
-            "noAmmo": "No Ammo",
-            "rests": "Rests",
-            "save": "Save",
-            "skillAction": "Skill Action",
-            "skillActions": "Skill Actions",
-            "skillActionsGrouped": "Grouped Skill Actions",
-            "skillActionsUngrouped": "Ungrouped Skill Actions",
-            "takeBreather": "Take a Breather",
-            "toggle": "Toggle",
-            "settings": {
-                "calculateAttackPenalty": {
-                    "hint": "Display the calculated attack penalty (Attack Modifier minus MAP) for Strikes",
-                    "name": "Display Calculated Attack Penalty"
-                },
-                "colorSkills": {
-                    "hint": "Choose whether to color skills by their rank",
-                    "name": "Color Skills by Rank"
-                },
-                "showStrikeImages": {
-                    "hint": "Choose whether to show strike images by default",
-                    "name": "Show Strike Images"
-                },
-                "showStrikeNames": {
-                    "hint": "Choose whether to show strike names by default",
-                    "name": "Show Strike Names"
-                },
-                "showAuxiliaryActions": {
-                    "hint": "Choose whether to show auxiliary actions by default",
-                    "name": "Show Auxiliary Actions"
-                },
-                "splitStrikes": {
-                    "hint": "Choose whether to split the main usage of strikes into their own group by default",
-                    "name": "Split Strike Main Usage"
-                },
-                "addDamageAndCritical": {
-                    "hint": "Choose whether to add damage and critical actions for strikes by default",
-                    "name": "Add Damage and Critical"
-                },
-                "addStowedItems": {
-                    "hint": "Choose where to add stowed items",
-                    "name": "Add Stowed Items",
-                    "choices": {
-                        "containers": "Container Groups Only",
-                        "nonContainers": "Non-Container Groups Only",
-                        "both": "Container and Non-Container Groups",
-                        "none": "No Groups"
-                    }
-                },
-                "addUnequippedItems": {
-                    "hint": "Choose whether to add unequipped items by default",
-                    "name": "Add Unequipped Items"
-                }
-            }
-        }
-    }
+    "tokenActionHud.pf2e.attribute": "Atrybut",
+    "tokenActionHud.pf2e.attributes": "Atrybuty",
+    "tokenActionHud.pf2e.noAmmo": "Brak amunicji",
+    "tokenActionHud.pf2e.rests": "Odpoczynek",
+    "tokenActionHud.pf2e.save": "Zapisz",
+    "tokenActionHud.pf2e.setting.addAuxiliaryActions.hint": "Wybierz, czy domyślnie dodawać działania pomocnicze dla ataków",
+    "tokenActionHud.pf2e.setting.addAuxiliaryActions.name": "Dodaj działania pomocnicze",
+    "tokenActionHud.pf2e.setting.addDamageAndCritical.hint": "Wybierz, czy domyślnie dodawać działania obrażeń i krytyczne dla ataków",
+    "tokenActionHud.pf2e.setting.addDamageAndCritical.name": "Dodaj obrażenia i krytyczne",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.both": "Grupy pojemników i niepojemników",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.containers": "Tylko grupy pojemników",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.nonContainers": "Tylko grupy niepojemników",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.none": "Brak grup",
+    "tokenActionHud.pf2e.setting.addStowedItems.hint": "Wybierz, gdzie dodawać przechowywane przedmioty",
+    "tokenActionHud.pf2e.setting.addStowedItemsname": "Dodaj przechowywane przedmioty",
+    "tokenActionHud.pf2e.setting.addUnequippedItems.hint": "Wybierz, czy domyślnie dodawać niezakładane przedmioty",
+    "tokenActionHud.pf2e.setting.addUnequippedItems.name": "Dodaj niezakładane przedmioty",
+    "tokenActionHud.pf2e.setting.calculateAttackPenalty.hint": "Wyświetl obliczoną karę do ataku (modyfikator ataku minus MAP) dla ataków",
+    "tokenActionHud.pf2e.setting.calculateAttackPenalty.name": "Wyświetl obliczoną karę do ataku",
+    "tokenActionHud.pf2e.setting.colorSkills.hint": "Wybierz, czy kolorować umiejętności według ich poziomu",
+    "tokenActionHud.pf2e.setting.colorSkills.name": "Koloruj umiejętności według poziomu",
+    "tokenActionHud.pf2e.setting.showStrikeImages.hint": "Wybierz, czy domyślnie wyświetlać obrazy ataków",
+    "tokenActionHud.pf2e.setting.showStrikeImages.name": "Wyświetl obrazy ataków",
+    "tokenActionHud.pf2e.setting.showStrikeNames.hint": "Wybierz, czy domyślnie wyświetlać nazwy ataków",
+    "tokenActionHud.pf2e.setting.showStrikeNames.name": "Wyświetl nazwy ataków",
+    "tokenActionHud.pf2e.setting.splitStrikes.hint": "Wybierz, czy domyślnie dzielić główne użycie ataków na osobną grupę",
+    "tokenActionHud.pf2e.setting.splitStrikes.name": "Podziel główne użycie ataków",
+    "tokenActionHud.pf2e.skillAction": "Działanie umiejętności",
+    "tokenActionHud.pf2e.skillActions": "Działania umiejętności",
+    "tokenActionHud.pf2e.skillActionsGrouped": "Grupowane działania umiejętności",
+    "tokenActionHud.pf2e.skillActionsUngrouped": "Niezgrupowane działania umiejętności",
+    "tokenActionHud.pf2e.takeBreather": "Zrób przerwę",
+    "tokenActionHud.pf2e.toggle": "Przełącz"
 }

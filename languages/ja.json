@@ -1,61 +1,35 @@
 {
-    "tokenActionHud": {
-        "pf2e": {
-            "attribute": "Attribute",
-            "attributes": "Attributes",
-            "noAmmo": "No Ammo",
-            "rests": "Rests",
-            "save": "Save",
-            "skillAction": "Skill Action",
-            "skillActions": "Skill Actions",
-            "skillActionsGrouped": "Grouped Skill Actions",
-            "skillActionsUngrouped": "Ungrouped Skill Actions",
-            "takeBreather": "Take a Breather",
-            "toggle": "Toggle",
-            "settings": {
-                "calculateAttackPenalty": {
-                    "hint": "Display the calculated attack penalty (Attack Modifier minus MAP) for Strikes",
-                    "name": "Display Calculated Attack Penalty"
-                },
-                "colorSkills": {
-                    "hint": "Choose whether to color skills by their rank",
-                    "name": "Color Skills by Rank"
-                },
-                "showStrikeImages": {
-                    "hint": "Choose whether to show strike images by default",
-                    "name": "Show Strike Images"
-                },
-                "showStrikeNames": {
-                    "hint": "Choose whether to show strike names by default",
-                    "name": "Show Strike Names"
-                },
-                "showAuxiliaryActions": {
-                    "hint": "Choose whether to show auxiliary actions by default",
-                    "name": "Show Auxiliary Actions"
-                },
-                "splitStrikes": {
-                    "hint": "Choose whether to split the main usage of strikes into their own group by default",
-                    "name": "Split Strike Main Usage"
-                },
-                "addDamageAndCritical": {
-                    "hint": "Choose whether to add damage and critical actions for strikes by default",
-                    "name": "Add Damage and Critical"
-                },
-                "addStowedItems": {
-                    "hint": "Choose where to add stowed items",
-                    "name": "Add Stowed Items",
-                    "choices": {
-                        "containers": "Container Groups Only",
-                        "nonContainers": "Non-Container Groups Only",
-                        "both": "Container and Non-Container Groups",
-                        "none": "No Groups"
-                    }
-                },
-                "addUnequippedItems": {
-                    "hint": "Choose whether to add unequipped items by default",
-                    "name": "Add Unequipped Items"
-                }
-            }
-        }
-    }
+    "tokenActionHud.pf2e.attribute": "属性",
+    "tokenActionHud.pf2e.attributes": "属性",
+    "tokenActionHud.pf2e.noAmmo": "弾薬なし",
+    "tokenActionHud.pf2e.rests": "休憩",
+    "tokenActionHud.pf2e.save": "保存",
+    "tokenActionHud.pf2e.setting.addAuxiliaryActions.hint": "デフォルトでストライクに対して補助行動を追加するか選択します",
+    "tokenActionHud.pf2e.setting.addAuxiliaryActions.name": "補助行動を追加",
+    "tokenActionHud.pf2e.setting.addDamageAndCritical.hint": "デフォルトでストライクのダメージとクリティカル行動を追加するか選択します",
+    "tokenActionHud.pf2e.setting.addDamageAndCritical.name": "ダメージとクリティカルを追加",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.both": "コンテナと非コンテナのグループ",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.containers": "コンテナのグループのみ",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.nonContainers": "非コンテナのグループのみ",
+    "tokenActionHud.pf2e.setting.addStowedItems.choice.none": "グループなし",
+    "tokenActionHud.pf2e.setting.addStowedItems.hint": "収納アイテムを追加する場所を選択します",
+    "tokenActionHud.pf2e.setting.addStowedItemsname": "収納アイテムを追加",
+    "tokenActionHud.pf2e.setting.addUnequippedItems.hint": "デフォルトで非装備アイテムを追加するか選択します",
+    "tokenActionHud.pf2e.setting.addUnequippedItems.name": "非装備アイテムを追加",
+    "tokenActionHud.pf2e.setting.calculateAttackPenalty.hint": "ストライクの計算された攻撃ペナルティ（攻撃モディファイアーからMAPを引いた値）を表示します",
+    "tokenActionHud.pf2e.setting.calculateAttackPenalty.name": "計算された攻撃ペナルティを表示",
+    "tokenActionHud.pf2e.setting.colorSkills.hint": "スキルをランクごとに色分けするか選択します",
+    "tokenActionHud.pf2e.setting.colorSkills.name": "ランクによるスキルの色分け",
+    "tokenActionHud.pf2e.setting.showStrikeImages.hint": "デフォルトでストライクの画像を表示するか選択します",
+    "tokenActionHud.pf2e.setting.showStrikeImages.name": "ストライクの画像を表示",
+    "tokenActionHud.pf2e.setting.showStrikeNames.hint": "デフォルトでストライクの名前を表示するか選択します",
+    "tokenActionHud.pf2e.setting.showStrikeNames.name": "ストライクの名前を表示",
+    "tokenActionHud.pf2e.setting.splitStrikes.hint": "デフォルトでストライクの主な使用方法を独自のグループに分割するか選択します",
+    "tokenActionHud.pf2e.setting.splitStrikes.name": "ストライクの主な使用方法を分割",
+    "tokenActionHud.pf2e.skillAction": "スキル行動",
+    "tokenActionHud.pf2e.skillActions": "スキル行動",
+    "tokenActionHud.pf2e.skillActionsGrouped": "グループ化されたスキル行動",
+    "tokenActionHud.pf2e.skillActionsUngrouped": "グループ化されていないスキル行動",
+    "tokenActionHud.pf2e.takeBreather": "一息入れる",
+    "tokenActionHud.pf2e.toggle": "トグル"
 }

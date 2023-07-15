@@ -50,15 +50,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Set settings variables
             this.abbreviateSkills = Utils.getSetting('abbreviateSkills')
+            this.addAuxiliaryActions = Utils.getSetting('addAuxiliaryActions')
+            this.addDamageAndCritical = Utils.getSetting('addDamageAndCritical')
+            this.addStowedItems = Utils.getSetting('addStowedItems')
+            this.addUnequippedItems = Utils.getSetting('addUnequippedItems')
             this.calculateAttackPenalty = Utils.getSetting('calculateAttackPenalty')
             this.colorSkills = Utils.getSetting('colorSkills')
             this.showStrikeImages = Utils.getSetting('showStrikeImages')
             this.showStrikeNames = Utils.getSetting('showStrikeNames')
-            this.showAuxiliaryActions = Utils.getSetting('showAuxiliaryActions')
             this.splitStrikes = Utils.getSetting('splitStrikes')
-            this.addDamageAndCritical = Utils.getSetting('addDamageAndCritical')
-            this.addStowedItems = Utils.getSetting('addStowedItems')
-            this.addUnequippedItems = Utils.getSetting('addUnequippedItems')
 
             // Set group variables
             this.groupIds = groupIds
@@ -1315,7 +1315,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 // Add group to action list
                 this.addGroup(strikeGroupData, parentGroupData)
 
-                if (strike.auxiliaryActions?.length && this.showAuxiliaryActions) {
+                if (strike.auxiliaryActions?.length && this.addAuxiliaryActions) {
                     // Get actions
                     auxiliaryActions = strike.auxiliaryActions.flatMap((auxiliaryAction, index) => {
                         if (auxiliaryAction.purpose === 'Modular') {
