@@ -13,7 +13,7 @@
     "tokenActionHud.pf2e.setting.addStowedItems.choice.nonContainers": "非コンテナのグループのみ",
     "tokenActionHud.pf2e.setting.addStowedItems.choice.none": "グループなし",
     "tokenActionHud.pf2e.setting.addStowedItems.hint": "収納アイテムを追加する場所を選択します",
-    "tokenActionHud.pf2e.setting.addStowedItemsname": "収納アイテムを追加",
+    "tokenActionHud.pf2e.setting.addStowedItems.name": "収納アイテムを追加",
     "tokenActionHud.pf2e.setting.addUnequippedItems.hint": "デフォルトで非装備アイテムを追加するか選択します",
     "tokenActionHud.pf2e.setting.addUnequippedItems.name": "非装備アイテムを追加",
     "tokenActionHud.pf2e.setting.calculateAttackPenalty.hint": "ストライクの計算された攻撃ペナルティ（攻撃モディファイアーからMAPを引いた値）を表示します",

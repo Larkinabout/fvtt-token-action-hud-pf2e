@@ -13,7 +13,7 @@
     "tokenActionHud.pf2e.setting.addStowedItems.choice.nonContainers": "Apenas Grupos Não Contêineres",
     "tokenActionHud.pf2e.setting.addStowedItems.choice.none": "Nenhum Grupo",
     "tokenActionHud.pf2e.setting.addStowedItems.hint": "Escolha onde adicionar itens guardados",
-    "tokenActionHud.pf2e.setting.addStowedItemsname": "Adicionar Itens Guardados",
+    "tokenActionHud.pf2e.setting.addStowedItems.name": "Adicionar Itens Guardados",
     "tokenActionHud.pf2e.setting.addUnequippedItems.hint": "Escolha se deseja adicionar itens não equipados por padrão",
     "tokenActionHud.pf2e.setting.addUnequippedItems.name": "Adicionar Itens Não Equipados",
     "tokenActionHud.pf2e.setting.calculateAttackPenalty.hint": "Exibir a penalidade de ataque calculada (Modificador de Ataque menos MAP) para Ataques",

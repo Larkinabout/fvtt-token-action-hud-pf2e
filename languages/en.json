@@ -13,7 +13,7 @@
     "tokenActionHud.pf2e.setting.addStowedItems.choice.nonContainers": "Non-Container Groups Only",
     "tokenActionHud.pf2e.setting.addStowedItems.choice.none": "No Groups",
     "tokenActionHud.pf2e.setting.addStowedItems.hint": "Choose where to add stowed items",
-    "tokenActionHud.pf2e.setting.addStowedItemsname": "Add Stowed Items",
+    "tokenActionHud.pf2e.setting.addStowedItems.name": "Add Stowed Items",
     "tokenActionHud.pf2e.setting.addUnequippedItems.hint": "Choose whether to add unequipped items by default",
     "tokenActionHud.pf2e.setting.addUnequippedItems.name": "Add Unequipped Items",
     "tokenActionHud.pf2e.setting.calculateAttackPenalty.hint": "Display the calculated attack penalty (Attack Modifier minus MAP) for Strikes",

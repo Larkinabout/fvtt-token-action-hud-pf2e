@@ -13,7 +13,7 @@
     "tokenActionHud.pf2e.setting.addStowedItems.choice.nonContainers": "비컨테이너 그룹만",
     "tokenActionHud.pf2e.setting.addStowedItems.choice.none": "그룹 없음",
     "tokenActionHud.pf2e.setting.addStowedItems.hint": "보관된 아이템을 추가할 위치를 선택합니다",
-    "tokenActionHud.pf2e.setting.addStowedItemsname": "보관된 아이템 추가",
+    "tokenActionHud.pf2e.setting.addStowedItems.name": "보관된 아이템 추가",
     "tokenActionHud.pf2e.setting.addUnequippedItems.hint": "기본값으로 비장착 아이템을 추가할지 선택합니다",
     "tokenActionHud.pf2e.setting.addUnequippedItems.name": "비장착 아이템 추가",
     "tokenActionHud.pf2e.setting.calculateAttackPenalty.hint": "타격에 대한 계산된 공격 벌칙(공격 수정값에서 MAP를 뺀 값)을 표시합니다",

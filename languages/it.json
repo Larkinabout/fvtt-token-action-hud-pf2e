@@ -13,7 +13,7 @@
     "tokenActionHud.pf2e.setting.addStowedItems.choice.nonContainers": "Solo Gruppi di Non-Contenitori",
     "tokenActionHud.pf2e.setting.addStowedItems.choice.none": "Nessun Gruppo",
     "tokenActionHud.pf2e.setting.addStowedItems.hint": "Scegli dove aggiungere gli oggetti riposti",
-    "tokenActionHud.pf2e.setting.addStowedItemsname": "Aggiungi Oggetti Riposti",
+    "tokenActionHud.pf2e.setting.addStowedItems.name": "Aggiungi Oggetti Riposti",
     "tokenActionHud.pf2e.setting.addUnequippedItems.hint": "Scegli se aggiungere gli oggetti non equipaggiati di default",
     "tokenActionHud.pf2e.setting.addUnequippedItems.name": "Aggiungi Oggetti Non Equipaggiati",
     "tokenActionHud.pf2e.setting.calculateAttackPenalty.hint": "Mostra la penalità d'attacco calcolata (Modificatore d'Attacco meno MAP) per gli attacchi",

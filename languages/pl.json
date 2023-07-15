@@ -13,7 +13,7 @@
     "tokenActionHud.pf2e.setting.addStowedItems.choice.nonContainers": "Tylko grupy niepojemników",
     "tokenActionHud.pf2e.setting.addStowedItems.choice.none": "Brak grup",
     "tokenActionHud.pf2e.setting.addStowedItems.hint": "Wybierz, gdzie dodawać przechowywane przedmioty",
-    "tokenActionHud.pf2e.setting.addStowedItemsname": "Dodaj przechowywane przedmioty",
+    "tokenActionHud.pf2e.setting.addStowedItems.name": "Dodaj przechowywane przedmioty",
     "tokenActionHud.pf2e.setting.addUnequippedItems.hint": "Wybierz, czy domyślnie dodawać niezakładane przedmioty",
     "tokenActionHud.pf2e.setting.addUnequippedItems.name": "Dodaj niezakładane przedmioty",
     "tokenActionHud.pf2e.setting.calculateAttackPenalty.hint": "Wyświetl obliczoną karę do ataku (modyfikator ataku minus MAP) dla ataków",

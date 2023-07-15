@@ -13,7 +13,7 @@
     "tokenActionHud.pf2e.setting.addStowedItems.choice.nonContainers": "僅非容器群組",
     "tokenActionHud.pf2e.setting.addStowedItems.choice.none": "無群組",
     "tokenActionHud.pf2e.setting.addStowedItems.hint": "選擇在哪裡添加存放的物品",
-    "tokenActionHud.pf2e.setting.addStowedItemsname": "添加存放的物品",
+    "tokenActionHud.pf2e.setting.addStowedItems.name": "添加存放的物品",
     "tokenActionHud.pf2e.setting.addUnequippedItems.hint": "是否默認添加未裝備的物品",
     "tokenActionHud.pf2e.setting.addUnequippedItems.name": "添加未裝備的物品",
     "tokenActionHud.pf2e.setting.calculateAttackPenalty.hint": "顯示計算的攻擊懲罰（攻擊修正減去MAP）",
