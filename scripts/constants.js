@@ -43,7 +43,7 @@ export const ACTION_TYPE = {
     action: 'ITEM.TypeAction',
     attribute: 'tokenActionHud.pf2e.attribute',
     auxAction: 'PF2E.WeaponStrikeLabel',
-    condition: 'ITEM.TypeCondition',
+    condition: 'TYPES.Item.condition',
     effect: 'ITEM.TypeEffect',
     familiarAttack: 'PF2E.AttackLabel',
     feat: 'PF2E.Item.Feat.LevelLabel',
