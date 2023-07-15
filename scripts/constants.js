@@ -40,11 +40,11 @@ export const ACTION_ICON = {
  * Action type
  */
 export const ACTION_TYPE = {
-    action: 'ITEM.TypeAction',
+    action: 'TYPES.Item.action',
     attribute: 'tokenActionHud.pf2e.attribute',
     auxAction: 'PF2E.WeaponStrikeLabel',
     condition: 'TYPES.Item.condition',
-    effect: 'ITEM.TypeEffect',
+    effect: 'TYPES.Item.effect',
     familiarAttack: 'PF2E.AttackLabel',
     feat: 'PF2E.Item.Feat.LevelLabel',
     initiative: 'PF2E.InitiativeLabel',
