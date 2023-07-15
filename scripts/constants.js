@@ -52,7 +52,7 @@ export const ACTION_TYPE = {
     save: 'tokenActionHud.pf2e.save',
     skill: 'PF2E.SkillLabel',
     skillAction: 'tokenActionHud.pf2e.skillAction',
-    spell: 'ITEM.TypeSpell',
+    spell: 'TYPES.Item.spell',
     strike: 'PF2E.WeaponStrikeLabel',
     toggle: 'tokenActionHud.pf2e.toggle',
     utility: 'tokenActionHud.utility'
