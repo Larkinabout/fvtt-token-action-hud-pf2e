@@ -1,6 +1,8 @@
 {
     "tokenActionHud.pf2e.attribute": "屬性",
     "tokenActionHud.pf2e.attributes": "屬性",
+    "tokenActionHud.pf2e.heroAction": "Hero Action",
+    "tokenActionHud.pf2e.heroActions": "Hero Actions",
     "tokenActionHud.pf2e.noAmmo": "無彈藥",
     "tokenActionHud.pf2e.rests": "休息",
     "tokenActionHud.pf2e.save": "保存",

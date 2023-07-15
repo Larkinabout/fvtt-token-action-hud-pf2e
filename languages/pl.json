@@ -1,6 +1,8 @@
 {
     "tokenActionHud.pf2e.attribute": "Atrybut",
     "tokenActionHud.pf2e.attributes": "Atrybuty",
+    "tokenActionHud.pf2e.heroAction": "Hero Action",
+    "tokenActionHud.pf2e.heroActions": "Hero Actions",
     "tokenActionHud.pf2e.noAmmo": "Brak amunicji",
     "tokenActionHud.pf2e.rests": "Odpoczynek",
     "tokenActionHud.pf2e.save": "Zapisz",

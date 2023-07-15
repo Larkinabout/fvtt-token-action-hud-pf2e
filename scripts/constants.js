@@ -47,6 +47,7 @@ export const ACTION_TYPE = {
     effect: 'TYPES.Item.effect',
     familiarAttack: 'PF2E.AttackLabel',
     feat: 'PF2E.Item.Feat.LevelLabel',
+    heroAction: 'tokenActionHud.pf2e.heroAction',
     initiative: 'PF2E.InitiativeLabel',
     item: 'PF2E.ItemTitle',
     save: 'tokenActionHud.pf2e.save',

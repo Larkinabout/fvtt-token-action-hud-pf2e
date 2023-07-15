@@ -1,6 +1,8 @@
 {
     "tokenActionHud.pf2e.attribute": "Atributo",
     "tokenActionHud.pf2e.attributes": "Atributos",
+    "tokenActionHud.pf2e.heroAction": "Hero Action",
+    "tokenActionHud.pf2e.heroActions": "Hero Actions",
     "tokenActionHud.pf2e.noAmmo": "Sem Munição",
     "tokenActionHud.pf2e.rests": "Descansos",
     "tokenActionHud.pf2e.save": "Salvar",

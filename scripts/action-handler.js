@@ -86,6 +86,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.#buildConditions(),
                 this.#buildEffects(),
                 this.#buildFeats(),
+                this.#buildHeroActions(),
                 this.#buildInitiative(),
                 this.#buildInventory(),
                 this.#buildPerceptionCheck(),
@@ -558,6 +559,62 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 // Add actions to action list
                 this.addActions(actions, groupData)
             }
+        }
+
+        /**
+         * Build Hero Actions
+         * @private
+         */
+        async #buildHeroActions () {
+            if (!game.modules.get('pf2e-hero-actions')?.active) return
+
+            const actionType = 'heroAction'
+            const actionTypeName = coreModule.api.Utils.i18n(ACTION_TYPE[actionType])
+            const heroActions = this.actor.getFlag('pf2e-hero-actions', 'heroActions') ?? []
+
+            const groupData = { id: 'hero-actions', type: 'system' }
+
+            const actions = []
+
+            const heroPoints = this.actor.heroPoints?.value
+            const remainingHeroPoints = heroPoints - (heroActions?.length ?? 0)
+
+            if (remainingHeroPoints > 0) {
+                actions.push({
+                    id: 'drawHeroActions',
+                    name: game.i18n.format('pf2e-hero-actions.templates.heroActions.draw', { nb: remainingHeroPoints }),
+                    listName: `${actionTypeName}: ${game.i18n.localize('pf2e-hero-actions.templates.heroActions.draw').replace('({nb}) ', '')}`,
+                    encodedValue: [actionType, 'drawHeroActions'].join(this.delimiter)
+                })
+            }
+
+            const heroActionActions = await Promise.all(
+                [...heroActions].map(async (heroAction) => {
+                    const id = heroAction?.uuid
+                    const name = heroAction?.name
+                    const listName = `${actionTypeName}: ${name}`
+                    const encodedValue = [actionType, id].join(this.delimiter)
+                    const img = coreModule.api.Utils.getImage('systems/pf2e/icons/actions/Passive.webp')
+                    const tooltipData = {
+                        name,
+                        description: (heroAction?.uuid) ? await fromUuid(heroAction?.uuid)?.text?.content : null
+                    }
+                    const tooltip = await this.#getTooltip(tooltipData)
+                    return {
+                        id,
+                        name,
+                        encodedValue,
+                        img,
+                        listName,
+                        tooltip
+                    }
+                })
+            )
+
+            actions.push(...heroActionActions)
+
+            // Add actions to action list
+            this.addActions(actions, groupData)
         }
 
         /**

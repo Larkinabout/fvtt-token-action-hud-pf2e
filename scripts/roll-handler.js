@@ -109,6 +109,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'effect':
                 this.#adjustEffect(actor, actionId)
                 break
+            case 'heroAction':
+                this.#useHeroAction(actor, actionId)
+                break
             case 'spell':
                 await this.#rollSpell(actor, actionId)
                 break
@@ -289,7 +292,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 await Item.updateDocuments(update, { parent: actor })
             }
 
-            Hooks.callAll('forceUpdateTokenActionHUD')
+            Hooks.callAll('forceUpdateTokenActionHud')
         }
 
         /**
@@ -525,7 +528,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 level: Number(level)
             })
 
-            Hooks.callAll('forceUpdateTokenActionHUD')
+            Hooks.callAll('forceUpdateTokenActionHud')
         }
 
         /**
@@ -552,22 +555,22 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-     * Execute Macro by ID
-     * @private
-     * @param {string} id The macro ID
-     */
+         * Execute Macro by ID
+         * @private
+         * @param {string} id The macro ID
+         */
         async #executeMacroById (id) {
             const pack = game.packs.get('pf2e.pf2e-macros')
             pack.getDocument(id).then((e) => e.execute())
         }
 
         /**
-     * Adjust Resources
-     * @private
-     * @param {string} property  The property
-     * @param {string} valueName The value name
-     * @param {object} actor     The actor
-     */
+         * Adjust Resources
+         * @private
+         * @param {string} property  The property
+         * @param {string} valueName The value name
+         * @param {object} actor     The actor
+         */
         async #adjustResources (property, valueName, actor) {
             let value = actor.system.resources[property][valueName]
             const max = actor.system.resources[property].max
@@ -588,37 +591,53 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             ]
 
             await Actor.updateDocuments(update)
-            Hooks.callAll('forceUpdateTokenActionHUD')
+            Hooks.callAll('forceUpdateTokenActionHud')
         }
 
         async #toggleCondition (actor, actionId) {
             if (this.rightClick) actor.decreaseCondition(actionId)
             else actor.increaseCondition(actionId)
 
-            Hooks.callAll('forceUpdateTokenActionHUD')
+            Hooks.callAll('forceUpdateTokenActionHud')
         }
 
         /**
-     * Adjust effect
-     * @private
-     * @param {object} actor    The actor
-     * @param {string} actionId The action id
-     */
+         * Adjust effect
+         * @private
+         * @param {object} actor    The actor
+         * @param {string} actionId The action id
+         */
         async #adjustEffect (actor, actionId) {
             const item = coreModule.api.Utils.getItem(actor, actionId)
 
             if (this.rightClick) item.decrease()
             else item.increase()
 
-            Hooks.callAll('forceUpdateTokenActionHUD')
+            Hooks.callAll('forceUpdateTokenActionHud')
         }
 
         /**
-     * Perform Toggle Macro
-     * @private
-     * @param {object} actor    The actor
-     * @param {string} actionId The action id
-     */
+         * Use hero action
+         * @private
+         * @param {object} actor    The actor
+         * @param {string} actionId The action id
+         */
+        async #useHeroAction (actor, actionId) {
+            if (actionId === 'drawHeroActions') {
+                await game.modules.get('pf2e-hero-actions')?.api?.drawHeroActions(actor)
+            } else {
+                await game.modules.get('pf2e-hero-actions')?.api?.useHeroAction(actor, actionId)
+            }
+
+            Hooks.callAll('forceUpdateTokenActionHud')
+        }
+
+        /**
+         * Perform Toggle Macro
+         * @private
+         * @param {object} actor    The actor
+         * @param {string} actionId The action id
+         */
         async #performToggleAction (actor, actionId) {
             const toggle = JSON.parse(actionId)
             if (!(toggle.domain && toggle.option)) return

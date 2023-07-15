@@ -48,7 +48,21 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         /** @override */
         async doRegisterDefaultFlags () {
-            return DEFAULTS
+            const defaults = DEFAULTS
+            if (game.modules.get('pf2e-hero-actions')?.active) {
+                const listType = coreModule.api.Utils.i18n('tokenActionHud.group')
+                const name = coreModule.api.Utils.i18n('tokenActionHud.pf2e.heroActions')
+                defaults.groups.push(
+                    {
+                        id: 'hero-actions',
+                        name,
+                        listName: `${listType}: ${name}`,
+                        type: 'system'
+                    }
+                )
+                defaults.groups.sort((a, b) => a.id.localeCompare(b.id))
+            }
+            return defaults
         }
     }
 })

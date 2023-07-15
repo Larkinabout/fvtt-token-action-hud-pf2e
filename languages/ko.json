@@ -1,6 +1,8 @@
 {
     "tokenActionHud.pf2e.attribute": "속성",
     "tokenActionHud.pf2e.attributes": "속성",
+    "tokenActionHud.pf2e.heroAction": "Hero Action",
+    "tokenActionHud.pf2e.heroActions": "Hero Actions",
     "tokenActionHud.pf2e.noAmmo": "탄약 없음",
     "tokenActionHud.pf2e.rests": "휴식",
     "tokenActionHud.pf2e.save": "저장",
