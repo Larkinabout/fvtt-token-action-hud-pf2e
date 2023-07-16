@@ -625,11 +625,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #useHeroAction (actor, actionId) {
             if (actionId === 'drawHeroActions') {
                 await game.modules.get('pf2e-hero-actions')?.api?.drawHeroActions(actor)
+
+                Hooks.callAll('forceUpdateTokenActionHud')
             } else {
                 await game.modules.get('pf2e-hero-actions')?.api?.useHeroAction(actor, actionId)
             }
-
-            Hooks.callAll('forceUpdateTokenActionHud')
         }
 
         /**
