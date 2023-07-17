@@ -151,7 +151,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'perceptionCheck':
             {
                 const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
-                this.actor.perception.roll(args)
+                actor.perception.roll(args)
                 break
             }
             case 'spellSlot':
