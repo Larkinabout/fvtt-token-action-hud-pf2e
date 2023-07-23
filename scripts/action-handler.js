@@ -637,8 +637,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actions = []
 
             if (this.actorType !== 'hazard') {
-                const perception = (this.actor) ? this.actor.system.attributes.perception : CONFIG.PF2E.attributes.perception
-                const fullName = coreModule.api.Utils.i18n(CONFIG.PF2E.attributes.perception)
+                const perception = (this.actor) ? this.actor.system.attributes.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
+                const fullName = coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
                 const name = this.abbreviatedSkills ? SKILL_ABBREVIATION.perception ?? fullName : fullName
                 const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
                 const listName = `${actionTypeName}${name}`
@@ -865,8 +865,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         async #buildPerceptionCheck () {
             const actionType = 'perceptionCheck'
-            const perception = (this.actor) ? this.actor.system.attributes.perception : CONFIG.PF2E.attributes.perception
-            const name = coreModule.api.Utils.i18n(CONFIG.PF2E.attributes.perception)
+            const perception = (this.actor) ? this.actor.system.attributes.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
+            const name = coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
             const modifier = coreModule.api.Utils.getModifier(perception?.totalModifier)
             const info1 = this.actor ? { text: modifier } : ''
             const tooltipName = `${name}${(this.actor && modifier) ? ` ${modifier}` : ''}`
@@ -1463,7 +1463,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         const actions = strikeUsage.variants.map((variant, index) => {
                             const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>` + usage)
                             const isMap = variant.label.includes(coreModule.api.Utils.i18n('PF2E.MAPAbbreviationLabel').replace(' {penalty}', ''))
-                            const bonus = (isMap) ? strike.totalModifier + parseInt(variant.label.split(' ')[1]) : parseInt(variant.label.split(' ')[1])
+                            const bonus = (isMap)
+                                ? (game.system.version < '5.2.0')
+                                    ? strike.totalModifier + parseInt(variant.label.split(' ')[1])
+                                    : parseInt(variant.label.split(' ')[0])
+                                : parseInt(variant.label.split(' ')[1])
                             const name = (this.calculateAttackPenalty) ? (bonus >= 0) ? `+${bonus}` : `${bonus}` : variant.label
                             return {
                                 id,
