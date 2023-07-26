@@ -1791,7 +1791,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @returns {string}
          */
         #getActionIcon (action, title = '') {
-            if (['bow-arrow', 'axe'].includes(action)) {
+            if (['bow-arrow', 'axe', 'hammer'].includes(action)) {
                 return `<i class="${ACTION_ICON[action]}" data-tooltip="${title}"></i>`
             }
             return ACTION_ICON[action]

@@ -41,9 +41,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         #setRollOptions () {
-            const showRollDialog = game.user.getFlag('pf2e', 'showRollDialogs')
-            this.rollMode = (this.ctrl) ? 'gmroll' : null
-            this.skipDialog = (showRollDialog) ? this.shift : !this.shift
+            const skipDefault = !game.user.settings.showRollDialogs
+            this.rollMode = (this.ctrl) ? (game.user.isGM) ? 'gmroll' : 'blindroll' : null
+            this.skipDialog = (this.shift) ? !skipDefault : skipDefault
         }
 
         /**
