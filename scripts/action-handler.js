@@ -112,6 +112,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             await Promise.all([
                 this.#buildActions(),
                 this.#buildConditions(),
+                this.#buildEffects(),
                 this.#buildInventory(),
                 this.#buildPerceptionCheck(),
                 this.#buildSaves(),
@@ -119,7 +120,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             ])
             this.#buildAttack()
             this.#buildCombat()
-            this.#buildEffects()
         }
 
         /**
@@ -229,14 +229,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         const icon1 = this.#getIcon1(itemData, actionType)
                         const img = coreModule.api.Utils.getImage(itemData)
                         const info = this.#getItemInfo(itemData)
-                        const chatData = await itemData.getChatData()
-                        const tooltipData = {
-                            name,
-                            description: chatData.description.value,
-                            properties: chatData.properties,
-                            traits: chatData.traits
-                        }
-                        const tooltip = await this.#getTooltip(tooltipData)
+                        const tooltipData = await this.#getTooltipData(actionType, itemData)
+                        const tooltip = await this.#getTooltip(actionType, tooltipData)
                         return {
                             id,
                             name,
@@ -390,7 +384,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         name: tooltipName,
                         description: conditionData.description
                     }
-                    const tooltip = await this.#getTooltip(tooltipData)
+                    const tooltip = await this.#getTooltip(actionType, tooltipData)
 
                     return {
                         id,
@@ -469,7 +463,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         name,
                         description: itemData.description
                     }
-                    const tooltip = await this.#getTooltip(tooltipData)
+                    const tooltip = await this.#getTooltip(actionType, tooltipData)
                     return {
                         id,
                         name,
@@ -534,14 +528,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         const icon1 = this.#getIcon1(itemData, actionType)
                         const img = coreModule.api.Utils.getImage(itemData)
                         const info = this.#getItemInfo(itemData)
-                        const chatData = await itemData.getChatData()
-                        const tooltipData = {
-                            name,
-                            description: chatData?.description.value,
-                            properties: chatData.properties,
-                            traits: chatData.traits
-                        }
-                        const tooltip = await this.#getTooltip(tooltipData)
+                        const tooltipData = await this.#getTooltipData(actionType, itemData)
+                        const tooltip = await this.#getTooltip(actionType, tooltipData)
                         return {
                             id,
                             name,
@@ -599,7 +587,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         name,
                         description: (heroAction?.uuid) ? await fromUuid(heroAction?.uuid)?.text?.content : null
                     }
-                    const tooltip = await this.#getTooltip(tooltipData)
+                    const tooltip = await this.#getTooltip(actionType, tooltipData)
                     return {
                         id,
                         name,
@@ -652,7 +640,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     name: tooltipName,
                     modifiers: perception?.modifiers
                 }
-                const tooltip = (this.actor) ? await this.#getTooltip(tooltipData) : null
+                const tooltip = (this.actor) ? await this.#getTooltip(actionType, tooltipData) : null
 
                 // Get actions
                 actions.push({
@@ -684,7 +672,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         name: tooltipName,
                         modifiers: skillData?.modifiers
                     }
-                    const tooltip = (this.actor) ? await this.#getTooltip(tooltipData) : null
+                    const tooltip = (this.actor) ? await this.#getTooltip(actionType, tooltipData) : null
 
                     return {
                         id,
@@ -757,15 +745,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         const icon2 = this.#getCarryTypeIcon(itemData)
                         const img = coreModule.api.Utils.getImage(itemData)
                         const info = this.#getItemInfo(itemData)
-                        const chatData = await itemData.getChatData()
-                        const tooltipData = {
-                            name,
-                            description: chatData?.description.value,
-                            rarity: chatData.rarity,
-                            traits: chatData.traits,
-                            traits2: chatData.properties
-                        }
-                        const tooltip = await this.#getTooltip(tooltipData)
+                        const tooltipData = await this.#getTooltipData(actionType, itemData)
+                        const tooltip = await this.#getTooltip(actionType, tooltipData)
                         return {
                             id,
                             name,
@@ -829,15 +810,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             const icon2 = this.#getCarryTypeIcon(itemData)
                             const img = coreModule.api.Utils.getImage(itemData)
                             const info = this.#getItemInfo(itemData)
-                            const chatData = await itemData.getChatData()
-                            const tooltipData = {
-                                name,
-                                description: chatData?.description.value,
-                                properties: chatData.properties,
-                                rarity: chatData.rarity,
-                                traits: chatData.traits
-                            }
-                            const tooltip = await this.#getTooltip(tooltipData)
+                            const tooltipData = await this.#getTooltipData(actionType, itemData)
+                            const tooltip = await this.#getTooltip(actionType, tooltipData)
                             return {
                                 id,
                                 name,
@@ -874,7 +848,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 name: tooltipName,
                 modifiers: perception?.modifiers
             }
-            const tooltip = await this.#getTooltip(tooltipData)
+            const tooltip = await this.#getTooltip(actionType, tooltipData)
 
             // Get actions
             const actions = [{
@@ -980,7 +954,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         name: tooltipName,
                         modifiers: saveData?.modifiers
                     }
-                    const tooltip = (this.actor) ? await this.#getTooltip(tooltipData) : null
+                    const tooltip = (this.actor) ? await this.#getTooltip(actionType, tooltipData) : null
                     return {
                         id,
                         name,
@@ -1134,7 +1108,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             name: tooltipName,
                             modifiers: skillData?.modifiers
                         }
-                        const tooltip = (this.actor) ? await this.#getTooltip(tooltipData) : null
+                        const tooltip = (this.actor) ? await this.#getTooltip(actionType, tooltipData) : null
 
                         return {
                             id,
@@ -1234,16 +1208,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             const icon1 = this.#getIcon1(itemData, actionType)
                             const img = coreModule.api.Utils.getImage(itemData)
                             const info = this.#getSpellInfo(itemData)
-                            const chatData = await itemData.getChatData()
-                            const tooltipData = {
-                                name,
-                                description: chatData.description.value,
-                                properties: chatData.properties,
-                                rarity: chatData.rarity,
-                                traits: chatData.actionTraits,
-                                traitsAlt: chatData.spellTraits
-                            }
-                            const tooltip = await this.#getTooltip(tooltipData)
+                            const tooltipData = await this.#getTooltipData(actionType, itemData)
+                            const tooltip = await this.#getTooltip(actionType, tooltipData)
                             return {
                                 id,
                                 name,
@@ -1353,18 +1319,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ${strike.label} (${strike.item.id})`
                 const image = strike.imageUrl
                 const showTitle = this.showStrikeNames
-                const descriptionLocalised = this.#getStrikeDescription({ description: strike.description, criticalSuccess: strike.criticalSuccess, success: strike.success })
-                const chatData = await strike?.item?.getChatData()
-                const properties = chatData?.properties.filter(property => property !== 'PF2E.WeaponTypeMartial')
-                const tooltipData = {
-                    name: strike.label,
-                    descriptionLocalised,
-                    modifiers: strike.modifiers,
-                    properties,
-                    traits: strike.traits,
-                    traitsAlt: strike.weaponTraits
-                }
-                const tooltip = await this.#getTooltip(tooltipData)
+                const tooltipData = await this.#getTooltipData(actionType, strike)
+                const tooltip = await this.#getTooltip(actionType, tooltipData)
                 // Create group data
                 strikeGroupData = { id: strikeGroupId, name: strikeGroupName, listName: strikeGroupListName, type: 'system-derived', settings: { showTitle }, tooltip }
                 if (this.showStrikeImages) { strikeGroupData.settings.image = image }
@@ -1821,20 +1777,71 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             return CARRY_TYPE_ICON[carryType]?.icon.replace('placeholder', tooltip) ?? ''
         }
 
-        /** @protected */
-        #foundrySort (a, b) {
-            if (!(a?.sort || b?.sort)) return 0
+        /**
+         * Get tooltip data
+         * @param {string} actionType The action type
+         * @param {object} entity     The entity
+         * @returns {object}          The tooltip data
+         */
+        async #getTooltipData (actionType, entity) {
+            if (this.tooltipsSetting === 'none') return ''
 
-            return a.sort - b.sort
+            const name = entity?.name ?? ''
+
+            if (this.tooltipsSetting === 'nameOnly') return name
+
+            const chatData = (actionType === 'strike') ? await entity.item.getChatData() : await entity.getChatData()
+
+            const strikeDescription = (actionType === 'strike')
+                ? this.#getStrikeDescription(entity)
+                : null
+
+            switch (actionType) {
+            case 'item':
+                return {
+                    name,
+                    description: chatData?.description.value,
+                    rarity: chatData.rarity,
+                    traits: chatData.traits,
+                    traits2: chatData.properties
+                }
+            case 'spell':
+                return {
+                    name,
+                    description: chatData.description.value,
+                    properties: chatData.properties,
+                    rarity: chatData.rarity,
+                    traits: chatData.actionTraits,
+                    traitsAlt: chatData.spellTraits
+                }
+            case 'strike':
+                return {
+                    name: entity.label,
+                    descriptionLocalised: strikeDescription,
+                    modifiers: entity.modifiers,
+                    properties: chatData?.properties.filter(property => property !== 'PF2E.WeaponTypeMartial'),
+                    traits: entity.traits,
+                    traitsAlt: entity.weaponTraits
+                }
+            default:
+                return {
+                    name,
+                    description: chatData?.description?.value,
+                    properties: chatData?.properties,
+                    rarity: chatData?.rarity,
+                    traits: chatData?.traits
+                }
+            }
         }
 
         /**
          * Get tooltip
          * @private
+         * @param {string} actionType  The action type
          * @param {object} tooltipData The tooltip data
          * @returns {string}           The tooltip
          */
-        async #getTooltip (tooltipData) {
+        async #getTooltip (actionType, tooltipData) {
             if (typeof tooltipData === 'string') return tooltipData
 
             const name = coreModule.api.Utils.i18n(tooltipData.name)
@@ -1879,24 +1886,28 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (!description && !tagsHtml && !modifiersHtml) return name
 
-            const tooltipHtml = await TextEditor.enrichHTML(
+            /*  const tooltipHtml = await TextEditor.enrichHTML(
                 `<div>${nameHtml}${headerTags}${description}${propertiesHtml}</div>`,
                 { async: true }
-            )
+            ) */
 
-            return tooltipHtml
+            const tooltipHtml = `<div>${nameHtml}${headerTags}${description}${propertiesHtml}</div>`
+
+            return (actionType === 'condition')
+                ? await TextEditor.enrichHTML(tooltipHtml, { async: true })
+                : tooltipHtml
         }
 
         /**
          * Get strike description
          * @private
-         * @param {object} data The data
-         * @returns {string}    The strike description
+         * @param {object} strike The strike data
+         * @returns {string}      The strike description
          */
-        #getStrikeDescription (data) {
-            const description = (data?.description) ? `<p>${coreModule.api.Utils.i18n(data?.description)}</p>` : ''
-            const criticalSuccess = (data?.criticalSuccess) ? `<hr><h4>${coreModule.api.Utils.i18n('PF2E.Check.Result.Degree.Check.criticalSuccess')}</h4><p>${coreModule.api.Utils.i18n(data?.criticalSuccess)}</p>` : ''
-            const success = (data?.success) ? `<h4>${coreModule.api.Utils.i18n('PF2E.Check.Result.Degree.Check.success')}</h4><p>${coreModule.api.Utils.i18n(data?.success)}</p>` : ''
+        #getStrikeDescription (strike) {
+            const description = (strike?.description) ? `<p>${coreModule.api.Utils.i18n(strike?.description)}</p>` : ''
+            const criticalSuccess = (strike?.criticalSuccess) ? `<hr><h4>${coreModule.api.Utils.i18n('PF2E.Check.Result.Degree.Check.criticalSuccess')}</h4><p>${coreModule.api.Utils.i18n(strike?.criticalSuccess)}</p>` : ''
+            const success = (strike?.success) ? `<h4>${coreModule.api.Utils.i18n('PF2E.Check.Result.Degree.Check.success')}</h4><p>${coreModule.api.Utils.i18n(strike?.success)}</p>` : ''
             return `${description}${criticalSuccess}${success}`
         }
     }
