@@ -27,6 +27,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         inventoryActions = null
         spellActions = null
 
+        mapLabel = coreModule.api.Utils.i18n('PF2E.MAPAbbreviationLabel').replace(' {penalty}', '')
+
         /**
          * Build System Actions
          * @override
@@ -1417,15 +1419,18 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                         const actions = strikeUsage.variants.map((variant, index) => {
                             const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>` + usage)
-                            const isMap = variant.label.includes(coreModule.api.Utils.i18n('PF2E.MAPAbbreviationLabel').replace(' {penalty}', ''))
-                            const bonus = (isMap)
-                                ? (game.system.version < '5.2.0')
-                                    ? strike.totalModifier + parseInt(variant.label.split(' ')[1])
-                                    : parseInt(variant.label.split(' ')[0])
-                                : (game.system.version < '5.4.0')
-                                    ? parseInt(variant.label.split(' ')[1])
-                                    : parseInt(variant.label)
-                            const name = (this.calculateAttackPenalty) ? (bonus >= 0) ? `+${bonus}` : `${bonus}` : variant.label
+                            const isMap = variant.label.includes(this.mapLabel)
+                            let modifier
+                            if (isMap) {
+                                if ((game.system.version < '5.2.0')) {
+                                    modifier = coreModule.api.Utils.getModifier(strike.totalModifier + parseInt(variant.label.split(' ')[1]))
+                                } else {
+                                    modifier = variant.label.split(' ')[0]
+                                }
+                            } else {
+                                modifier = variant.label.replace(coreModule.api.Utils.i18n('PF2E.WeaponStrikeLabel'), '').replace(' ', '')
+                            }
+                            const name = (this.calculateAttackPenalty) ? modifier : variant.label
                             return {
                                 id,
                                 name,
