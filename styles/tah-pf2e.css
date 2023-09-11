@@ -33,6 +33,7 @@
 
 :is(.tah-tooltip, .tah-tooltip-wrapper) .tag.tag_transparent {
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 30%);
+    color: var(--color-text-light-7);
 }
 
 :is(.tah-tooltip, .tah-tooltip-wrapper) .tah-tags-wrapper {
