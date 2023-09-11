@@ -65,11 +65,11 @@ export const ACTION_TYPE = {
  */
 export const CARRY_TYPE_ICON = {
     held1: {
-        icon: '<span class="fa-stack fa-fw fa-2xs" data-tooltip="placeholder"><i class="fa-solid fa-hand-back-fist fa-stack-2x"></i><i class="fab fa-1 fa-inverse fa-stack-1x" style="color:#000000; text-shadow: none;"></i></span>',
+        icon: '<span class="fa-stack fa-fw fa-2xs" data-tooltip="placeholder"><i class="fa-solid fa-hand-back-fist fa-stack-2x"></i><i class="fab fa-1 fa-stack-1x" style="filter: invert(1);"></i></span>',
         tooltip: 'PF2E.CarryType.held1'
     },
     held2: {
-        icon: '<span class="fa-stack fa-fw fa-2xs" data-tooltip="placeholder"><i class="fa-solid fa-hand-back-fist fa-stack-2x"></i><i class="fab fa-2 fa-inverse fa-stack-1x" style="color:#000000; text-shadow: none;"></i></span>',
+        icon: '<span class="fa-stack fa-fw fa-2xs" data-tooltip="placeholder"><i class="fa-solid fa-hand-back-fist fa-stack-2x"></i><i class="fab fa-2 fa-stack-1x" style="filter: invert(1);"></i></span>',
         tooltip: 'PF2E.CarryType.held2'
     },
     dropped: {

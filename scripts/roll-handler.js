@@ -597,8 +597,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #toggleCondition (actor, actionId) {
             if (this.rightClick) actor.decreaseCondition(actionId)
             else actor.increaseCondition(actionId)
-
-            Hooks.callAll('forceUpdateTokenActionHud')
         }
 
         /**

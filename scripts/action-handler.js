@@ -83,25 +83,24 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #buildCharacterActions () {
             await Promise.all([
                 this.#buildActions(),
+                this.#buildCombat(),
                 this.#buildConditions(),
                 this.#buildEffects(),
                 this.#buildFeats(),
                 this.#buildHeroActions(),
+                this.#buildHeroPoints(),
                 this.#buildInitiative(),
                 this.#buildInventory(),
                 this.#buildPerceptionCheck(),
+                this.#buildRecoveryCheck(),
+                this.#buildRests(),
                 this.#buildSaves(),
                 this.#buildSkillActions(),
                 this.#buildSkills(),
                 this.#buildSpells(),
-                this.#buildStrikes()
+                this.#buildStrikes(),
+                this.#buildToggles()
             ])
-
-            this.#buildCombat()
-            this.#buildHeroPoints()
-            this.#buildRecoveryCheck()
-            this.#buildRests()
-            this.#buildToggles()
         }
 
         /**
@@ -111,6 +110,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #buildFamiliarActions () {
             await Promise.all([
                 this.#buildActions(),
+                this.#buildAttack(),
+                this.#buildCombat(),
                 this.#buildConditions(),
                 this.#buildEffects(),
                 this.#buildInventory(),
@@ -118,8 +119,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.#buildSaves(),
                 this.#buildSkills()
             ])
-            this.#buildAttack()
-            this.#buildCombat()
         }
 
         /**
@@ -129,10 +128,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #buildHazardActions () {
             await Promise.all([
                 this.#buildActions(),
+                this.#buildCombat(),
                 this.#buildInitiative(),
                 this.#buildSaves()
             ])
-            this.#buildCombat()
         }
 
         /**
@@ -141,6 +140,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #buildNpcActions () {
             await Promise.all([
                 this.#buildActions(),
+                this.#buildCombat(),
                 this.#buildConditions(),
                 this.#buildEffects(),
                 this.#buildFeats(),
@@ -153,7 +153,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.#buildStrikes(),
                 this.#buildSpells()
             ])
-            this.#buildCombat()
         }
 
         /**
@@ -164,12 +163,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #buildMultipleTokenActions () {
             await Promise.all([
                 this.#buildInitiative(),
+                this.#buildPerceptionCheck(),
                 this.#buildSaves(),
+                this.#buildSkillActions(),
                 this.#buildSkills()
             ])
-
-            this.#buildPerceptionCheck()
-            this.#buildSkillActions()
         }
 
         /**
@@ -1423,7 +1421,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                                 ? (game.system.version < '5.2.0')
                                     ? strike.totalModifier + parseInt(variant.label.split(' ')[1])
                                     : parseInt(variant.label.split(' ')[0])
-                                : parseInt(variant.label.split(' ')[1])
+                                : (game.system.version < '5.4.0')
+                                    ? parseInt(variant.label.split(' ')[1])
+                                    : parseInt(variant.label)
                             const name = (this.calculateAttackPenalty) ? (bonus >= 0) ? `+${bonus}` : `${bonus}` : variant.label
                             return {
                                 id,
@@ -1842,9 +1842,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @returns {string}           The tooltip
          */
         async #getTooltip (actionType, tooltipData) {
-            if (typeof tooltipData === 'string') return tooltipData
+            if (this.tooltipsSetting === 'none') return ''
 
             const name = coreModule.api.Utils.i18n(tooltipData.name)
+
+            if (this.tooltipsSetting === 'nameOnly') return name
+
+            if (typeof tooltipData === 'string') return tooltipData
+
             const nameHtml = `<h3>${name}</h3>`
 
             const description = coreModule.api.Utils.i18n(tooltipData?.description ?? tooltipData?.descriptionLocalised ?? '')
