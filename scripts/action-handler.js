@@ -581,9 +581,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     const listName = `${actionTypeName}: ${name}`
                     const encodedValue = [actionType, id].join(this.delimiter)
                     const img = coreModule.api.Utils.getImage('systems/pf2e/icons/actions/Passive.webp')
+                    const uuidData = (heroAction?.uuid) ? await fromUuid(heroAction?.uuid) : null
                     const tooltipData = {
                         name,
-                        description: (heroAction?.uuid) ? await fromUuid(heroAction?.uuid)?.text?.content : null
+                        description: uuidData?.text?.content ?? null
                     }
                     const tooltip = await this.#getTooltip(actionType, tooltipData)
                     return {
@@ -1898,9 +1899,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             const tooltipHtml = `<div>${nameHtml}${headerTags}${description}${propertiesHtml}</div>`
 
-            return (actionType === 'condition')
-                ? await TextEditor.enrichHTML(tooltipHtml, { async: true })
-                : tooltipHtml
+            return await TextEditor.enrichHTML(tooltipHtml, { async: true })
         }
 
         /**
