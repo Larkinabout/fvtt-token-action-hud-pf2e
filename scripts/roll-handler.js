@@ -98,6 +98,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'ability':
                 this.#rollAbility(event, actor, actionId)
                 break
+            case 'elementalDamageType':
+                this.#setDamageType(event, actor, actionId)
+                break
+            case 'elementalBlast':
+                await this.#rollElementalBlast(event, actor, actionId)
+                break
             case 'action':
             case 'feat':
             case 'item':
@@ -220,6 +226,74 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         #rollAbility (event, actor, actionId) {
             actor.rollAbility(event, actionId)
+        }
+
+        /**
+         * Set damage type
+         * @private
+         * @param {object} event    The event
+         * @param {object} actor    The actor
+         * @param {string} actionId The action id
+         */
+        #setDamageType (event, actor, actionId) {
+            const actionParts = decodeURIComponent(actionId).split('>')
+
+            const element = actionParts[1]
+            const damageType = actionParts[2]
+
+            const blasts = new game.pf2e.ElementalBlast(actor)
+
+            blasts.setDamageType({
+                element,
+                damageType
+            })
+        }
+
+        /**
+         * Roll Elemental Blast
+         * @private
+         * @param {object} event    The event
+         * @param {object} actor    The actor
+         * @param {string} actionId The action id
+         * @returns
+         */
+        async #rollElementalBlast (event, actor, actionId) {
+            const actionParts = decodeURIComponent(actionId).split('>')
+
+            const itemId = actionParts[0]
+            const element = actionParts[1]
+            const type = actionParts[2]
+            const usage = actionParts[3] ? actionParts[3] : null
+            const melee = (usage === 'melee')
+
+            const blasts = new game.pf2e.ElementalBlast(actor)
+            const blast = blasts.configs.find(blast => blast.item.id === itemId && blast.element === element)
+            const damageType = blast.damageTypes.find(damageType => damageType.selected)?.value ?? element
+
+            switch (type) {
+            case 'damage':
+            case 'critical':
+                {
+                    const outcome = type === 'damage' ? 'success' : 'criticalSuccess'
+                    await blasts.damage({
+                        element,
+                        damageType,
+                        melee,
+                        outcome,
+                        event
+                    })
+                }
+                break
+            default:
+                await blasts.attack({
+                    mapIncreases: type,
+                    element,
+                    damageType,
+                    melee,
+                    event
+                })
+                break
+            }
         }
 
         /**

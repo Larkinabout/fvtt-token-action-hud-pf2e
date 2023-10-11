@@ -34,7 +34,8 @@ export const ACTION_ICON = {
     R: '<span style=\'font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);\'>R</span>',
     'bow-arrow': 'fa-solid fa-bow-arrow fa-fw',
     axe: 'fa-solid fa-axe fa-fw',
-    hammer: 'fa-solid fa-hammer fa-fw'
+    hammer: 'fa-solid fa-hammer fa-fw',
+    sun: 'fa-solid fa-sun fa-fw'
 }
 
 /**
