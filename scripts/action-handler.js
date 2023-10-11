@@ -1662,14 +1662,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // Exit if no toggles exist
             if (!toggles.length) return
 
+            const togglesWithoutSuboptions = toggles.filter(toggle => !toggle.suboptions.length)
+            const togglesWithSuboptions = toggles.filter(toggle => toggle.suboptions.length > 1)
+
             // Create group data
             const groupData = { id: 'toggles', type: 'system' }
 
             // Get actions
-            const actions = toggles.map(toggle => {
-                const id = [toggle.domain, toggle.option].join('.')
+            const actions = togglesWithoutSuboptions.map(toggle => {
+                const id = encodeURIComponent(`${toggle.domain}>${toggle.option}>${toggle.itemId}>>`)
                 const name = coreModule.api.Utils.i18n(toggle.label)
-                const encodedValue = [actionType, JSON.stringify(toggle)].join(this.delimiter)
+                const encodedValue = [actionType, id].join(this.delimiter)
                 const active = (toggle.checked) ? ' active' : ''
                 const cssClass = `toggle${active}`
 
@@ -1678,6 +1681,35 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Add actions to action list
             this.addActions(actions, groupData)
+
+            for (const toggle of togglesWithSuboptions) {
+                const id = [toggle.domain, toggle.option].join('.')
+                const subgroupName = coreModule.api.Utils.i18n(toggle.label)
+                const subgroupListName = `${ACTION_TYPE.toggle}: ${subgroupName}`
+                const subgroupData = {
+                    id,
+                    name: subgroupName,
+                    listName: subgroupListName,
+                    type: 'system-derived'
+                }
+
+                this.addGroup(subgroupData, groupData)
+
+                const actions = toggle.suboptions.map(suboption => {
+                    const id = encodeURIComponent(`${toggle.domain}>${toggle.option}>${toggle.itemId}>true>${suboption.value}`)
+                    const name = coreModule.api.Utils.i18n(suboption.label)
+                    return {
+                        id,
+                        name,
+                        listName: `${subgroupListName}: ${name}`,
+                        encodedValue: ['toggle', id].join(this.delimiter),
+                        cssClass: this.#getActionCss({ selected: suboption.selected })
+                    }
+                })
+
+                // Add actions to action list
+                this.addActions(actions, subgroupData)
+            }
         }
 
         /**

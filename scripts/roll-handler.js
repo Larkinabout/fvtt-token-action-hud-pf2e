@@ -711,10 +711,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {string} actionId The action id
          */
         async #performToggleAction (actor, actionId) {
-            const toggle = JSON.parse(actionId)
-            if (!(toggle.domain && toggle.option)) return
+            const actionParts = decodeURIComponent(actionId).split('>')
 
-            await actor.toggleRollOption(toggle.domain, toggle.option, toggle.itemId)
+            const domain = actionParts[0]
+            const option = actionParts[1]
+            const itemId = actionParts[2]
+            const value = actionParts[3] || null
+            const suboption = actionParts[4]
+
+            if (!(domain && option)) return
+
+            await actor.toggleRollOption(domain, option, itemId, value, suboption)
         }
     }
 })
