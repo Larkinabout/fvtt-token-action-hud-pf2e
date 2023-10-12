@@ -1696,14 +1696,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.addGroup(subgroupData, groupData)
 
                 const actions = toggle.suboptions.map(suboption => {
-                    const id = encodeURIComponent(`${toggle.domain}>${toggle.option}>${toggle.itemId}>true>${suboption.value}`)
+                    const id = encodeURIComponent(`${toggle.domain}>${toggle.option}>${toggle.itemId}>${suboption.value}`)
                     const name = coreModule.api.Utils.i18n(suboption.label)
+                    const selected = suboption.selected && toggle.enabled && toggle.checked
                     return {
                         id,
                         name,
                         listName: `${subgroupListName}: ${name}`,
                         encodedValue: ['toggle', id].join(this.delimiter),
-                        cssClass: this.#getActionCss({ selected: suboption.selected })
+                        cssClass: this.#getActionCss({ selected })
                     }
                 })
 

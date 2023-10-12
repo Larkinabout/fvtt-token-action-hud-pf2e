@@ -17,20 +17,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 super.throwInvalidValueErr()
             }
 
-            const actionType = payload[0]
-            const actionId = payload[1]
+            const [actionType, actionId] = payload
 
             this.#setRollOptions()
 
-            const renderable = ['item', 'feat', 'action', 'lore', 'ammo']
-            if (renderable.includes(actionType) && this.isRenderItem()) {
+            if (this.#isRenderableItem(actionType)) {
                 return this.doRenderItem(this.actor, actionId)
             }
-            const knownCharacters = ['character', 'familiar', 'hazard', 'npc']
+
             if (!this.actor) {
-                const controlledTokens = canvas.tokens.controlled.filter((token) =>
-                    knownCharacters.includes(token.actor?.type)
-                )
+                const controlledTokens = this.#getControlledTokens()
                 for (const token of controlledTokens) {
                     const actor = token.actor
                     await this.#handleActions(event, actionType, actor, token, actionId)
@@ -40,6 +36,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
         }
 
+        /**
+         * Set roll options
+         */
         #setRollOptions () {
             const skipDefault = !game.user.settings.showRollDialogs
             this.rollMode = (this.ctrl) ? (game.user.isGM) ? 'gmroll' : 'blindroll' : null
@@ -47,7 +46,28 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Handle Macros
+         * Is renderable item
+         * @param {string} actionType The action typr
+         * @returns {boolean} Whether the action is a renderable item
+         */
+        #isRenderableItem (actionType) {
+            const renderable = ['item', 'feat', 'action', 'lore', 'ammo']
+            return renderable.includes(actionType) && this.isRenderItem()
+        }
+
+        /**
+         * Get controlled tokens
+         * @returns {array} The controlled tokens
+         */
+        #getControlledTokens () {
+            const actorTypes = ['character', 'familiar', 'hazard', 'npc']
+            return canvas.tokens.controlled.filter((token) =>
+                actorTypes.includes(token.actor?.type)
+            )
+        }
+
+        /**
+         * Handle actions
          * @private
          * @param {object} event
          * @param {string} actionType
@@ -56,47 +76,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {string} actionId
          */
         async #handleActions (event, actionType, actor, token, actionId) {
-            let actorType
-            if (actor) actorType = actor.type
-
-            const sharedActions = [
-                'ability',
-                'spell',
-                'item',
-                'skill',
-                'lore',
-                'utility',
-                'toggle',
-                'strike'
-            ]
-            if (!sharedActions.includes(actionType)) {
-                switch (actorType) {
-                case 'npc':
-                    await this.#handleUniqueActionsNpc(
-                        event,
-                        actionType,
-                        actor,
-                        token,
-                        actionId
-                    )
-                    break
-                case 'character':
-                case 'familiar':
-                case 'hazard':
-                    await this.#handleUniqueActionsChar(
-                        event,
-                        actionType,
-                        actor,
-                        token,
-                        actionId
-                    )
-                    break
-                }
-            }
-
             switch (actionType) {
             case 'ability':
                 this.#rollAbility(event, actor, actionId)
+                break
+            case 'auxAction':
+                this.#performAuxAction(actor, actionId)
                 break
             case 'elementalDamageType':
                 this.#setDamageType(event, actor, actionId)
@@ -115,65 +100,47 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'effect':
                 this.#adjustEffect(actor, actionId)
                 break
+            case 'familiarAttack':
+                this.#rollFamiliarAttack(event, actor)
+                break
             case 'heroAction':
                 this.#useHeroAction(actor, actionId)
                 break
-            case 'spell':
-                await this.#rollSpell(actor, actionId)
-                break
-            case 'skill':
-                await this.#rollSkill(event, actor, actionId)
-                break
-            case 'strike':
-                this.#rollStrikeChar(event, actor, actionId)
-                break
-            case 'toggle':
-                await this.#performToggleAction(actor, actionId)
-                break
-            case 'utility':
-                this.#performUtilityAction(token, actionId)
-                break
-            }
-        }
-
-        /**
-         * Handle Unique Character Actions
-         * @private
-         * @param {object} event      The event
-         * @param {string} actionType The action type
-         * @param {object} actor      The actor
-         * @param {object} token      The token
-         * @param {string} actionId   The action id
-         */
-        async #handleUniqueActionsChar (event, actionType, actor, token, actionId) {
-            switch (actionType) {
-            case 'save':
-                this.#rollSave(actor, actionId)
+            case 'heroPoints':
+                await this.#adjustResources('heroPoints', 'value', actor)
                 break
             case 'initiative':
                 this.#rollInitiative(event, actor, actionId)
                 break
-            case 'attribute':
             case 'perceptionCheck':
             {
                 const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
                 actor.perception.roll(args)
                 break
             }
-            case 'spellSlot':
-                await this.#adjustSpellSlot(actor, actionId)
-                break
-            case 'heroPoints':
-                await this.#adjustResources('heroPoints', 'value', actor)
-                break
             case 'recoveryCheck':
                 actor.rollRecovery({ event })
                 break
-            case 'familiarAttack':
-                this.#rollFamiliarAttack(event, actor)
+            case 'save':
+                this.#rollSave(actor, actionId)
                 break
-            case 'auxAction':
-                this.#performAuxAction(actor, actionId)
+            case 'spell':
+                await this.#rollSpell(actor, actionId)
+                break
+            case 'spellSlot':
+                await this.#adjustSpellSlot(actor, actionId)
+                break
+            case 'skill':
+                await this.#rollSkill(event, actor, actionId)
+                break
+            case 'strike':
+                this.#rollStrike(event, actor, actionId)
+                break
+            case 'toggle':
+                await this.#performToggleAction(actor, actionId)
+                break
+            case 'utility':
+                this.#performUtilityAction(token, actionId)
                 break
             case 'versatileOption':
                 this.#performVersatileOption(actor, actionId)
@@ -182,31 +149,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Handle Unique NPC Actions
-         * @param {object} event      The event
-         * @param {string} actionType The action type
-         * @param {string} actionId   The action id
-         */
-        async #handleUniqueActionsNpc (event, actionType, actor, token, actionId) {
-            switch (actionType) {
-            case 'initiative':
-                this.#rollInitiative(event, actor, actionId)
-                break
-            case 'attribute':
-            case 'perceptionCheck':
-                await this.#rollAttributeNpc(event, actor, actionId)
-                break
-            case 'save':
-                this.#rollSave(actor, actionId)
-                break
-            case 'strike':
-                this.#rollStrikeNpc(event, actor, actionId)
-                break
-            }
-        }
-
-        /**
-         * Roll Skill
+         * Roll skill
          * @private
          * @param {object} event    The event
          * @param {object} actor    The actor
@@ -218,7 +161,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Roll Ability
+         * Roll ability
          * @private
          * @param {object} event    The event
          * @param {object} actor    The actor
@@ -250,7 +193,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Roll Elemental Blast
+         * Roll elemental blast
          * @private
          * @param {object} event    The event
          * @param {object} actor    The actor
@@ -297,7 +240,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Roll Initiative
+         * Roll initiative
          * @param {object} event The event
          * @param {object} actor The actor
          * @param {string} actionId The action id
@@ -309,7 +252,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Roll NPC Attribute
+         * Roll NPC attribute
          * @private
          * @param {object} event    The event
          * @param {object} actor    The actor
@@ -370,7 +313,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Roll Save
+         * Roll save
          * @private
          * @param {object} actor    The actor
          * @param {string} actionId The action id
@@ -381,14 +324,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Roll Character Strike
+         * Roll character strike
          * @private
          * @param {object} event    The event
          * @param {object} actor    The actor
          * @param {string} actionId The action id
          * @returns
          */
-        #rollStrikeChar (event, actor, actionId) {
+        #rollStrike (event, actor, actionId) {
             const actionParts = decodeURIComponent(actionId).split('>')
 
             const itemId = actionParts[0]
@@ -437,7 +380,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Perform Auxiliary Action
+         * Perform auxiliary action
          * @private
          * @param {object} actor    The actor
          * @param {string} actionId The action id
@@ -464,17 +407,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Perform Versatile Option
+         * Perform versatile option
          * @private
          * @param {object} actor    The actor
          * @param {string} actionId The action id
          * @returns
          */
         async #performVersatileOption (actor, actionId) {
-            const actionParts = decodeURIComponent(actionId).split('>')
+            const [itemId, slug, selection] = decodeURIComponent(actionId).split('>')
 
-            const itemId = actionParts[0]
-            const selection = actionParts[2]
             const trait = 'versatile'
             const weapon = coreModule.api.Utils.getItem(actor, itemId)
 
@@ -500,62 +441,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Roll NPC Strike
-         * @private
-         * @param {object} event    The event
-         * @param {object} actor    The actor
-         * @param {string} actionId The action id
-         * @returns
-         */
-        #rollStrikeNpc (event, actor, actionId) {
-            const actionParts = decodeURIComponent(actionId).split('>')
-
-            const itemId = actionParts[0]
-            const slug = actionParts[1]
-            const strikeType = actionParts[2]
-
-            const strike = actor.system.actions
-                .filter(action => action.type === 'strike')
-                .find(strike => strike.item.id === itemId && strike.slug === slug)
-
-            if (itemId === 'plus') {
-                const item = actor.items.find(
-                    (item) =>
-                        strikeType
-                            .toUpperCase()
-                            .localeCompare(item.name.toUpperCase(), undefined, {
-                                sensitivity: 'base'
-                            }) === 0
-                )
-
-                if (this.isRenderItem()) return this.doRenderItem(actor, item.id)
-
-                item.toChat(event)
-                return
-            }
-
-            if (this.isRenderItem()) return this.doRenderItem(actor, itemId)
-
-            switch (strikeType) {
-            case 'damage':
-                strike.rollNPCDamage(event)
-                break
-            case 'critical':
-                strike.rollNPCDamage(event, true)
-                break
-            case '0':
-                strike.rollNPCAttack(event)
-                break
-            case '1':
-                strike.rollNPCAttack(event, 2)
-                break
-            case '2':
-                strike.rollNPCAttack(event, 3)
-                break
-            }
-        }
-
-        /**
          * Roll item
          * @private
          * @param {object} event    The event
@@ -575,8 +460,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {object} actor The actor
          */
         #rollFamiliarAttack (event, actor) {
-            const options = actor.getRollOptions(['all', 'attack'])
-            actor.system.attack.roll({ event, options })
+            if (game.system.version >= '5.4.1') {
+                const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
+                actor.attackStatistic.roll(args)
+            } else {
+                const options = actor.getRollOptions(['all', 'attack'])
+                actor.system.attack.roll({ event, options })
+            }
         }
 
         /**
@@ -629,7 +519,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Execute Macro by ID
+         * Execute macro by ID
          * @private
          * @param {string} id The macro ID
          */
@@ -639,7 +529,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Adjust Resources
+         * Adjust resources
          * @private
          * @param {string} property  The property
          * @param {string} valueName The value name
@@ -650,10 +540,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const max = actor.system.resources[property].max
 
             if (this.rightClick) {
-                if (value <= 0) return
-                value--
-            } else {
-                if (value >= max) return
+                if (value > 0) {
+                    value--
+                }
+            } else if (value < max) {
                 value++
             }
 
@@ -669,8 +559,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         async #toggleCondition (actor, actionId) {
-            if (this.rightClick) actor.decreaseCondition(actionId)
-            else actor.increaseCondition(actionId)
+            if (this.rightClick) {
+                actor.decreaseCondition(actionId)
+            } else {
+                actor.increaseCondition(actionId)
+            }
         }
 
         /**
@@ -705,23 +598,23 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Perform Toggle Macro
+         * Perform toggle action
          * @private
          * @param {object} actor    The actor
          * @param {string} actionId The action id
          */
         async #performToggleAction (actor, actionId) {
-            const actionParts = decodeURIComponent(actionId).split('>')
+            const [domain, option, itemId, suboptionValue] = decodeURIComponent(actionId).split('>')
 
-            const domain = actionParts[0]
-            const option = actionParts[1]
-            const itemId = actionParts[2]
-            const value = actionParts[3] || null
-            const suboption = actionParts[4]
+            if (!domain || !option) return
 
-            if (!(domain && option)) return
+            const toggle = actor.synthetics.toggles.find(t => t.domain === domain && t.option === option && t.itemId === itemId)
 
-            await actor.toggleRollOption(domain, option, itemId, value, suboption)
+            if (!toggle) return
+
+            const value = !toggle.enabled || !toggle.checked || (suboptionValue && !toggle.suboptions.find(s => s.value === suboptionValue)?.selected)
+
+            await actor.toggleRollOption(domain, option, itemId, value, suboptionValue)
         }
     }
 })
