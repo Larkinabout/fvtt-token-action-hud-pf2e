@@ -449,7 +449,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         #rollItem (event, actor, actionId) {
             const item = actor.items.get(actionId)
-
+            if (item.system?.selfEffect) {
+                createSelfEffectMessage(item);
+            }
             item.toChat(event)
         }
 
