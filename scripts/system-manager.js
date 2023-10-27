@@ -8,14 +8,9 @@ export let SystemManager = null
 
 Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     SystemManager = class SystemManager extends coreModule.api.SystemManager {
-    /** @override */
-        doGetCategoryManager (user) {
-            return new coreModule.api.CategoryManager()
-        }
-
         /** @override */
-        doGetActionHandler (categoryManager) {
-            const actionHandler = new ActionHandler(categoryManager)
+        getActionHandler () {
+            const actionHandler = new ActionHandler()
             return actionHandler
         }
 
@@ -29,9 +24,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /** @override */
-        doGetRollHandler (handlerId) {
+        getRollHandler (rollHandlerId) {
             let rollHandler
-            switch (handlerId) {
+            switch (rollHandlerId) {
             case 'core':
             default:
                 rollHandler = new Core()
@@ -42,12 +37,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /** @override */
-        doRegisterSettings (updateFunc) {
-            systemSettings.register(updateFunc)
+        registerSettings (onChangeFunction) {
+            systemSettings.register(onChangeFunction)
         }
 
         /** @override */
-        async doRegisterDefaultFlags () {
+        async registerDefaults () {
             const defaults = DEFAULTS
             if (game.modules.get('pf2e-hero-actions')?.active) {
                 const listType = coreModule.api.Utils.i18n('tokenActionHud.group')
