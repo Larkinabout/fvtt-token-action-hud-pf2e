@@ -92,7 +92,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'action':
             case 'feat':
             case 'item':
-                this.#rollItem(event, actor, actionId)
+                this.#rollItem(actionId)
                 break
             case 'condition':
                 this.#toggleCondition(actor, actionId)
@@ -443,14 +443,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         /**
          * Roll item
          * @private
-         * @param {object} event    The event
-         * @param {object} actor    The actor
          * @param {string} actionId The action id
          */
-        #rollItem (event, actor, actionId) {
-            const item = actor.items.get(actionId)
-
-            item.toChat(event)
+        #rollItem (actionId) {
+            game.pf2e.rollItemMacro(actionId)
         }
 
         /**
