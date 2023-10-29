@@ -1294,9 +1294,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Build strikes
+         * Build elemental blasts
          */
         async #buildElementalBlasts () {
+            if (game.system.version < '5.4.0') return
+
             const actionType = 'elementalBlast'
 
             // Create parent group data
