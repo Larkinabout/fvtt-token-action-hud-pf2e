@@ -1209,7 +1209,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             const encodedValue = this.#getActionEncodedValue(itemData, actionType, spellLevel)
                             const icon1 = this.#getIcon1(itemData, actionType)
                             const img = coreModule.api.Utils.getImage(itemData)
-                            const info = this.#getSpellInfo(itemData)
                             const tooltipData = await this.#getTooltipData(actionType, itemData)
                             const tooltip = await this.#getTooltip(actionType, tooltipData)
                             return {
@@ -1220,7 +1219,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                                 cssClass,
                                 img,
                                 icon1,
-                                info,
                                 tooltip
                             }
                         })
@@ -1807,50 +1805,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             result = `${attackBonus} ${dcInfo}`
 
             return result
-        }
-
-        /**
-         * Get spell info
-         * @private
-         * @param {object} spell The spell object
-         * @returns {object}     The spell info
-         */
-        #getSpellInfo (spell) {
-            const componentData = this.#getComponentsInfo(spell)
-            const usesData = this.#getUsesData(spell)
-
-            return {
-                info1: componentData,
-                info2: usesData
-            }
-        }
-
-        /**
-         * Get spell component info
-         * @private
-         * @param {object} spell The spell object
-         * @returns {string}     The spell components
-         */
-        #getComponentsInfo (spell) {
-            const text = spell.components.value ?? spell.system.components?.value ?? ''
-            const title = Object.entries(spell.components)
-                .filter(component => component[1] === true)
-                .map(component => { return component[0].trim().charAt(0).toUpperCase() + component[0].slice(1) })
-                .join(', ')
-            return { text, title }
-        }
-
-        /**
-         * Get uses
-         * @private
-         * @param {object} spell The spell
-         * @returns {string}     The uses
-         */
-        #getUsesData (spell) {
-            const value = spell?.uses?.value
-            const max = spell?.uses?.max
-            const text = (value && max >= 0) ? `${value}/${max}` : ''
-            return { text }
         }
 
         /**
