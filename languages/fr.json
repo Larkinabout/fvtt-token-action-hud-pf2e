@@ -33,6 +33,7 @@
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "Afficher les Noms des Attaques",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "Choisissez si vous souhaitez séparer par défaut l'utilisation principale des attaques dans leur propre groupe",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "Séparer l'Utilisation Principale des Attaques",
+    "tokenActionHud.pf2e.shields": "Boucliers",
     "tokenActionHud.pf2e.skillAction": "Action de Compétence",
     "tokenActionHud.pf2e.skillActions": "Actions de Compétence",
     "tokenActionHud.pf2e.skillActionsGrouped": "Actions de Compétence Groupées",

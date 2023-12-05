@@ -95,6 +95,7 @@ export const ITEM_TYPE = {
     consumable: { groupId: 'consumables' },
     backpack: { groupId: 'containers' },
     equipment: { groupId: 'equipment' },
+    shield: { groupId: 'shields' },
     treasure: { groupId: 'treasure' },
     weapon: { groupId: 'weapons' }
 }
@@ -162,6 +163,7 @@ export const GROUP = {
     skillActionsGrouped: { id: 'skill-actions-grouped', name: 'tokenActionHud.pf2e.skillActions', listName: 'tokenActionHud.pf2e.skillActionsGrouped', type: 'system' },
     skillActionsUngrouped: { id: 'skill-actions-ungrouped', name: 'tokenActionHud.pf2e.skillActions', listName: 'tokenActionHud.pf2e.skillActionsUngrouped', type: 'system', settings: { sort: true } },
     weapons: { id: 'weapons', name: 'tokenActionHud.pf2e.weapons', type: 'system' },
+    shields: { id: 'shields', name: 'tokenActionHud.pf2e.shields', type: 'system' },
     armor: { id: 'armor', name: 'tokenActionHud.pf2e.armor', type: 'system' },
     equipment: { id: 'equipment', name: 'tokenActionHud.pf2e.equipment', type: 'system' },
     consumables: { id: 'consumables', name: 'tokenActionHud.pf2e.consumables', type: 'system' },

@@ -33,6 +33,7 @@
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "显示打击名称",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "选择是否默认将主要使用的打击分成独立的组",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "分割主要打击",
+    "tokenActionHud.pf2e.shields": "盾牌",
     "tokenActionHud.pf2e.skillAction": "技能动作",
     "tokenActionHud.pf2e.skillActions": "技能动作",
     "tokenActionHud.pf2e.skillActionsGrouped": "分组的技能动作",

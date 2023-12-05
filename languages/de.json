@@ -33,6 +33,7 @@
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "Angriffsnamen anzeigen",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "Wählen Sie, ob der Typ von Angriffen standardmäßig in eine eigene Gruppe aufgeteilt werden soll",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "Angriffstypen aufteilen",
+    "tokenActionHud.pf2e.shields": "Schilde",
     "tokenActionHud.pf2e.skillAction": "Fertigkeitsaktion",
     "tokenActionHud.pf2e.skillActions": "Fertigkeitsaktionen",
     "tokenActionHud.pf2e.skillActionsGrouped": "Gruppierte Fertigkeitsaktionen",

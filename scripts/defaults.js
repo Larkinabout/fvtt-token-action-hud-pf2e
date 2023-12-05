@@ -49,6 +49,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 name: coreModule.api.Utils.i18n('PF2E.TabInventoryLabel'),
                 groups: [
                     { ...groups.weapons, nestId: 'inventory_weapons' },
+                    { ...groups.shields, nestId: 'inventory_shields' },
                     { ...groups.armor, nestId: 'inventory_armor' },
                     { ...groups.equipment, nestId: 'inventory_equipment' },
                     { ...groups.consumables, nestId: 'inventory_consumables' },

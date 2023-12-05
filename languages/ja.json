@@ -33,6 +33,7 @@
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "ストライクの名前を表示",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "デフォルトでストライクの主な使用方法を独自のグループに分割するか選択します",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "ストライクの主な使用方法を分割",
+    "tokenActionHud.pf2e.shields": "盾",
     "tokenActionHud.pf2e.skillAction": "スキル行動",
     "tokenActionHud.pf2e.skillActions": "スキル行動",
     "tokenActionHud.pf2e.skillActionsGrouped": "グループ化されたスキル行動",

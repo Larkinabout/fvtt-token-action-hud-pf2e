@@ -33,6 +33,7 @@
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "Exibir Nomes de Ataques",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "Escolha se deseja separar o uso principal dos ataques em seu próprio grupo por padrão",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "Separar Uso Principal de Ataques",
+    "tokenActionHud.pf2e.shields": "Escudos",
     "tokenActionHud.pf2e.skillAction": "Ação de Perícia",
     "tokenActionHud.pf2e.skillActions": "Ações de Perícia",
     "tokenActionHud.pf2e.skillActionsGrouped": "Ações de Perícia Agrupadas",

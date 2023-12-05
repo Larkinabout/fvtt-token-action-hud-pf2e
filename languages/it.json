@@ -33,6 +33,7 @@
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "Mostra Nomi degli Attacchi",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "Scegli se dividere per default l'uso principale degli attacchi in un proprio gruppo",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "Dividi Uso Principale degli Attacchi",
+    "tokenActionHud.pf2e.shields": "Scudi",
     "tokenActionHud.pf2e.skillAction": "Azione di Abilità",
     "tokenActionHud.pf2e.skillActions": "Azioni di Abilità",
     "tokenActionHud.pf2e.skillActionsGrouped": "Azioni di Abilità Raggruppate",

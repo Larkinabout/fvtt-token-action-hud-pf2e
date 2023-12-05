@@ -33,6 +33,7 @@
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "Mostrar Nombres de Golpes",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "Elige si dividir por defecto el uso principal de los golpes en su propio grupo",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "Dividir Uso Principal de Golpes",
+    "tokenActionHud.pf2e.shields": "Escudos",
     "tokenActionHud.pf2e.skillAction": "Acción de Habilidad",
     "tokenActionHud.pf2e.skillActions": "Acciones de Habilidad",
     "tokenActionHud.pf2e.skillActionsGrouped": "Acciones de Habilidad Agrupadas",
