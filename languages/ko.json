@@ -1,8 +1,13 @@
 {
+    "tokenActionHud.pf2e.armor": "갑옷",
     "tokenActionHud.pf2e.attribute": "속성",
     "tokenActionHud.pf2e.attributes": "속성",
+    "tokenActionHud.pf2e.consumables": "소모품",
+    "tokenActionHud.pf2e.containers": "컨테이너",
+    "tokenActionHud.pf2e.equipment": "장비",
     "tokenActionHud.pf2e.heroAction": "Hero Action",
     "tokenActionHud.pf2e.heroActions": "Hero Actions",
+    "tokenActionHud.pf2e.inventory": "인벤토리",
     "tokenActionHud.pf2e.noAmmo": "탄약 없음",
     "tokenActionHud.pf2e.rests": "휴식",
     "tokenActionHud.pf2e.save": "저장",
@@ -33,5 +38,7 @@
     "tokenActionHud.pf2e.skillActionsGrouped": "그룹화된 스킬 동작",
     "tokenActionHud.pf2e.skillActionsUngrouped": "그룹화되지 않은 스킬 동작",
     "tokenActionHud.pf2e.takeBreather": "한숨 돌리기",
-    "tokenActionHud.pf2e.toggle": "토글"
+    "tokenActionHud.pf2e.toggle": "토글",
+    "tokenActionHud.pf2e.treasure": "보물",
+    "tokenActionHud.pf2e.weapons": "무기"
 }

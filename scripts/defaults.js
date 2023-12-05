@@ -59,7 +59,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             {
                 nestId: 'feats',
                 id: 'feats',
-                name: coreModule.api.Utils.i18n('PF2E.TabFeatsLabel'),
+                name: coreModule.api.Utils.i18n('PF2E.Item.Feat.Plural'),
                 groups: [
                     { ...groups.ancestryFeatures, nestId: 'feats_ancestry-features' },
                     { ...groups.classFeatures, nestId: 'feats_class-features' },
@@ -73,7 +73,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             {
                 nestId: 'spells',
                 id: 'spells',
-                name: coreModule.api.Utils.i18n('PF2E.SpellLabelPlural'),
+                name: coreModule.api.Utils.i18n('PF2E.Item.Spell.Plural'),
                 groups: [
                     { ...groups.spells, nestId: 'spells_spells' }
                 ]

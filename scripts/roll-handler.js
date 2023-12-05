@@ -456,13 +456,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {object} actor The actor
          */
         #rollFamiliarAttack (event, actor) {
-            if (game.system.version >= '5.4.1') {
-                const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
-                actor.attackStatistic.roll(args)
-            } else {
-                const options = actor.getRollOptions(['all', 'attack'])
-                actor.system.attack.roll({ event, options })
-            }
+            const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
+            actor.attackStatistic.roll(args)
         }
 
         /**

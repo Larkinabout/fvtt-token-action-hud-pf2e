@@ -94,8 +94,8 @@
         "type": "system",
         "compatibility": [
           {
-            "minimum": "4.6.4",
-            "verified": "5.9.3"
+            "minimum": "5.10.0",
+            "verified": "5.10.3"
           }
         ]
       }

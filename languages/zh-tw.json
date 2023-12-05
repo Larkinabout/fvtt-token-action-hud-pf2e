@@ -1,8 +1,13 @@
 {
+    "tokenActionHud.pf2e.armor": "盔甲",
     "tokenActionHud.pf2e.attribute": "屬性",
     "tokenActionHud.pf2e.attributes": "屬性",
+    "tokenActionHud.pf2e.consumables": "消耗品",
+    "tokenActionHud.pf2e.containers": "容器",
+    "tokenActionHud.pf2e.equipment": "裝備",
     "tokenActionHud.pf2e.heroAction": "Hero Action",
     "tokenActionHud.pf2e.heroActions": "Hero Actions",
+    "tokenActionHud.pf2e.inventory": "庫存",
     "tokenActionHud.pf2e.noAmmo": "無彈藥",
     "tokenActionHud.pf2e.rests": "休息",
     "tokenActionHud.pf2e.save": "保存",
@@ -33,5 +38,7 @@
     "tokenActionHud.pf2e.skillActionsGrouped": "分組的技能行動",
     "tokenActionHud.pf2e.skillActionsUngrouped": "未分組的技能行動",
     "tokenActionHud.pf2e.takeBreather": "休息一下",
-    "tokenActionHud.pf2e.toggle": "切換"
+    "tokenActionHud.pf2e.toggle": "切換",
+    "tokenActionHud.pf2e.treasure": "寶藏",
+    "tokenActionHud.pf2e.weapons": "武器"
 }

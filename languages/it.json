@@ -1,8 +1,13 @@
 {
+    "tokenActionHud.pf2e.armor": "Armatura",
     "tokenActionHud.pf2e.attribute": "Attributo",
     "tokenActionHud.pf2e.attributes": "Attributi",
+    "tokenActionHud.pf2e.consumables": "Consumabili",
+    "tokenActionHud.pf2e.containers": "Contenitori",
+    "tokenActionHud.pf2e.equipment": "Attrezzatura",
     "tokenActionHud.pf2e.heroAction": "Hero Action",
     "tokenActionHud.pf2e.heroActions": "Hero Actions",
+    "tokenActionHud.pf2e.inventory": "Inventario",
     "tokenActionHud.pf2e.noAmmo": "Nessuna Munizione",
     "tokenActionHud.pf2e.rests": "Riposo",
     "tokenActionHud.pf2e.save": "Salva",
@@ -33,5 +38,7 @@
     "tokenActionHud.pf2e.skillActionsGrouped": "Azioni di Abilità Raggruppate",
     "tokenActionHud.pf2e.skillActionsUngrouped": "Azioni di Abilità Non Raggruppate",
     "tokenActionHud.pf2e.takeBreather": "Prenditi una pausa",
-    "tokenActionHud.pf2e.toggle": "Attiva/Disattiva"
+    "tokenActionHud.pf2e.toggle": "Attiva/Disattiva",
+    "tokenActionHud.pf2e.treasure": "Tesoro",
+    "tokenActionHud.pf2e.weapons": "Armi"
 }

@@ -1295,8 +1295,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Build elemental blasts
          */
         async #buildElementalBlasts () {
-            if (game.system.version < '5.4.0') return
-
             const actionType = 'elementalBlast'
 
             // Create parent group data
@@ -1375,11 +1373,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         const isMap = `${roll}`.includes(this.mapLabel)
                         let modifier
                         if (isMap) {
-                            if ((game.system.version < '5.2.0')) {
-                                modifier = coreModule.api.Utils.getModifier(blast.statistic.mod + parseInt(`${roll}`.split(' ')[1]))
-                            } else {
-                                modifier = `${roll}`.split(' ')[0]
-                            }
+                            modifier = `${roll}`.split(' ')[0]
                         } else {
                             modifier = `${roll}`.replace(coreModule.api.Utils.i18n('PF2E.WeaponStrikeLabel'), '').replace(' ', '')
                         }
@@ -1564,11 +1558,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             const isMap = variant.label.includes(this.mapLabel)
                             let modifier
                             if (isMap) {
-                                if ((game.system.version < '5.2.0')) {
-                                    modifier = coreModule.api.Utils.getModifier(strike.totalModifier + parseInt(variant.label.split(' ')[1]))
-                                } else {
-                                    modifier = variant.label.split(' ')[0]
-                                }
+                                modifier = variant.label.split(' ')[0]
                             } else {
                                 modifier = variant.label.replace(coreModule.api.Utils.i18n('PF2E.WeaponStrikeLabel'), '').replace(' ', '')
                             }
