@@ -480,7 +480,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             await spellcasting.cast(spell, {
                 message: !expend,
                 consume: true,
-                level: Number(level)
+                rank: Number(level)
             })
 
             Hooks.callAll('forceUpdateTokenActionHud')
