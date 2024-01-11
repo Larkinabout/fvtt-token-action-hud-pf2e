@@ -40,7 +40,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Set roll options
          */
         #setRollOptions () {
-            const skipDefault = !game.user.settings.showRollDialogs
+            const skipDefault = !game.user.settings.showCheckDialogs
             this.rollMode = (this.ctrl) ? (game.user.isGM) ? 'gmroll' : 'blindroll' : null
             this.skipDialog = (this.shift) ? !skipDefault : skipDefault
         }
