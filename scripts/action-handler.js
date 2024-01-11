@@ -1174,10 +1174,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.addGroupInfo(bookGroupData)
 
                 const spellInfo = await (spellcastingEntry[1].getSpellData ? spellcastingEntry[1].getSpellData() : spellcastingEntry[1].getSheetData())
-                const activeLevels = spellInfo.levels.filter((level) => level.active.length > 0)
+                const activeLevels = spellInfo.groups.filter((level) => level.active.length > 0)
 
                 for (const level of Object.entries(activeLevels)) {
-                    const spellLevel = level[1].level
+                    const spellLevel = level[1].id
                     const levelGroupId = `${bookGroupId}+${spellLevel}`
                     const levelGroupName = String(coreModule.api.Utils.i18n(level[1].label))
 
@@ -1243,7 +1243,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             level,
             spellInfo
         ) {
-            const isCantrip = level[1].isCantrip
+            const isCantrip = level[1].id === "cantrips"
             const isFlexible = spellInfo.isFlexible
             const isFocusPool = spellInfo.isFocusPool
             const isInnate = spellInfo.isInnate
