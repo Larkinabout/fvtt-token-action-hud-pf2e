@@ -621,13 +621,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (!skills) return
 
-            const initiativeStatistic = this.actor?.system?.attributes?.initiative?.statistic ?? null
+            const initiativeStatistic = this.actor?.system?.initiative?.statistic ?? null
 
             // Get actions
             const actions = []
 
             if (this.actorType !== 'hazard') {
-                const perception = (this.actor) ? this.actor.system.attributes.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
+                const perception = (this.actor) ? this.actor.system.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
                 const fullName = coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
                 const name = this.abbreviatedSkills ? SKILL_ABBREVIATION.perception ?? fullName : fullName
                 const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
@@ -841,7 +841,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         async #buildPerceptionCheck () {
             const actionType = 'perceptionCheck'
-            const perception = (this.actor) ? this.actor.system.attributes.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
+            const perception = (this.actor) ? this.actor.system.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
             const name = coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
             const modifier = coreModule.api.Utils.getModifier(perception?.totalModifier)
             const info1 = this.actor ? { text: modifier } : ''
@@ -1174,10 +1174,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.addGroupInfo(bookGroupData)
 
                 const spellInfo = await (spellcastingEntry[1].getSpellData ? spellcastingEntry[1].getSpellData() : spellcastingEntry[1].getSheetData())
-                const activeLevels = spellInfo.levels.filter((level) => level.active.length > 0)
+                const activeLevels = spellInfo.groups.filter((level) => level.active.length > 0)
 
                 for (const level of Object.entries(activeLevels)) {
-                    const spellLevel = level[1].level
+                    const spellLevel = level[1].id
                     const levelGroupId = `${bookGroupId}+${spellLevel}`
                     const levelGroupName = String(coreModule.api.Utils.i18n(level[1].label))
 
@@ -1243,7 +1243,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             level,
             spellInfo
         ) {
-            const isCantrip = level[1].isCantrip
+            const isCantrip = level[1].id === "cantrips"
             const isFlexible = spellInfo.isFlexible
             const isFocusPool = spellInfo.isFocusPool
             const isInnate = spellInfo.isInnate
