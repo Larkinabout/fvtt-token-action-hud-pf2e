@@ -621,13 +621,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (!skills) return
 
-            const initiativeStatistic = this.actor?.system?.attributes?.initiative?.statistic ?? null
+            const initiativeStatistic = this.actor?.system?.initiative?.statistic ?? null
 
             // Get actions
             const actions = []
 
             if (this.actorType !== 'hazard') {
-                const perception = (this.actor) ? this.actor.system.attributes.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
+                const perception = (this.actor) ? this.actor.system.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
                 const fullName = coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
                 const name = this.abbreviatedSkills ? SKILL_ABBREVIATION.perception ?? fullName : fullName
                 const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
@@ -841,7 +841,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         async #buildPerceptionCheck () {
             const actionType = 'perceptionCheck'
-            const perception = (this.actor) ? this.actor.system.attributes.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
+            const perception = (this.actor) ? this.actor.system.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
             const name = coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
             const modifier = coreModule.api.Utils.getModifier(perception?.totalModifier)
             const info1 = this.actor ? { text: modifier } : ''
