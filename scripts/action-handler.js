@@ -133,7 +133,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.#buildActions(),
                 this.#buildCombat(),
                 this.#buildInitiative(),
-                this.#buildSaves()
+                this.#buildSaves(),
+                this.#buildStrikes()
             ])
         }
 
@@ -1439,7 +1440,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Get strikes
             const strikes = this.actor.system.actions
-                .filter(action => action.type === actionType && (action.item.system.quantity > 0 || this.actor.type === 'npc'))
+                .filter(action => action.type === actionType && (action.item.system.quantity > 0 || this.actor.type === 'hazard') || this.actor.type === 'npc')
 
             // Exit if no strikes exist
             if (!strikes) return
