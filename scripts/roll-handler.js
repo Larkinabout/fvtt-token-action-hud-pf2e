@@ -44,45 +44,44 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         async handleActionHover (event, encodedValue) {
             const types = ['elementalBlast', 'action', 'feat', 'item', 'spell', 'familiarAttack', 'strike']
-            const [actionType, actionData] = encodedValue.replaceAll("%3E", ">").split('|')
+            const [actionType, actionData] = decodeURIComponent(encodedValue).split('|')
 
             if (!types.includes(actionType)) return
 
             if (!this.actor) return
 
-            const item = (() => {
-                switch (actionType) {
-                case 'elementalBlast':
-                    const [blastId, blastElement, blastValue, blastType] = actionData.split('>')
-                    const blast = coreModule.api.Utils.getItem(this.actor, blastId)
-                    const blastItem = blast.rules.find(r => r.value.element == blastElement)
-                    return blastItem
-                    break
-                case 'spell':
-                    const [spellcastingEntry, rank, spellId] = actionData.split('>')
-                    const spellItem = coreModule.api.Utils.getItem(this.actor, spellId)
-                    return spellItem
-                    break
-                case 'strike':
-                    const [strikeId, strikeName, strikeValue, strikeType] = actionData.split('>')
-                    if (strikeId === 'xxPF2ExUNARMEDxx') {
-                        const strikeItem = this.actor.system.actions.find(a => a.item.id === 'xxPF2ExUNARMEDxx').item
-                        return strikeItem
-                    }
-                    const strikeItem = coreModule.api.Utils.getItem(this.actor, strikeId)
+            let item
+            switch (actionType) {
+            case 'elementalBlast':
+                const [blastId, blastElement, blastValue, blastType] = actionData.split('>')
+                const blast = coreModule.api.Utils.getItem(this.actor, blastId)
+                const blastItem = blast.rules.find(r => r.value.element == blastElement)
+                item = blastItem
+                break
+            case 'spell':
+                const [spellcastingEntry, rank, spellId] = actionData.split('>')
+                const spellItem = coreModule.api.Utils.getItem(this.actor, spellId)
+                item = spellItem
+                break
+            case 'strike':
+                const [strikeId, strikeName, strikeValue, strikeType] = actionData.split('>')
+                if (strikeId === 'xxPF2ExUNARMEDxx') {
+                    const strikeItem = this.actor.system.actions.find(a => a.item.id === 'xxPF2ExUNARMEDxx').item
                     return strikeItem
-                    break
-                case 'familiarAttack':
-                    const attackItem = this.actor.system.attack
-                    return attackItem
-                    break
-                default:
-                    const actionId = actionData.split('>', 1)[0]
-                    const actionItem = coreModule.api.Utils.getItem(this.actor, actionId)
-                    return actionItem
-                    break
                 }
-            })();
+                const strikeItem = coreModule.api.Utils.getItem(this.actor, strikeId)
+                item = strikeItem
+                break
+            case 'familiarAttack':
+                const attackItem = this.actor.system.attack
+                item = attackItem
+                break
+            default:
+                const actionId = actionData.split('>', 1)[0]
+                const actionItem = coreModule.api.Utils.getItem(this.actor, actionId)
+                item = actionItem
+                break
+            }
 
             if (!item) return
 
