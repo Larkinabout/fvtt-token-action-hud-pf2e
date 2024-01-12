@@ -37,6 +37,63 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
+         * Handle action hover
+         * @override
+         * @param {object} event
+         * @param {string} encodedValue
+         */
+        async handleActionHover (event, encodedValue) {
+            const types = ['elementalBlast', 'action', 'feat', 'item', 'spell', 'familiarAttack', 'strike']
+            const [actionType, actionData] = encodedValue.replaceAll("%3E", ">").split('|')
+
+            if (!types.includes(actionType)) return
+
+            if (!this.actor) return
+
+            const item = (() => {
+                switch (actionType) {
+                case 'elementalBlast':
+                    const [blastId, blastElement, blastValue, blastType] = actionData.split('>')
+                    const blast = coreModule.api.Utils.getItem(this.actor, blastId)
+                    const blastItem = blast.rules.find(r => r.value.element == blastElement)
+                    return blastItem
+                    break
+                case 'spell':
+                    const [spellcastingEntry, rank, spellId] = actionData.split('>')
+                    const spellItem = coreModule.api.Utils.getItem(this.actor, spellId)
+                    return spellItem
+                    break
+                case 'strike':
+                    const [strikeId, strikeName, strikeValue, strikeType] = actionData.split('>')
+                    if (strikeId === 'xxPF2ExUNARMEDxx') {
+                        const strikeItem = this.actor.system.actions.find(a => a.item.id === 'xxPF2ExUNARMEDxx').item
+                        return strikeItem
+                    }
+                    const strikeItem = coreModule.api.Utils.getItem(this.actor, strikeId)
+                    return strikeItem
+                    break
+                case 'familiarAttack':
+                    const attackItem = this.actor.system.attack
+                    return attackItem
+                    break
+                default:
+                    const actionId = actionData.split('>', 1)[0]
+                    const actionItem = coreModule.api.Utils.getItem(this.actor, actionId)
+                    return actionItem
+                    break
+                }
+            })();
+
+            if (!item) return
+
+            if (event.type === 'mouseenter') {
+                Hooks.call('tokenActionHudSystemActionHoverOn', event, item)
+            } else {
+                Hooks.call('tokenActionHudSystemActionHoverOff', event, item)
+            }
+        }
+
+        /**
          * Set roll options
          */
         #setRollOptions () {
