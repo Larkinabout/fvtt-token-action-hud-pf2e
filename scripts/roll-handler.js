@@ -302,6 +302,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {string} actionId The action id
          */
         async #rollInitiative (event, actor, actionId) {
+            const initiative = actor.combatant?.initiative
+
+            if (initiative && actor.inCombat) {
+                ui.notifications.info("You have already rolled initiative.")
+                return
+            }
+
             await actor.update({ 'system.attributes.initiative.statistic': actionId })
             const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
             actor.initiative.roll(args)
