@@ -31,7 +31,7 @@
     "tokenActionHud.pf2e.setting.showStrikeImages.name": "Angriffsbilder anzeigen",
     "tokenActionHud.pf2e.setting.showStrikeNames.hint": "Wählen Sie, ob die Namen der Angriffe standardmäßig angezeigt werden sollen",
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "Angriffsnamen anzeigen",
-    "tokenActionHud.pf2e.setting.showStrikeTraits.hint": "Wählen Sie aus, ob Schlagmerkmale standardmäßig angezeigt werden sollen (erfordert "Angriffsnamen anzeigen).",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.hint": "Wählen Sie aus, ob Schlagmerkmale standardmäßig angezeigt werden sollen (erfordert "Angriffsnamen anzeigen)",
     "tokenActionHud.pf2e.setting.showStrikeTrait.name": "Schlageigenschaften anzeigen",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "Wählen Sie, ob der Typ von Angriffen standardmäßig in eine eigene Gruppe aufgeteilt werden soll",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "Angriffstypen aufteilen",
