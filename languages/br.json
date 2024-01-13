@@ -31,6 +31,8 @@
     "tokenActionHud.pf2e.setting.showStrikeImages.name": "Exibir Imagens de Ataques",
     "tokenActionHud.pf2e.setting.showStrikeNames.hint": "Escolha se deseja exibir nomes de ataques por padrão",
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "Exibir Nomes de Ataques",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.hint": "Escolha se deseja exibir traços de ataques por padrão (requer Exibir Nomes de Ataques)",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.name": "Exibir Traços de Ataques",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "Escolha se deseja separar o uso principal dos ataques em seu próprio grupo por padrão",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "Separar Uso Principal de Ataques",
     "tokenActionHud.pf2e.shields": "Escudos",

@@ -31,6 +31,8 @@
     "tokenActionHud.pf2e.setting.showStrikeImages.name": "ストライクの画像を表示",
     "tokenActionHud.pf2e.setting.showStrikeNames.hint": "デフォルトでストライクの名前を表示するか選択します",
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "ストライクの名前を表示",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.hint": "デフォルトでストライク特性を表示することを選択します (ストライク名の表示が必要)",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.name": "ストライキの特徴を示す",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "デフォルトでストライクの主な使用方法を独自のグループに分割するか選択します",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "ストライクの主な使用方法を分割",
     "tokenActionHud.pf2e.shields": "盾",

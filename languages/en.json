@@ -31,6 +31,8 @@
     "tokenActionHud.pf2e.setting.showStrikeImages.name": "Show Strike Images",
     "tokenActionHud.pf2e.setting.showStrikeNames.hint": "Choose whether to show strike names by default",
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "Show Strike Names",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.hint": "Choose whether to show strike traits by default (requires Show Strike Names)",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.name": "Show Strike Traits",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "Choose whether to split the main usage of strikes into their own group by default",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "Split Strike Main Usage",
     "tokenActionHud.pf2e.shields": "Shields",

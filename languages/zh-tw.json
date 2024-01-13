@@ -31,6 +31,8 @@
     "tokenActionHud.pf2e.setting.showStrikeImages.name": "顯示攻擊圖像",
     "tokenActionHud.pf2e.setting.showStrikeNames.hint": "選擇是否默認顯示攻擊的名稱",
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "顯示攻擊名稱",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.hint": "選擇是否默認顯示攻擊的特徵（需顯示攻擊名稱）",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.name": "顯示攻擊特徵",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "選擇是否默認將攻擊的主要用途分為單獨的群組",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "分割主要攻擊用途",
     "tokenActionHud.pf2e.shields": "盾牌",
