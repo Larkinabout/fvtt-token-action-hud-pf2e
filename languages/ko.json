@@ -31,6 +31,8 @@
     "tokenActionHud.pf2e.setting.showStrikeImages.name": "타격 이미지 표시",
     "tokenActionHud.pf2e.setting.showStrikeNames.hint": "기본값으로 타격 이름을 표시할지 선택합니다",
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "타격 이름 표시",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.hint": "기본적으로 히트 이름을 표시할지 여부를 선택합니다(타격 이름 표시 필요)",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.name": "특성 이름 표시",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "기본값으로 타격의 주 사용 방법을 별도의 그룹으로 분리할지 선택합니다",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "타격 주 사용 방법 분리",
     "tokenActionHud.pf2e.shields": "방패",

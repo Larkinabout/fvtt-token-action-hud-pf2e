@@ -31,6 +31,8 @@
     "tokenActionHud.pf2e.setting.showStrikeImages.name": "显示打击图片",
     "tokenActionHud.pf2e.setting.showStrikeNames.hint": "选择是否默认显示打击名称",
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "显示打击名称",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.hint": "选择是否默认显示攻击特征（需要显示攻击名称）",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.name": "显示罢工特征",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "选择是否默认将主要使用的打击分成独立的组",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "分割主要打击",
     "tokenActionHud.pf2e.shields": "盾牌",

@@ -31,6 +31,8 @@
     "tokenActionHud.pf2e.setting.showStrikeImages.name": "Mostrar Imágenes de Golpes",
     "tokenActionHud.pf2e.setting.showStrikeNames.hint": "Elige si mostrar los nombres de los golpes por defecto",
     "tokenActionHud.pf2e.setting.showStrikeNames.name": "Mostrar Nombres de Golpes",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.hint": "Elija si desea mostrar los rasgos de ataque de forma predeterminada (requiere Mostrar Nombres de Golpes)",
+    "tokenActionHud.pf2e.setting.showStrikeTraits.name": "Monstrar Rasgos de Golpes",
     "tokenActionHud.pf2e.setting.splitStrikes.hint": "Elige si dividir por defecto el uso principal de los golpes en su propio grupo",
     "tokenActionHud.pf2e.setting.splitStrikes.name": "Dividir Uso Principal de Golpes",
     "tokenActionHud.pf2e.shields": "Escudos",

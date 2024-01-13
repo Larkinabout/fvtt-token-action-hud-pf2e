@@ -60,6 +60,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.colorSkills = Utils.getSetting('colorSkills')
             this.showStrikeImages = Utils.getSetting('showStrikeImages')
             this.showStrikeNames = Utils.getSetting('showStrikeNames')
+            this.showStrikeTraits = Utils.getSetting('showStrikeTraits')
             this.splitStrikes = Utils.getSetting('splitStrikes')
 
             // Set group variables
@@ -1453,7 +1454,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                 const strikeId = `${strike.item.id}-${strike.slug}`
                 const strikeGroupId = `strikes+${strikeId}`
-                const strikeGroupName = strike.label
+                let strikeGroupName = strike.label
+                if (this.showStrikeNames && this.showStrikeTraits && strike.weaponTraits.length) {
+                    strikeGroupName += ' - '
+                    strike.weaponTraits.forEach((t) => {
+                        strikeGroupName += '[' + t.label + ']'
+                    })
+                }
                 const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ${strike.label} (${strike.item.id})`
                 const image = strike.imageUrl ?? strike.item?.img
                 const showTitle = this.showStrikeNames
