@@ -1632,13 +1632,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
 
                 if (this.splitStrikes) {
-                    this.addActions([...auxiliaryActions, ...versatileOptionActions], strikeGroupData)
+                    this.addActions([...versatileOptionActions, ...auxiliaryActions], strikeGroupData)
                     for (const usage of usageData) {
                         this.addGroup(usage.usageGroupData, strikeGroupData)
                         this.addActions(usage.actions, usage.usageGroupData)
                     }
                 } else {
-                    this.addActions([...auxiliaryActions, ...(usageData[0]?.actions || []), ...versatileOptionActions], strikeGroupData)
+                    this.addActions([...(usageData[0]?.actions || []), ...versatileOptionActions, ...auxiliaryActions], strikeGroupData)
                     usageData.shift()
                     for (const usage of usageData) {
                         this.addGroup(usage.usageGroupData, strikeGroupData)
