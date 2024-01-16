@@ -1350,7 +1350,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 for (const [key, blastUsage] of blastUsages) {
                     const usage = key
                     const usageGroupId = `${strikeGroupId}+${key}`
-                    const usageGroupName = coreModule.api.Utils.i18n(STRIKE_USAGE[key].name)
+                    const usageGroupName = coreModule.api.Utils.i18n('tokenActionHud.pf2e.initiativeAlreadyRolled')
                     const usageGroupListName = `${strikeGroupListName}: ${usageGroupName}`
                     const usageGroupImage = (blastUsages.length > 1)
                         ? (usage === 'melee')
@@ -1441,7 +1441,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Get strikes
             const strikes = this.actor.system.actions
-                .filter(action => action.type === actionType && (action.item.system.quantity > 0 || this.actor.type === 'hazard') || this.actor.type === 'npc')
+                .filter(action => (action.type === actionType && (action.item.system.quantity > 0 || this.actor.type === 'hazard')) || this.actor.type === 'npc')
 
             // Exit if no strikes exist
             if (!strikes) return
@@ -1655,7 +1655,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'toggle'
 
             // Get toggles
-            const toggles = (game.system.version.startsWith('4')) ? this.actor.system.toggles : this.actor.synthetics.toggles
+            const toggles = this.actor.synthetics.toggles
 
             // Exit if no toggles exist
             if (!toggles.length) return

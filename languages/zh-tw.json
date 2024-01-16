@@ -7,6 +7,7 @@
     "tokenActionHud.pf2e.equipment": "裝備",
     "tokenActionHud.pf2e.heroAction": "Hero Action",
     "tokenActionHud.pf2e.heroActions": "Hero Actions",
+    "tokenActionHud.pf2e.initiativeAlreadyRolled": "先攻已擲出",
     "tokenActionHud.pf2e.inventory": "庫存",
     "tokenActionHud.pf2e.noAmmo": "無彈藥",
     "tokenActionHud.pf2e.rests": "休息",

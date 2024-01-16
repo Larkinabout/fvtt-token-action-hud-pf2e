@@ -7,6 +7,7 @@
     "tokenActionHud.pf2e.equipment": "Equipo",
     "tokenActionHud.pf2e.heroAction": "Hero Action",
     "tokenActionHud.pf2e.heroActions": "Hero Actions",
+    "tokenActionHud.pf2e.initiativeAlreadyRolled": "Iniciativa ya lanzada",
     "tokenActionHud.pf2e.inventory": "Inventario",
     "tokenActionHud.pf2e.noAmmo": "Sin munición",
     "tokenActionHud.pf2e.rests": "Descansos",

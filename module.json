@@ -94,8 +94,8 @@
         "type": "system",
         "compatibility": [
           {
-            "minimum": "5.10.0",
-            "verified": "5.10.3"
+            "minimum": "5.12.7",
+            "verified": "5.12.7"
           }
         ]
       }
@@ -108,7 +108,7 @@
           {
             "minimum": "1.5.0",
             "maximum": "1.5",
-            "verified": "1.5.1"
+            "verified": "1.5.3"
           }
         ]
       }

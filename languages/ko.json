@@ -7,6 +7,7 @@
     "tokenActionHud.pf2e.equipment": "장비",
     "tokenActionHud.pf2e.heroAction": "Hero Action",
     "tokenActionHud.pf2e.heroActions": "Hero Actions",
+    "tokenActionHud.pf2e.initiativeAlreadyRolled": "이미 초기화표가 굴러갔습니다",
     "tokenActionHud.pf2e.inventory": "인벤토리",
     "tokenActionHud.pf2e.noAmmo": "탄약 없음",
     "tokenActionHud.pf2e.rests": "휴식",

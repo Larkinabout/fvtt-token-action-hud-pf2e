@@ -53,33 +53,43 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             let item
             switch (actionType) {
             case 'elementalBlast':
-                const [blastId, blastElement, blastValue, blastType] = actionData.split('>')
-                const blast = coreModule.api.Utils.getItem(this.actor, blastId)
-                const blastItem = blast.rules.find(r => r.value.element == blastElement)
-                item = blastItem
+                {
+                    const [blastId, blastElement, blastValue, blastType] = actionData.split('>')
+                    const blast = coreModule.api.Utils.getItem(this.actor, blastId)
+                    const blastItem = blast.rules.find(r => r.value.element === blastElement)
+                    item = blastItem
+                }
                 break
             case 'spell':
-                const [spellcastingEntry, rank, spellId] = actionData.split('>')
-                const spellItem = coreModule.api.Utils.getItem(this.actor, spellId)
-                item = spellItem
+                {
+                    const [spellcastingEntry, rank, spellId] = actionData.split('>')
+                    const spellItem = coreModule.api.Utils.getItem(this.actor, spellId)
+                    item = spellItem
+                }
                 break
             case 'strike':
-                const [strikeId, strikeName, strikeValue, strikeType] = actionData.split('>')
-                if (strikeId === 'xxPF2ExUNARMEDxx') {
-                    const strikeItem = this.actor.system.actions.find(a => a.item.id === 'xxPF2ExUNARMEDxx').item
-                    return strikeItem
+                {
+                    const [strikeId, strikeName, strikeValue, strikeType] = actionData.split('>')
+                    if (strikeId === 'xxPF2ExUNARMEDxx') {
+                        const strikeItem = this.actor.system.actions.find(a => a.item.id === 'xxPF2ExUNARMEDxx').item
+                        return strikeItem
+                    }
+                    const strikeItem = coreModule.api.Utils.getItem(this.actor, strikeId)
+                    item = strikeItem
                 }
-                const strikeItem = coreModule.api.Utils.getItem(this.actor, strikeId)
-                item = strikeItem
                 break
             case 'familiarAttack':
-                const attackItem = this.actor.system.attack
-                item = attackItem
+                {
+                    const attackItem = this.actor.system.attack
+                    item = attackItem
+                }
                 break
             default:
-                const actionId = actionData.split('>', 1)[0]
-                const actionItem = coreModule.api.Utils.getItem(this.actor, actionId)
-                item = actionItem
+                {
+                    const actionId = actionData.split('>', 1)[0]
+                    const actionItem = coreModule.api.Utils.getItem(this.actor, actionId)
+                    item = actionItem
+                }
                 break
             }
 
@@ -305,24 +315,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const initiative = actor.combatant?.initiative
 
             if (initiative && actor.inCombat) {
-                ui.notifications.info("You have already rolled initiative.")
+                coreModule.api.Logger.info(coreModule.api.Utils.i18n('tokenActionHud.pf2e.initiativeAlreadyRolled'), true)
                 return
             }
 
             await actor.update({ 'system.attributes.initiative.statistic': actionId })
             const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
             actor.initiative.roll(args)
-        }
-
-        /**
-         * Roll NPC attribute
-         * @private
-         * @param {object} event    The event
-         * @param {object} actor    The actor
-         * @param {string} actionId The action id
-         */
-        async #rollAttributeNpc (event, actor, actionId) {
-            actor.rollAttribute(event, actionId)
         }
 
         /**

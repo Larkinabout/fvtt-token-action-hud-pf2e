@@ -7,6 +7,7 @@
     "tokenActionHud.pf2e.equipment": "Equipment",
     "tokenActionHud.pf2e.heroAction": "Hero Action",
     "tokenActionHud.pf2e.heroActions": "Hero Actions",
+    "tokenActionHud.pf2e.initiativeAlreadyRolled": "Initiative already rolled",
     "tokenActionHud.pf2e.inventory": "Inventory",
     "tokenActionHud.pf2e.noAmmo": "No Ammo",
     "tokenActionHud.pf2e.rests": "Rests",
