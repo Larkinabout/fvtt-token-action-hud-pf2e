@@ -1455,7 +1455,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const strikeId = `${strike.item.id}-${strike.slug}`
                 const strikeGroupId = `strikes+${strikeId}`
                 let strikeGroupName = strike.label
-                if (this.showStrikeNames && this.showStrikeTraits && strike.weaponTraits.length) {
+                if (this.showStrikeNames && this.showStrikeTraits && strike.weaponTraits?.length) {
                     strikeGroupName += ' - '
                     strike.weaponTraits.forEach((t) => {
                         strikeGroupName += '[' + t.label + ']'
