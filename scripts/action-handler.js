@@ -1455,11 +1455,20 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const strikeId = `${strike.item.id}-${strike.slug}`
                 const strikeGroupId = `strikes+${strikeId}`
                 let strikeGroupName = strike.label
-                if (this.showStrikeNames && this.showStrikeTraits && strike.weaponTraits?.length) {
-                    strikeGroupName += ' - '
-                    strike.weaponTraits.forEach((t) => {
-                        strikeGroupName += '[' + t.label + ']'
-                    })
+                if (this.showStrikeTraits && this.showStrikeNames) {
+                    let strikeTraits = null
+                    if (this.actor.type === 'character') {
+                        strikeTraits = strike.weaponTraits
+                    }
+                    else {
+                        strikeTraits = strike.traits
+                    }
+                    if (strikeTraits.length > 0) {
+                        strikeGroupName += ' - '
+                        for (let trait of strikeTraits) {
+                            strikeGroupName += '[' + trait.label + ']'
+                        }
+                    }
                 }
                 const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ${strike.label} (${strike.item.id})`
                 const image = strike.imageUrl ?? strike.item?.img
