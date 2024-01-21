@@ -1259,7 +1259,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'spellSlot'
             const focus = this.actor.system.resources.focus
             const slots = level[1].uses
-            const spellSlot = (isFocusPool) ? 'focus' : `slot${level[1].level}`
+            const spellSlot = (isFocusPool) ? 'focus' : `slot${level[1].id}`
             const maxSlots = (spellSlot === 'focus') ? focus?.max : slots?.max
             const availableSlots = (spellSlot === 'focus') ? focus?.value : slots?.value
             const info1 = { text: (maxSlots >= 0) ? `${availableSlots ?? 0}/${maxSlots}` : '' }
