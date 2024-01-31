@@ -17,9 +17,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         /** @override */
         getAvailableRollHandlers () {
             const coreTitle = 'Core PF2E'
-
             const choices = { core: coreTitle }
-
             return choices
         }
 
@@ -32,7 +30,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 rollHandler = new Core()
                 break
             }
-
             return rollHandler
         }
 

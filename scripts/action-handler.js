@@ -1,12 +1,12 @@
 // System Module Imports
-import { ACTION_ICON, ACTION_TYPE, CARRY_TYPE_ICON, ITEM_TYPE, MODULAR_OPTION, SKILL_ABBREVIATION, SKILL, SKILL_ACTION, STRIKE_ICON, STRIKE_USAGE } from './constants.js'
+import { ACTION_ICON, ACTION_TYPE, CARRY_TYPE_ICON, ITEM_TYPE, MODULAR_OPTION, SKILL_ABBREVIATION, SKILL, SKILL_ACTION, STRIKE_ICON, STRIKE_USAGE, DAMAGE_TYPE_ICONS } from './constants.js'
 import { Utils } from './utils.js'
 
 export let ActionHandler = null
 
 Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     ActionHandler = class ActionHandler extends coreModule.api.ActionHandler {
-    // Initialize actor and token variables
+        // Initialize actor and token variables
         actors = null
         actorId = null
         actorType = null
@@ -89,7 +89,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.#buildCombat(),
                 this.#buildConditions(),
                 this.#buildEffects(),
-                this.#buildElementalBlasts(),
                 this.#buildFeats(),
                 this.#buildHeroActions(),
                 this.#buildHeroPoints(),
@@ -105,6 +104,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.#buildStrikes(),
                 this.#buildToggles()
             ])
+            // Build elemental blasts after other character actions so they are grouped together
+            await this.#buildElementalBlasts()
         }
 
         /**
@@ -1245,7 +1246,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             level,
             spellInfo
         ) {
-            const isCantrip = level[1].id === "cantrips"
+            const isCantrip = level[1].id === 'cantrips'
             const isFlexible = spellInfo.isFlexible
             const isFocusPool = spellInfo.isFocusPool
             const isInnate = spellInfo.isInnate
@@ -1315,15 +1316,30 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                 const strikeId = `${blast.item.id}-${blast.element}`
                 const strikeGroupId = `strikes+${strikeId}`
-                const strikeGroupName = coreModule.api.Utils.i18n(blast.label)
+                const strikeGroupName = (() => {
+                    let groupName = coreModule.api.Utils.i18n(blast.label)
+                    if (this.showStrikeTraits && this.showStrikeNames) {
+                        const blastTraits = blast.item.system.traits.value
+                        if (blastTraits.length > 0) {
+                            groupName += ' - '
+                            for (const trait of blastTraits) {
+                                groupName += '[' + trait + ']'
+                            }
+                        }
+                    }
+                    return groupName
+                })()
                 const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE.strike)}: ${strikeGroupName} (${blast.item.id})`
                 const image = blast.img ?? blast.item?.img
                 const showTitle = this.showStrikeNames
                 const tooltipData = await this.#getTooltipData(actionType, blast)
                 const tooltip = await this.#getTooltip(actionType, tooltipData)
+
                 // Create group data
                 strikeGroupData = { id: strikeGroupId, name: strikeGroupName, listName: strikeGroupListName, type: 'system-derived', settings: { showTitle }, tooltip }
-                if (this.showStrikeImages) { strikeGroupData.settings.image = image }
+                if (this.showStrikeImages) {
+                    strikeGroupData.settings.image = image
+                }
 
                 // Add group to action list
                 this.addGroup(strikeGroupData, parentGroupData)
@@ -1338,7 +1354,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             name: '',
                             fullName,
                             listName: `${strikeGroupListName}: ${fullName}`,
-                            encodedValue: ['elementalDamageType', id].join(this.delimiter),
+                            encodedValue: ['elementalBlastDamageType', id].join(this.delimiter),
                             cssClass: this.#getActionCss(damageType),
                             icon1: this.#getActionIcon(damageType.icon, fullName)
                         }
@@ -1350,7 +1366,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 for (const [key, blastUsage] of blastUsages) {
                     const usage = key
                     const usageGroupId = `${strikeGroupId}+${key}`
-                    const usageGroupName = coreModule.api.Utils.i18n('tokenActionHud.pf2e.initiativeAlreadyRolled')
+                    const usageGroupName = (() => {
+                        if (usage !== 'melee' && blast.range.max > 0 && blast.range.label.length > 0) {
+                            return blast.range.label
+                        } else {
+                            return coreModule.api.Utils.i18n(STRIKE_USAGE[key].name)
+                        }
+                    })()
                     const usageGroupListName = `${strikeGroupListName}: ${usageGroupName}`
                     const usageGroupImage = (blastUsages.length > 1)
                         ? (usage === 'melee')
@@ -1441,7 +1463,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Get strikes
             const strikes = this.actor.system.actions
-                .filter(action => (action.type === actionType && (action.item.system.quantity > 0 || this.actor.type === 'hazard')) || this.actor.type === 'npc')
+                .filter(action => (action.type === actionType && (action.item.system.quantity > 0 || this.actor.type === 'hazard' || this.actor.type === 'npc')))
 
             // Exit if no strikes exist
             if (!strikes) return
@@ -1454,22 +1476,24 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                 const strikeId = `${strike.item.id}-${strike.slug}`
                 const strikeGroupId = `strikes+${strikeId}`
-                let strikeGroupName = strike.label
-                if (this.showStrikeTraits && this.showStrikeNames) {
-                    let strikeTraits = null
-                    if (this.actor.type === 'character') {
-                        strikeTraits = strike.weaponTraits
-                    }
-                    else {
-                        strikeTraits = strike.traits
-                    }
-                    if (strikeTraits.length > 0) {
-                        strikeGroupName += ' - '
-                        for (let trait of strikeTraits) {
-                            strikeGroupName += '[' + trait.label + ']'
+                const strikeGroupName = (() => {
+                    let groupName = strike.label
+                    if (this.showStrikeTraits && this.showStrikeNames) {
+                        let strikeTraits
+                        if (this.actor.type === 'character') {
+                            strikeTraits = strike.weaponTraits
+                        } else {
+                            strikeTraits = strike.traits
+                        }
+                        if (strikeTraits.length > 0) {
+                            groupName += ' - '
+                            for (const trait of strikeTraits) {
+                                groupName += '[' + trait.label + ']'
+                            }
                         }
                     }
-                }
+                    return groupName
+                })()
                 const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ${strike.label} (${strike.item.id})`
                 const image = strike.imageUrl ?? strike.item?.img
                 const showTitle = this.showStrikeNames
@@ -1495,7 +1519,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                                     id,
                                     name,
                                     listName: `${strikeGroupListName}: ${name}`,
-                                    encodedValue: ['auxAction', id].join(this.delimiter),
+                                    encodedValue: ['strikeAuxiliaryAction', id].join(this.delimiter),
                                     icon1: this.#getActionIcon(auxiliaryAction.glyph),
                                     cssClass: this.#getActionCss({ selected: (modularOption === modularSelection) })
                                 }
@@ -1507,7 +1531,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                                 id,
                                 name,
                                 listName: `${strikeGroupListName}: ${name}`,
-                                encodedValue: ['auxAction', id].join(this.delimiter),
+                                encodedValue: ['strikeAuxiliaryAction', id].join(this.delimiter),
                                 icon1: this.#getActionIcon(auxiliaryAction.glyph),
                                 info: this.#getItemInfo(auxiliaryAction)
                             }
@@ -1891,7 +1915,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @returns {string}
          */
         #getActionIcon (action, title = '') {
-            if (['bow-arrow', 'axe', 'hammer', 'sun'].includes(action)) {
+            if (DAMAGE_TYPE_ICONS[action]) {
                 return `<i class="${ACTION_ICON[action]}" data-tooltip="${title}"></i>`
             }
             return ACTION_ICON[action]
@@ -1925,55 +1949,49 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Get tooltip data
          * @param {string} actionType The action type
          * @param {object} entity     The entity
-         * @returns {object}          The tooltip data
+         * @returns {Promise<object>} The tooltip data
          */
         async #getTooltipData (actionType, entity) {
             if (this.tooltipsSetting === 'none') return ''
 
-            const name = entity?.name ?? ''
-
-            if (this.tooltipsSetting === 'nameOnly') return name
+            if (this.tooltipsSetting === 'nameOnly') return entity.name ?? ''
 
             const chatData = (['elementalBlast', 'strike'].includes(actionType)) ? await entity.item.getChatData() : await entity.getChatData()
-
-            const strikeDescription = (actionType === 'strike')
-                ? this.#getStrikeDescription(entity)
-                : null
 
             switch (actionType) {
             case 'item':
                 return {
-                    name,
-                    description: chatData?.description.value,
-                    rarity: chatData.rarity,
-                    traits: chatData.traits,
-                    traits2: chatData.properties
+                    name: entity.name ?? '',
+                    description: chatData?.description?.value ?? null,
+                    rarity: chatData?.rarity ?? null,
+                    traits: chatData?.traits ?? null,
+                    traits2: chatData?.properties ?? null
                 }
             case 'spell':
                 return {
-                    name,
-                    description: chatData.description.value,
-                    properties: chatData.properties,
-                    rarity: chatData.rarity,
-                    traits: chatData.actionTraits,
-                    traitsAlt: chatData.spellTraits
+                    name: entity.name ?? '',
+                    description: chatData?.description?.value ?? null,
+                    properties: chatData?.properties ?? null,
+                    rarity: chatData?.rarity ?? null,
+                    traits: chatData?.actionTraits ?? null,
+                    traitsAlt: chatData?.spellTraits ?? null
                 }
             case 'strike':
                 return {
-                    name: entity.label,
-                    descriptionLocalised: strikeDescription,
-                    modifiers: entity.modifiers,
-                    properties: chatData?.properties.filter(property => property !== 'PF2E.WeaponTypeMartial'),
-                    traits: entity.traits,
-                    traitsAlt: entity.weaponTraits
+                    name: entity.label ?? '',
+                    descriptionLocalised: this.#getStrikeDescription(entity) ?? '',
+                    modifiers: entity?.modifiers ?? null,
+                    properties: chatData?.properties?.filter(property => property !== 'PF2E.WeaponTypeMartial') ?? null,
+                    traits: entity?.traits ?? null,
+                    traitsAlt: entity?.weaponTraits ?? null
                 }
             default:
                 return {
-                    name,
-                    description: chatData?.description?.value,
-                    properties: chatData?.properties,
-                    rarity: chatData?.rarity,
-                    traits: chatData?.traits
+                    name: entity.name ?? '',
+                    description: chatData?.description?.value ?? null,
+                    properties: chatData?.properties ?? null,
+                    rarity: chatData?.rarity ?? null,
+                    traits: chatData?.traits ?? null
                 }
             }
         }
@@ -1983,7 +2001,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @private
          * @param {string} actionType  The action type
          * @param {object} tooltipData The tooltip data
-         * @returns {string}           The tooltip
+         * @returns {Promise<string>}  The tooltip
          */
         async #getTooltip (actionType, tooltipData) {
             if (this.tooltipsSetting === 'none') return ''
