@@ -2,18 +2,68 @@ export let RollHandler = null
 
 Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
     RollHandler = class RollHandler extends coreModule.api.RollHandler {
-        BLIND_ROLL_MODE = 'blindRoll'
+        /**
+         * Execute macro by ID
+         * @private
+         * @param {string} id The macro id
+         */
+        async #executeMacroById (id) {
+            game.packs.get('pf2e.pf2e-macros').getDocument(id).then((e) => e.execute())
+        }
+
+        /**
+         * Is renderable item
+         * @private
+         * @param {string} actionType The action type
+         * @return {boolean}          Whether the action is a renderable item
+         */
+        #isRenderableItem (actionType) {
+            const renderable = [
+                'action',
+                'ammo',
+                'feat',
+                'item',
+                'lore'
+            ]
+
+            return this.isRenderItem() && renderable.includes(actionType)
+        }
+
+        /**
+         * Get controlled tokens
+         * @private
+         * @return {array} The controlled tokens
+         */
+        #getControlledTokens () {
+            const actorTypes = [
+                'character',
+                'familiar',
+                'hazard',
+                'npc'
+            ]
+
+            return canvas.tokens.controlled.filter(token => actorTypes.includes(token.actor?.type))
+        }
+
+        /**
+         * Set roll options
+         * @private
+         */
+        #setRollOptions () {
+            this.rollMode = this.ctrl ? game.user.isGM ? 'gmroll' : 'blindroll' : null
+            this.showCheckDialogs = this.shift ? game.user.settings.showCheckDialogs : !game.user.settings.showCheckDialogs
+        }
 
         /**
          * Handle action click
          * @override
-         * @param {object} event
-         * @param {string} encodedValue
+         * @param {object} event          The event
+         * @param {string} encodedPayload The encoded payload
          */
-        async handleActionClick (event, encodedValue) {
-            const payload = encodedValue.split('|')
+        async handleActionClick (event, encodedPayload) {
+            const payload = decodeURIComponent(encodedPayload).split('|', 2)
 
-            if (payload.length !== 2) {
+            if (payload.length < 2) {
                 super.throwInvalidValueErr()
             }
 
@@ -22,73 +72,84 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             this.#setRollOptions()
 
             if (this.#isRenderableItem(actionType)) {
-                return this.doRenderItem(this.actor, actionId)
+                return this.renderItem(this.actor, actionId)
             }
 
-            if (!this.actor) {
-                const controlledTokens = this.#getControlledTokens()
-                for (const token of controlledTokens) {
-                    const actor = token.actor
-                    await this.#handleActions(event, actionType, actor, token, actionId)
-                }
-            } else {
+            if (this.actor) {
                 await this.#handleActions(event, actionType, this.actor, this.token, actionId)
+            } else {
+                for (const token of this.#getControlledTokens()) {
+                    await this.#handleActions(event, actionType, token.actor, token, actionId)
+                }
             }
         }
 
         /**
          * Handle action hover
          * @override
-         * @param {object} event
-         * @param {string} encodedValue
+         * @param {object} event          The event
+         * @param {string} encodedPayload The encoded payload
          */
-        async handleActionHover (event, encodedValue) {
-            const types = ['elementalBlast', 'action', 'feat', 'item', 'spell', 'familiarAttack', 'strike']
-            const [actionType, actionData] = decodeURIComponent(encodedValue).split('|')
+        async handleActionHover (event, encodedPayload) {
+            const payload = decodeURIComponent(encodedPayload).split('|', 2)
 
-            if (!types.includes(actionType)) return
+            if (payload.length < 2) {
+                super.throwInvalidValueErr()
+            }
+
+            const [actionType, actionData] = payload
 
             if (!this.actor) return
 
+            // Currently, only the following action types are handled.
+            const actionTypes = [
+                'action',
+                'elementalBlast',
+                'familiarAttack',
+                'feat',
+                'item',
+                'spell',
+                'strike'
+            ]
+
+            if (!actionTypes.includes(actionType)) return
+
             let item
+
             switch (actionType) {
             case 'elementalBlast':
                 {
-                    const [blastId, blastElement, blastValue, blastType] = actionData.split('>')
+                    // blastId, blastElement, blastValue, blastType
+                    const [blastId, blastElement] = actionData.split('>', 2)
                     const blast = coreModule.api.Utils.getItem(this.actor, blastId)
-                    const blastItem = blast.rules.find(r => r.value.element === blastElement)
-                    item = blastItem
+                    item = blast?.rules.find(rule => rule.value?.element === blastElement)
                 }
+                break
+            case 'familiarAttack':
+                item = this.actor.system.attack
                 break
             case 'spell':
                 {
-                    const [spellcastingEntry, rank, spellId] = actionData.split('>')
-                    const spellItem = coreModule.api.Utils.getItem(this.actor, spellId)
-                    item = spellItem
+                    // spellcastingEntry, rank, spellId
+                    const [, , spellId] = actionData.split('>', 3)
+                    item = coreModule.api.Utils.getItem(this.actor, spellId)
                 }
                 break
             case 'strike':
                 {
-                    const [strikeId, strikeName, strikeValue, strikeType] = actionData.split('>')
+                    // strikeId, strikeName, strikeValue, strikeType
+                    const [strikeId] = actionData.split('>', 1)
                     if (strikeId === 'xxPF2ExUNARMEDxx') {
-                        const strikeItem = this.actor.system.actions.find(a => a.item.id === 'xxPF2ExUNARMEDxx').item
-                        return strikeItem
+                        item = this.actor.system.actions.find(action => action.item?.id === 'xxPF2ExUNARMEDxx').item
+                    } else {
+                        item = coreModule.api.Utils.getItem(this.actor, strikeId)
                     }
-                    const strikeItem = coreModule.api.Utils.getItem(this.actor, strikeId)
-                    item = strikeItem
-                }
-                break
-            case 'familiarAttack':
-                {
-                    const attackItem = this.actor.system.attack
-                    item = attackItem
                 }
                 break
             default:
                 {
-                    const actionId = actionData.split('>', 1)[0]
-                    const actionItem = coreModule.api.Utils.getItem(this.actor, actionId)
-                    item = actionItem
+                    const [actionId] = actionData.split('>', 1)
+                    item = coreModule.api.Utils.getItem(this.actor, actionId)
                 }
                 break
             }
@@ -103,89 +164,54 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Set roll options
-         */
-        #setRollOptions () {
-            const skipDefault = !game.user.settings.showCheckDialogs
-            this.rollMode = (this.ctrl) ? (game.user.isGM) ? 'gmroll' : 'blindroll' : null
-            this.skipDialog = (this.shift) ? !skipDefault : skipDefault
-        }
-
-        /**
-         * Is renderable item
-         * @param {string} actionType The action typr
-         * @returns {boolean} Whether the action is a renderable item
-         */
-        #isRenderableItem (actionType) {
-            const renderable = ['item', 'feat', 'action', 'lore', 'ammo']
-            return renderable.includes(actionType) && this.isRenderItem()
-        }
-
-        /**
-         * Get controlled tokens
-         * @returns {array} The controlled tokens
-         */
-        #getControlledTokens () {
-            const actorTypes = ['character', 'familiar', 'hazard', 'npc']
-            return canvas.tokens.controlled.filter((token) =>
-                actorTypes.includes(token.actor?.type)
-            )
-        }
-
-        /**
          * Handle actions
          * @private
-         * @param {object} event
-         * @param {string} actionType
-         * @param {object} actor
-         * @param {object} token
-         * @param {string} actionId
+         * @param {object} event      The event
+         * @param {string} actionType The action type
+         * @param {object} actor      The actor
+         * @param {object} token      The token
+         * @param {string} actionId   The action id
          */
         async #handleActions (event, actionType, actor, token, actionId) {
             switch (actionType) {
-            case 'ability':
-                this.#rollAbility(event, actor, actionId)
-                break
-            case 'auxAction':
-                this.#performAuxAction(actor, actionId)
-                break
-            case 'elementalDamageType':
-                this.#setDamageType(event, actor, actionId)
-                break
-            case 'elementalBlast':
-                await this.#rollElementalBlast(event, actor, actionId)
-                break
             case 'action':
-            case 'feat':
-            case 'item':
-                this.#rollItem(actionId)
+                this.#rollItemMacro(actionId)
                 break
             case 'condition':
-                this.#toggleCondition(actor, actionId)
+                this.#adjustCondition(actor, actionId)
                 break
             case 'effect':
                 this.#adjustEffect(actor, actionId)
                 break
+            case 'elementalBlast':
+                await this.#rollElementalBlast(event, actor, actionId)
+                break
+            case 'elementalBlastDamageType':
+                this.#setElementalBlastDamageType(actor, actionId)
+                break
             case 'familiarAttack':
-                this.#rollFamiliarAttack(event, actor)
+                this.#rollFamiliarAttack(actor)
+                break
+            case 'feat':
+                this.#rollItemMacro(actionId)
                 break
             case 'heroAction':
-                this.#useHeroAction(actor, actionId)
+                this.#performHeroAction(actor, actionId)
                 break
             case 'heroPoints':
-                await this.#adjustResources('heroPoints', 'value', actor)
+                await this.#adjustResources(actor, 'heroPoints', 'value')
                 break
             case 'initiative':
-                this.#rollInitiative(event, actor, actionId)
+                this.#rollInitiative(actor, actionId)
+                break
+            case 'item':
+                this.#rollItemMacro(actionId)
                 break
             case 'perceptionCheck':
-            {
-                const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
-                actor.perception.roll(args)
+                this.#rollPerception(actor)
                 break
-            }
             case 'recoveryCheck':
-                actor.rollRecovery({ event })
+                this.#rollRecovery(event, actor)
                 break
             case 'save':
                 this.#rollSave(actor, actionId)
@@ -202,6 +228,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'strike':
                 this.#rollStrike(event, actor, actionId)
                 break
+            case 'strikeAuxiliaryAction':
+                this.#performStrikeAuxiliaryAction(actor, actionId)
+                break
             case 'toggle':
                 await this.#performToggleAction(actor, actionId)
                 break
@@ -215,47 +244,38 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Roll skill
+         * Roll item macro
          * @private
-         * @param {object} event    The event
-         * @param {object} actor    The actor
-         * @param {string} actionId The action ID
+         * @param {string} actionId The action id
          */
-        async #rollSkill (event, actor, actionId) {
-            const skill = actor.skills[actionId]
-            await skill.check.roll({ event })
+        #rollItemMacro (actionId) {
+            game.pf2e.rollItemMacro(actionId)
         }
 
         /**
-         * Roll ability
+         * Adjust condition
          * @private
-         * @param {object} event    The event
          * @param {object} actor    The actor
          * @param {string} actionId The action id
          */
-        #rollAbility (event, actor, actionId) {
-            actor.rollAbility(event, actionId)
+        async #adjustCondition (actor, actionId) {
+            this.rightClick ? actor.decreaseCondition(actionId) : actor.increaseCondition(actionId)
         }
 
         /**
-         * Set damage type
+         * Adjust effect
          * @private
-         * @param {object} event    The event
          * @param {object} actor    The actor
          * @param {string} actionId The action id
          */
-        #setDamageType (event, actor, actionId) {
-            const actionParts = decodeURIComponent(actionId).split('>')
+        async #adjustEffect (actor, actionId) {
+            const effect = coreModule.api.Utils.getItem(actor, actionId)
 
-            const element = actionParts[1]
-            const damageType = actionParts[2]
+            if (!effect) return
 
-            const blasts = new game.pf2e.ElementalBlast(actor)
+            this.rightClick ? effect.decrease() : effect.increase()
 
-            blasts.setDamageType({
-                element,
-                damageType
-            })
+            Hooks.callAll('forceUpdateTokenActionHud')
         }
 
         /**
@@ -264,114 +284,128 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {object} event    The event
          * @param {object} actor    The actor
          * @param {string} actionId The action id
-         * @returns
          */
         async #rollElementalBlast (event, actor, actionId) {
-            const actionParts = decodeURIComponent(actionId).split('>')
-
-            const itemId = actionParts[0]
-            const element = actionParts[1]
-            const type = actionParts[2]
-            const usage = actionParts[3] ? actionParts[3] : null
-            const melee = (usage === 'melee')
+            const [itemId, element, type, usage] = decodeURIComponent(actionId).split('>', 4)
 
             const blasts = new game.pf2e.ElementalBlast(actor)
             const blast = blasts.configs.find(blast => blast.item.id === itemId && blast.element === element)
             const damageType = blast.damageTypes.find(damageType => damageType.selected)?.value ?? element
+            const melee = usage === 'melee'
+            const outcome = type === 'damage' ? 'success' : 'criticalSuccess'
 
             switch (type) {
             case 'damage':
             case 'critical':
-                {
-                    const outcome = type === 'damage' ? 'success' : 'criticalSuccess'
-                    await blasts.damage({
-                        element,
-                        damageType,
-                        melee,
-                        outcome,
-                        event
-                    })
-                }
+                await blasts.damage({ element, damageType, melee, outcome, event })
                 break
             default:
-                await blasts.attack({
-                    mapIncreases: type,
-                    element,
-                    damageType,
-                    melee,
-                    event
-                })
+                await blasts.attack({ mapIncreases: type, element, damageType, melee, event })
                 break
             }
         }
 
         /**
-         * Roll initiative
-         * @param {object} event The event
-         * @param {object} actor The actor
-         * @param {string} actionId The action id
-         */
-        async #rollInitiative (event, actor, actionId) {
-            const initiative = actor.combatant?.initiative
-
-            if (initiative && actor.inCombat) {
-                coreModule.api.Logger.info(coreModule.api.Utils.i18n('tokenActionHud.pf2e.initiativeAlreadyRolled'), true)
-                return
-            }
-
-            await actor.update({ 'system.attributes.initiative.statistic': actionId })
-            const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
-            actor.initiative.roll(args)
-        }
-
-        /**
-         * Adjust spell slot
+         * Set elemental blast damage type
          * @private
          * @param {object} actor    The actor
          * @param {string} actionId The action id
          */
-        async #adjustSpellSlot (actor, actionId) {
-            const actionParts = decodeURIComponent(actionId).split('>')
+        #setElementalBlastDamageType (actor, actionId) {
+            // itemId, element, damageType
+            const [, element, damageType] = decodeURIComponent(actionId).split('>', 3)
 
-            const spellbookId = actionParts[0]
-            const slot = actionParts[1]
-            const effect = actionParts[2]
+            const blasts = new game.pf2e.ElementalBlast(actor)
+            blasts.setDamageType({ element, damageType })
+        }
 
-            const spellbook = actor.items.get(spellbookId)
+        /**
+         * Roll familiar attack
+         * @private
+         * @param {object} actor  The actor
+         */
+        #rollFamiliarAttack (actor) {
+            actor.attackStatistic.roll({ rollMode: this.rollMode, skipDialog: this.skipDialog })
+        }
 
-            let value, max
-            if (slot === 'focus') {
-                value = actor.system.resources.focus.value
-                max = actor.system.resources.focus.max
-            } else {
-                const slots = spellbook.system.slots
-                value = slots[slot].value
-                max = slots[slot].max
-            }
-
-            switch (effect) {
-            case 'slotIncrease':
-                if (value >= max) break
-
-                value++
+        /**
+         * Perform hero action
+         * @private
+         * @param {object} actor    The actor
+         * @param {string} actionId The action id
+         */
+        async #performHeroAction (actor, actionId) {
+            switch (actionId) {
+            case actionId === 'drawHeroActions':
+                await game.modules.get('pf2e-hero-actions')?.api?.drawHeroActions(actor)
                 break
-            case 'slotDecrease':
-                if (value <= 0) break
-
-                value--
-            }
-
-            let update
-            if (slot === 'focus') {
-                actor.update({ 'data.resources.focus.value': value })
-            } else {
-                update = [
-                    { _id: spellbook.id, data: { slots: { [slot]: { value } } } }
-                ]
-                await Item.updateDocuments(update, { parent: actor })
+            case actionId === 'useHeroAction':
+                await game.modules.get('pf2e-hero-actions')?.api?.useHeroAction(actor, actionId)
+                break
             }
 
             Hooks.callAll('forceUpdateTokenActionHud')
+        }
+
+        /**
+         * Adjust resources
+         * @private
+         * @param {object} actor     The actor
+         * @param {string} resource  The resource
+         * @param {string} valueName The value name
+         */
+        async #adjustResources (actor, resource, valueName) {
+            let value = actor.system.resources[resource][valueName]
+
+            if (this.rightClick) {
+                if (value > 0) {
+                    value--
+                }
+            } else {
+                if (value < actor.system.resources[resource].max) {
+                    value++
+                }
+            }
+
+            await Actor.updateDocuments([{ _id: actor.id, data: { resources: { [resource]: { [valueName]: value } } } }])
+
+            Hooks.callAll('forceUpdateTokenActionHud')
+        }
+
+        /**
+         * Roll initiative
+         * @private
+         * @param {object} actor    The actor
+         * @param {string} actionId The action id
+         */
+        async #rollInitiative (actor, actionId) {
+            if (actor.inCombat && actor.combatant?.initiative) {
+                coreModule.api.Logger.info(coreModule.api.Utils.i18n('tokenActionHud.pf2e.initiativeAlreadyRolled'), true)
+            } else {
+                await actor.update({ 'system.attributes.initiative.statistic': actionId })
+
+                actor.initiative.roll({ rollMode: this.rollMode, skipDialog: this.skipDialog })
+            }
+        }
+
+        /**
+         * Roll perception
+         * @private
+         * @param {object} actor The actor
+         */
+        #rollPerception (actor) {
+            actor.perception.roll({ rollMode: this.rollMode, skipDialog: this.skipDialog })
+        }
+
+        /**
+         * Roll recovery
+         * @private
+         * @param {object} event The event
+         * @param {object} actor The actor
+         */
+        #rollRecovery (event, actor) {
+            actor.rollRecovery({ event })
+            actor.perception.roll({ rollMode: this.rollMode, skipDialog: this.skipDialog })
         }
 
         /**
@@ -381,35 +415,106 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {string} actionId The action id
          */
         #rollSave (actor, actionId) {
-            const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
-            actor.saves[actionId].check.roll(args)
+            actor.saves[actionId].check.roll({ rollMode: this.rollMode, skipDialog: this.skipDialog })
         }
 
         /**
-         * Roll character strike
+         * Roll skill
          * @private
          * @param {object} event    The event
          * @param {object} actor    The actor
          * @param {string} actionId The action id
-         * @returns
+         */
+        async #rollSkill (event, actor, actionId) {
+            await actor.skills[actionId].check.roll({ event })
+        }
+
+        /**
+         * Roll spell
+         * @private
+         * @param {object} actor    The actor
+         * @param {string} actionId The action id
+         */
+        async #rollSpell (actor, actionId) {
+            const [spellbookId, level, spellId, expend] = decodeURIComponent(actionId).split('>', 4)
+
+            if (this.isRenderItem()) {
+                return this.doRenderItem(actor, spellId)
+            }
+
+            const spellbook = actor.items.get(spellbookId)
+            const spell = actor.items.get(spellId)
+
+            if (!spellbook || !spell) return
+
+            await spellbook.cast(spell, { message: !expend, consume: true, rank: Number(level) })
+
+            Hooks.callAll('forceUpdateTokenActionHud')
+        }
+
+        /**
+         * Adjust spell slot
+         * @private
+         * @param {object} actor    The actor
+         * @param {string} actionId The action id
+         */
+        async #adjustSpellSlot (actor, actionId) {
+            const [spellbookId, slot, effect] = decodeURIComponent(actionId).split('>', 3)
+
+            const spellbook = actor.items.get(spellbookId)
+
+            if (!spellbook && slot !== 'focus') return
+
+            let value, max
+
+            if (slot === 'focus') {
+                value = actor.system.resources.focus.value
+                max = actor.system.resources.focus.max
+            } else {
+                value = spellbook.system.slots[slot].value
+                max = spellbook.system.slots[slot].max
+            }
+
+            switch (effect) {
+            case 'slotIncrease':
+                if (value < max) {
+                    value++
+                }
+                break
+            case 'slotDecrease':
+                if (value > 0) {
+                    value--
+                }
+            }
+
+            if (slot === 'focus') {
+                actor.update({ 'system.resources.focus.value': value })
+            } else {
+                await Item.updateDocuments([{ _id: spellbook.id, data: { slots: { [slot]: { value } } } }], { parent: actor })
+            }
+
+            Hooks.callAll('forceUpdateTokenActionHud')
+        }
+
+        /**
+         * Roll strike
+         * @private
+         * @param {object} event    The event
+         * @param {object} actor    The actor
+         * @param {string} actionId The action id
          */
         #rollStrike (event, actor, actionId) {
-            const actionParts = decodeURIComponent(actionId).split('>')
-
-            const itemId = actionParts[0]
-            const slug = actionParts[1]
-            const strikeType = actionParts[2]
-            const usage = actionParts[3] ? actionParts[3] : null
-            let altUsage = null
+            const [itemId, slug, strikeType, usage] = decodeURIComponent(actionId).split('>', 4)
 
             let strike = actor.system.actions
                 .filter(action => action.type === 'strike')
                 .find(strike => strike.item.id === itemId && strike.slug === slug)
 
-            if (this.isRenderItem()) {
-                const item = strike.item
-                if (item && item.id !== 'xxPF2ExUNARMEDxx') return this.doRenderItem(actor, item.id)
+            if (this.isRenderItem() && strike.item?.id !== 'xxPF2ExUNARMEDxx') {
+                return this.doRenderItem(actor, strike.item.id)
             }
+
+            let altUsage
 
             if (strike.altUsages?.length) {
                 switch (true) {
@@ -442,110 +547,45 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Perform auxiliary action
+         * Perform strike auxiliary action
          * @private
          * @param {object} actor    The actor
          * @param {string} actionId The action id
-         * @returns
          */
-        #performAuxAction (actor, actionId) {
-            const actionParts = decodeURIComponent(actionId).split('>')
-
-            const itemId = actionParts[0]
-            const slug = actionParts[1]
-            const strikeType = actionParts[2]
-            const selection = actionParts[3] ? actionParts[3] : null
+        #performStrikeAuxiliaryAction (actor, actionId) {
+            const [itemId, slug, strikeType, selection] = decodeURIComponent(actionId).split('>', 4)
 
             const strike = actor.system.actions
                 .filter(action => action.type === 'strike')
                 .find(strike => strike.item.id === itemId && strike.slug === slug)
 
-            if (this.isRenderItem()) {
-                const item = strike.origin
-                if (item) return this.doRenderItem(actor, item.id)
-            }
+            if (!strike) return
 
-            strike.auxiliaryActions[strikeType]?.execute({ selection })
+            if (strike.origin && this.isRenderItem()) {
+                this.doRenderItem(actor, strike.origin.id)
+            } else {
+                strike.auxiliaryActions[strikeType]?.execute({ selection })
+            }
         }
 
         /**
-         * Perform versatile option
+         * Perform toggle action
          * @private
          * @param {object} actor    The actor
          * @param {string} actionId The action id
-         * @returns
          */
-        async #performVersatileOption (actor, actionId) {
-            const [itemId, slug, selection] = decodeURIComponent(actionId).split('>')
+        async #performToggleAction (actor, actionId) {
+            const [domain, option, itemId, suboptionValue] = decodeURIComponent(actionId).split('>', 4)
 
-            const trait = 'versatile'
-            const weapon = coreModule.api.Utils.getItem(actor, itemId)
+            if (!domain || !option) return
 
-            await toggleWeaponTrait({ weapon, trait, selection })
+            const toggle = actor.synthetics.toggles.find(t => t.domain === domain && t.option === option && t.itemId === itemId)
 
-            // Copied from pf2e.js
-            async function toggleWeaponTrait ({ weapon, trait, selection }) {
-                const current = weapon.system.traits.toggles[trait].selection
-                if (current === selection) return false
+            if (!toggle) return
 
-                const item = weapon.actor?.items.get(weapon.id)
-                if (item?.isOfType('weapon') && item === weapon) {
-                    await item.update({ [`system.traits.toggles.${trait}.selection`]: selection })
-                } else if (item?.isOfType('weapon') && weapon.altUsageType === 'melee') {
-                    item.update({ [`system.meleeUsage.traitToggles.${trait}`]: selection })
-                } else {
-                    const rule = item?.rules.find(r => r.key === 'Strike' && !r.ignored && r.slug === weapon.slug)
-                    await rule?.toggleTrait({ trait, selection })
-                }
+            const value = !toggle.enabled || !toggle.checked || (suboptionValue && !toggle.suboptions.find(s => s.value === suboptionValue)?.selected)
 
-                return true
-            }
-        }
-
-        /**
-         * Roll item
-         * @private
-         * @param {string} actionId The action id
-         */
-        #rollItem (actionId) {
-            game.pf2e.rollItemMacro(actionId)
-        }
-
-        /**
-         * Roll familiar attack
-         * @private
-         * @param {object} event The event
-         * @param {object} actor The actor
-         */
-        #rollFamiliarAttack (event, actor) {
-            const args = { rollMode: this.rollMode, skipDialog: this.skipDialog }
-            actor.attackStatistic.roll(args)
-        }
-
-        /**
-         * Roll spell
-         * @private
-         * @param {object} actor The actor
-         * @param {string} actionId The action id
-         * @returns
-         */
-        async #rollSpell (actor, actionId) {
-            const actionParts = decodeURIComponent(actionId).split('>')
-            const [spellbookId, level, spellId, expend] = actionParts
-
-            if (this.isRenderItem()) return this.doRenderItem(actor, spellId)
-
-            const spellcasting = actor.items.get(spellbookId)
-            const spell = actor.items.get(spellId)
-            if (!spellcasting || !spell) return
-
-            await spellcasting.cast(spell, {
-                message: !expend,
-                consume: true,
-                rank: Number(level)
-            })
-
-            Hooks.callAll('forceUpdateTokenActionHud')
+            await actor.toggleRollOption(domain, option, itemId, value, suboptionValue)
         }
 
         /**
@@ -566,108 +606,45 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.#executeMacroById('aS6F7PSUlS9JM5jr')
                 break
             case 'endTurn':
-                if (game.combat?.current?.tokenId === token.id) await game.combat?.nextTurn()
+                if (game.combat?.current?.tokenId === token.id) {
+                    await game.combat?.nextTurn()
+                }
                 break
             }
         }
 
         /**
-         * Execute macro by ID
+         * Perform versatile option
          * @private
-         * @param {string} id The macro ID
+         * @param {object} actor    The actor
+         * @param {string} actionId The action id
          */
-        async #executeMacroById (id) {
-            const pack = game.packs.get('pf2e.pf2e-macros')
-            pack.getDocument(id).then((e) => e.execute())
-        }
+        async #performVersatileOption (actor, actionId) {
+            // itemId, slug, selection
+            const [itemId, , selection] = decodeURIComponent(actionId).split('>', 3)
 
-        /**
-         * Adjust resources
-         * @private
-         * @param {string} property  The property
-         * @param {string} valueName The value name
-         * @param {object} actor     The actor
-         */
-        async #adjustResources (property, valueName, actor) {
-            let value = actor.system.resources[property][valueName]
-            const max = actor.system.resources[property].max
+            const weapon = coreModule.api.Utils.getItem(actor, itemId)
+            const trait = 'versatile'
 
-            if (this.rightClick) {
-                if (value > 0) {
-                    value--
+            if (!weapon) return
+
+            await toggleWeaponTrait({ weapon, trait, selection })
+
+            // Adapted from pf2e.js
+            async function toggleWeaponTrait ({ weapon, trait, selection }) {
+                if (weapon.system.traits.toggles[trait]?.selection === selection) return
+
+                const item = weapon.actor?.items.get(weapon.id)
+
+                if (item?.isOfType('weapon') && item === weapon) {
+                    await item.update({ [`system.traits.toggles.${trait}.selection`]: selection })
+                } else if (item?.isOfType('weapon') && weapon.altUsageType === 'melee') {
+                    item.update({ [`system.meleeUsage.traitToggles.${trait}`]: selection })
+                } else {
+                    const rule = item?.rules.find(r => r.key === 'Strike' && !r.ignored && r.slug === weapon.slug)
+                    await rule?.toggleTrait({ trait, selection })
                 }
-            } else if (value < max) {
-                value++
             }
-
-            const update = [
-                {
-                    _id: actor.id,
-                    data: { resources: { [property]: { [valueName]: value } } }
-                }
-            ]
-
-            await Actor.updateDocuments(update)
-            Hooks.callAll('forceUpdateTokenActionHud')
-        }
-
-        async #toggleCondition (actor, actionId) {
-            if (this.rightClick) {
-                actor.decreaseCondition(actionId)
-            } else {
-                actor.increaseCondition(actionId)
-            }
-        }
-
-        /**
-         * Adjust effect
-         * @private
-         * @param {object} actor    The actor
-         * @param {string} actionId The action id
-         */
-        async #adjustEffect (actor, actionId) {
-            const item = coreModule.api.Utils.getItem(actor, actionId)
-
-            if (this.rightClick) item.decrease()
-            else item.increase()
-
-            Hooks.callAll('forceUpdateTokenActionHud')
-        }
-
-        /**
-         * Use hero action
-         * @private
-         * @param {object} actor    The actor
-         * @param {string} actionId The action id
-         */
-        async #useHeroAction (actor, actionId) {
-            if (actionId === 'drawHeroActions') {
-                await game.modules.get('pf2e-hero-actions')?.api?.drawHeroActions(actor)
-
-                Hooks.callAll('forceUpdateTokenActionHud')
-            } else {
-                await game.modules.get('pf2e-hero-actions')?.api?.useHeroAction(actor, actionId)
-            }
-        }
-
-        /**
-         * Perform toggle action
-         * @private
-         * @param {object} actor    The actor
-         * @param {string} actionId The action id
-         */
-        async #performToggleAction (actor, actionId) {
-            const [domain, option, itemId, suboptionValue] = decodeURIComponent(actionId).split('>')
-
-            if (!domain || !option) return
-
-            const toggle = actor.synthetics.toggles.find(t => t.domain === domain && t.option === option && t.itemId === itemId)
-
-            if (!toggle) return
-
-            const value = !toggle.enabled || !toggle.checked || (suboptionValue && !toggle.suboptions.find(s => s.value === suboptionValue)?.selected)
-
-            await actor.toggleRollOption(domain, option, itemId, value, suboptionValue)
         }
     }
 })

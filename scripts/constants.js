@@ -18,6 +18,26 @@ export const CORE_MODULE = {
 export const REQUIRED_CORE_MODULE_VERSION = '1.5'
 
 /**
+ * Damage type icons
+ */
+export const DAMAGE_TYPE_ICONS = {
+    axe: 'fa-solid fa-axe fa-fw',
+    brain: 'fa-solid fa-brain fa-fw',
+    bolt: 'fa-solid fa-bolt fa-fw',
+    'bow-arrow': 'fa-solid fa-bow-arrow fa-fw',
+    droplet: 'fa-solid fa-droplet fa-fw',
+    fire: 'fa-solid fa-fire fa-fw',
+    ghost: 'fa-solid fa-ghost fa-fw',
+    hammer: 'fa-solid fa-hammer fa-fw',
+    skull: 'fa-solid fa-skull fa-fw',
+    snowflake: 'fa-solid fa-snowflake fa-fw',
+    spider: 'fa-solid fa-spider fa-fw',
+    sun: 'fa-solid fa-sun fa-fw',
+    vial: 'fa-solid fa-vial fa-fw',
+    'waveform-lines': 'fa-solid fa-waveform-lines fa-fw'
+}
+
+/**
  * Action icons
  */
 export const ACTION_ICON = {
@@ -32,10 +52,7 @@ export const ACTION_ICON = {
     T: '<span style=\'font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);\'>T</span>',
     F: '<span style=\'font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);\'>F</span>',
     R: '<span style=\'font-family: "Pathfinder2eActions"; font-size: var(--font-size-20);\'>R</span>',
-    'bow-arrow': 'fa-solid fa-bow-arrow fa-fw',
-    axe: 'fa-solid fa-axe fa-fw',
-    hammer: 'fa-solid fa-hammer fa-fw',
-    sun: 'fa-solid fa-sun fa-fw'
+    ...DAMAGE_TYPE_ICONS
 }
 
 /**
@@ -44,7 +61,6 @@ export const ACTION_ICON = {
 export const ACTION_TYPE = {
     action: 'TYPES.Item.action',
     attribute: 'tokenActionHud.pf2e.attribute',
-    auxAction: 'PF2E.WeaponStrikeLabel',
     condition: 'TYPES.Item.condition',
     effect: 'TYPES.Item.effect',
     familiarAttack: 'PF2E.AttackLabel',
@@ -57,6 +73,7 @@ export const ACTION_TYPE = {
     skillAction: 'tokenActionHud.pf2e.skillAction',
     spell: 'TYPES.Item.spell',
     strike: 'PF2E.WeaponStrikeLabel',
+    strikeAuxiliaryAction: 'PF2E.WeaponStrikeLabel',
     toggle: 'tokenActionHud.pf2e.toggle',
     utility: 'tokenActionHud.utility'
 }
@@ -201,7 +218,7 @@ export const SKILL_ACTION = {
     '55mxH0w8UkY1o3Xv': { name: 'PF2E.Actions.Balance.Title', skill: 'acrobatics', actionCost: 1, image: 'icons/skills/movement/feet-winged-boots-brown.webp' },
     LXCy1iJddD95Z91s: { name: 'PF2E.Actions.Climb.Title', skill: 'athletics', actionCost: 1, image: 'icons/sundries/misc/ladder.webp' },
     '9RNumMausgG7adgL': { name: 'PF2E.Actions.Coerce.Title', skill: 'intimidation', actionCost: 'passive', image: 'icons/skills/social/intimidation-impressing.webp' },
-    xcrdOOiN0l6O1sIn: { name: 'PF2E.Actions.CommandAnAnimal.Title', skill: 'nature', actionCost: 1, image: 'icons/environment/creatures/horse-white.webp'},
+    xcrdOOiN0l6O1sIn: { name: 'PF2E.Actions.CommandAnAnimal.Title', skill: 'nature', actionCost: 1, image: 'icons/environment/creatures/horse-white.webp' },
     zn0HadZeoKDALxRu: { name: 'PF2E.Actions.ConcealAnObject.Title', skill: 'stealth', actionCost: 1, image: 'systems/pf2e/icons/equipment/adventuring-gear/wax-key-blank.webp' },
     Tu7LIRelQsiOuo1l: { name: 'PF2E.Actions.Craft.Title', skill: 'crafting', actionCost: 'passive', image: 'icons/skills/trades/smithing-anvil-silver-red.webp' },
     aDsYSdRqiC6qQIOQ: { name: 'PF2E.Actions.CreateADiversion.DistractingWords.Title', skill: 'deception', actionCost: 1, image: 'icons/magic/control/mouth-smile-deception-purple.webp' },

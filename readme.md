@@ -30,7 +30,7 @@ Token Action HUD is a repositionable HUD of actions for a selected token.
 # Required Modules
 
 ## Token Action HUD Core
-Token Action HUD D&D Pathfinder 2 requires the [Token Action HUD D&D Core](https://foundryvtt.com/packages/token-action-hud-core) module.
+Token Action HUD Pathfinder 2 requires the [Token Action HUD Core](https://foundryvtt.com/packages/token-action-hud-core) module.
 
 ## socketlib
 Token Action HUD Core requires the [socketlib](https://foundryvtt.com/packages/socketlib) library module.
