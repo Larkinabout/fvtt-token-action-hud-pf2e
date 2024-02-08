@@ -105,6 +105,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 name: coreModule.api.Utils.i18n('PF2E.EffectsLabel'),
                 groups: [
                     { ...groups.conditions, nestId: 'effects_conditions' },
+                    { ...groups.socialConditions, nestId: 'effects_social-conditions' },
+                    { ...groups.otherConditions, nestId: 'effects_other-conditions' },
                     { ...groups.effects, nestId: 'effects_effects' }
                 ]
             },
