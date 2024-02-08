@@ -200,6 +200,8 @@ export const GROUP = {
     coreSkills: { id: 'core-skills', name: 'PF2E.CoreSkillsHeader', type: 'system' },
     loreSkills: { id: 'lore-skills', name: 'PF2E.LoreSkillsHeader', type: 'system' },
     conditions: { id: 'conditions', name: 'PF2E.ConditionsLabel', type: 'system' },
+    socialConditions: { id: 'social-conditions', name: 'tokenActionHud.pf2e.socialConditions', type: 'system' },
+    otherConditions: { id: 'other-conditions', name: 'tokenActionHud.pf2e.otherConditions', type: 'system' },
     effects: { id: 'effects', name: 'PF2E.EffectsLabel', type: 'system' },
     combat: { id: 'combat', name: 'tokenActionHud.combat', type: 'system' },
     token: { id: 'token', name: 'tokenActionHud.token', type: 'system' },

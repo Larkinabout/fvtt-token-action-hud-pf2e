@@ -403,11 +403,47 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 })
             )
 
-            // Create group data
-            const groupData = { id: 'conditions', type: 'system' }
+            actions.sort((a, b) => a.name.localeCompare(b.name))
 
-            // Add actions to action list
-            await this.addActions(actions, groupData)
+            // Create group data
+            const conditionsGroupData = { id: 'conditions', type: 'system' }
+            const actionsTemp = []
+
+            // Add conditions to the group
+            await this.addActions(
+                actions.reduce(function (acc, current) {
+                    const filter = ['Friendly', 'Helpful', 'Hostile', 'Indifferent', 'Malevolence', 'Unfriendly']
+                    if (!filter.includes(current.name)) {
+                        acc.push(current)
+                    } else {
+                        actionsTemp.push(current)
+                    }
+                    return acc
+                }, []),
+                conditionsGroupData
+            )
+
+            const socialGroupData = { id: 'social-conditions', type: 'system' }
+            const actionsOther = []
+
+            // Add social conditions to the group
+            await this.addActions(
+                actionsTemp.reduce(function (acc, current) {
+                    const filter = ['Friendly', 'Helpful', 'Hostile', 'Indifferent', 'Unfriendly']
+                    if (filter.includes(current.name)) {
+                        acc.push(current)
+                    } else {
+                        actionsOther.push(current)
+                    }
+                    return acc
+                }, []),
+                socialGroupData
+            )
+
+            const otherGroupData = { id: 'other-conditions', type: 'system' }
+
+            // Add other conditions to the group
+            await this.addActions(actionsOther, otherGroupData)
         }
 
         /**
@@ -481,6 +517,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     }
                 })
             )
+
+            actions.sort((a, b) => a.name.localeCompare(b.name))
 
             // Add actions to action list
             this.addActions(actions, groupData)
@@ -617,13 +655,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #buildInitiative () {
             const actionType = 'initiative'
 
-            // Get skills
-            const skills = (this.actor)
-                ? Object.entries(this.actor.skills).filter(([_, skillData]) => !!skillData.label && skillData.label.length > 1)
-                : this.#getSharedSkills()
-
-            if (!skills) return
-
             const initiativeStatistic = this.actor?.system?.initiative?.statistic ?? null
 
             // Get actions
@@ -659,8 +690,29 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 })
             }
 
+            // Get skills
+            const skills = (this.actor)
+                ? Object.entries(this.actor.skills).filter(([_, skillData]) => !!skillData.label && skillData.label.length > 1)
+                : this.#getSharedSkills()
+
+            if (!skills) return
+
+            const coreSkills = []
+            const loreSkills = []
+
+            for (const skill of skills) {
+                if (!skill[1].lore) {
+                    coreSkills.push(skill)
+                } else {
+                    loreSkills.push(skill)
+                }
+            }
+
+            coreSkills.sort((a, b) => a[1].label.localeCompare(b[1].label))
+            loreSkills.sort((a, b) => a[1].label.localeCompare(b[1].label))
+
             const skillActions = await Promise.all(
-                skills.map(async ([skillId, skillData]) => {
+                [...coreSkills, ...loreSkills].map(async ([skillId, skillData]) => {
                     const id = `initiative-${skillId}`
                     const data = skillData
                     const fullName = coreModule.api.Utils.i18n(data.label) ?? coreModule.api.Utils.i18n(CONFIG.PF2E.skillList[skillId])
@@ -1068,22 +1120,36 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (!skills) return
 
-            const skillsMap = new Map()
+            const coreSkills = []
+            const loreSkills = []
 
             for (const skill of skills) {
-            // Set variables
-                const isLore = skill[1].lore
-
-                // Set skills into maps
-                if (!skillsMap.has('skills')) skillsMap.set('skills', new Map())
-                skillsMap.get('skills').set(skill[0], skill[1])
-                if (isLore) {
-                    if (!skillsMap.has('lore-skills')) skillsMap.set('lore-skills', new Map())
-                    skillsMap.get('lore-skills').set(skill[0], skill[1])
+                if (!skill[1].lore) {
+                    coreSkills.push(skill)
+                } else {
+                    loreSkills.push(skill)
                 }
-                if (!isLore) {
-                    if (!skillsMap.has('core-skills')) skillsMap.set('core-skills', new Map())
+            }
+
+            coreSkills.sort((a, b) => a[1].label.localeCompare(b[1].label))
+            loreSkills.sort((a, b) => a[1].label.localeCompare(b[1].label))
+
+            const skillsMap = new Map()
+
+            skillsMap.set('skills', new Map())
+
+            if (coreSkills.length > 0) {
+                skillsMap.set('core-skills', new Map())
+            }
+            if (loreSkills.length > 0) {
+                skillsMap.set('lore-skills', new Map())
+            }
+
+            for (const skill of [...coreSkills, ...loreSkills]) {
+                if (!skill[1].lore) {
                     skillsMap.get('core-skills').set(skill[0], skill[1])
+                } else {
+                    skillsMap.get('lore-skills').set(skill[0], skill[1])
                 }
             }
 
@@ -1390,7 +1456,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         settings
                     }
 
-                    const rolls = [coreModule.api.Utils.getModifier(blast.statistic.mod), ...Object.values(blastUsage)]
+                    const rolls = Object.values(blastUsage)
 
                     const actions = rolls.map((roll, index) => {
                         const id = encodeURIComponent(`${blast.item.id}>${blast.element}>${index}>` + usage)
@@ -1502,6 +1568,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 // Create group data
                 strikeGroupData = { id: strikeGroupId, name: strikeGroupName, listName: strikeGroupListName, type: 'system-derived', settings: { showTitle }, tooltip }
                 if (this.showStrikeImages) { strikeGroupData.settings.image = image }
+                if (typeof strikeGroupData.settings.sort === 'undefined' && coreModule.api.Utils.getSetting('sortActions')) strikeGroupData.settings.sort = false
 
                 // Add group to action list
                 this.addGroup(strikeGroupData, parentGroupData)
@@ -1593,6 +1660,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             type: 'system-derived',
                             settings
                         }
+
+                        if (typeof usageGroupData.settings.sort === 'undefined' && coreModule.api.Utils.getSetting('sortActions')) usageGroupData.settings.sort = false
 
                         const actions = strikeUsage.variants.map((variant, index) => {
                             const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>` + usage)

@@ -621,18 +621,20 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         async #performVersatileOption (actor, actionId) {
             // itemId, slug, selection
-            const [itemId, , selection] = decodeURIComponent(actionId).split('>', 3)
+            const [itemId, slug, selection] = decodeURIComponent(actionId).split('>', 3)
 
-            const weapon = coreModule.api.Utils.getItem(actor, itemId)
-            const trait = 'versatile'
+            const action = actor.system.actions
+                .filter(action => action.type === 'strike')
+                .find(strike => strike.item.id === itemId && strike.slug === slug)
+            const weapon = action?.item
 
             if (!weapon) return
 
-            await toggleWeaponTrait({ weapon, trait, selection })
+            await toggleWeaponTrait({ weapon, trait: 'versatile', selection })
 
             // Adapted from pf2e.js
             async function toggleWeaponTrait ({ weapon, trait, selection }) {
-                if (weapon.system.traits.toggles[trait]?.selection === selection) return
+                if (weapon.system.traits.toggles[trait].selection === selection) return
 
                 const item = weapon.actor?.items.get(weapon.id)
 
