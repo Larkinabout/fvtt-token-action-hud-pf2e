@@ -233,8 +233,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         const icon1 = this.#getIcon1(itemData, actionType)
                         const img = coreModule.api.Utils.getImage(itemData)
                         const info = this.#getItemInfo(itemData)
-                        const tooltipData = await this.#getTooltipData(actionType, itemData)
+                        const tooltipData = await this.#getTooltipData(itemData, actionType)
                         const tooltip = await this.#getTooltip(actionType, tooltipData)
+
                         return {
                             id,
                             name,
@@ -479,7 +480,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'effect'
 
             // Get effects
-            // 'unidentified' property moved to 'system.unidentified' post pf2e 4.10+
             const items = new Map([...this.items]
                 .filter(item =>
                     item[1].type === 'effect' &&
@@ -570,7 +570,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         const icon1 = this.#getIcon1(itemData, actionType)
                         const img = coreModule.api.Utils.getImage(itemData)
                         const info = this.#getItemInfo(itemData)
-                        const tooltipData = await this.#getTooltipData(actionType, itemData)
+                        const tooltipData = await this.#getTooltipData(itemData, actionType)
                         const tooltip = await this.#getTooltip(actionType, tooltipData)
                         return {
                             id,
@@ -661,7 +661,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actions = []
 
             if (this.actorType !== 'hazard') {
-                const perception = (this.actor) ? this.actor.system.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
+                const perception = this.actor ? this.actor.system.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
                 const fullName = coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
                 const name = this.abbreviatedSkills ? SKILL_ABBREVIATION.perception ?? fullName : fullName
                 const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
@@ -676,7 +676,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     name: tooltipName,
                     modifiers: perception?.modifiers
                 }
-                const tooltip = (this.actor) ? await this.#getTooltip(actionType, tooltipData) : null
+                const tooltip = this.actor ? await this.#getTooltip(actionType, tooltipData) : null
 
                 // Get actions
                 actions.push({
@@ -785,9 +785,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Loop through inventory group ids
             for (const [id, items] of inventoryMap) {
-                // Create group data
                 const groupId = ITEM_TYPE[id]?.groupId
+
                 if (!groupId) continue
+
+                // Create group data
                 const groupData = { id: groupId, type: 'system' }
 
                 // Get actions
@@ -802,8 +804,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         const icon2 = this.#getCarryTypeIcon(itemData)
                         const img = coreModule.api.Utils.getImage(itemData)
                         const info = this.#getItemInfo(itemData)
-                        const tooltipData = await this.#getTooltipData(actionType, itemData)
+                        const tooltipData = await this.#getTooltipData(itemData, actionType)
                         const tooltip = await this.#getTooltip(actionType, tooltipData)
+
                         return {
                             id,
                             name,
@@ -827,6 +830,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (inventoryMap.has('backpack')) {
                 // Create parent group data
                 const parentGroupData = { id: 'containers', type: 'system' }
+
                 const containers = inventoryMap.get('backpack')
 
                 for (const [id, container] of containers) {
@@ -867,8 +871,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             const icon2 = this.#getCarryTypeIcon(itemData)
                             const img = coreModule.api.Utils.getImage(itemData)
                             const info = this.#getItemInfo(itemData)
-                            const tooltipData = await this.#getTooltipData(actionType, itemData)
+                            const tooltipData = await this.#getTooltipData(itemData, actionType)
                             const tooltip = await this.#getTooltip(actionType, tooltipData)
+
                             return {
                                 id,
                                 name,
@@ -896,7 +901,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         async #buildPerceptionCheck () {
             const actionType = 'perceptionCheck'
-            const perception = (this.actor) ? this.actor.system.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
+            const perception = this.actor ? this.actor.system.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
             const name = coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
             const modifier = coreModule.api.Utils.getModifier(perception?.totalModifier)
             const info1 = this.actor ? { text: modifier } : ''
@@ -928,10 +933,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         #buildRecoveryCheck () {
             const actionType = 'recoveryCheck'
-            const dyingPoints = this.actor?.system.attributes?.dying
+            const dyingValue = this.actor?.system.attributes?.dying
 
-            if (dyingPoints?.value >= 1) {
-            // Get actions
+            if (dyingValue?.value > 0) {
+                // Get actions
                 const actions = [{
                     id: actionType,
                     name: coreModule.api.Utils.i18n('PF2E.Check.Specific.Recovery'),
@@ -950,11 +955,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * Build rests
          */
         #buildRests () {
-        // Exit if multiple actors and not every actor is not the character type
+            // Exit if multiple actors and not every actor is the character type
             if (!this.actor && !this.actors.every(actor => actor.type === 'character')) return
 
             const actionType = 'utility'
 
+            // Get actions
             const actions = [
                 {
                     id: 'treatWounds',
@@ -1011,7 +1017,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                         name: tooltipName,
                         modifiers: saveData?.modifiers
                     }
-                    const tooltip = (this.actor) ? await this.#getTooltip(actionType, tooltipData) : null
+                    const tooltip = this.actor ? await this.#getTooltip(actionType, tooltipData) : null
+
                     return {
                         id,
                         name,
@@ -1044,8 +1051,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             const skillActionsMap = new Map()
 
+            // Get actions
             const actions = []
-
             for (const actionMacro of actionMacros) {
                 const skillAction = SKILL_ACTION[actionMacro._id]
 
@@ -1061,7 +1068,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const icon1 = this.#getActionIcon(skillAction.actionCost)
                 const img = skillAction.image
                 const modifier = coreModule.api.Utils.getModifier(this.actor?.skills[skillAction.skill]?.check?.mod)
-                const info1 = (this.actor) ? { text: modifier } : null
+                const info1 = this.actor ? { text: modifier } : null
 
                 const action = {
                     id,
@@ -1073,7 +1080,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     info1
                 }
 
-                // Get actions
                 actions.push(action)
 
                 skillActionsMap.set(skillAction.skill, skillActionsMap.get(skillAction.skill) || new Map())
@@ -1224,16 +1230,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const spellcastingEntries = [...this.items].filter(item => item[1].type === 'spellcastingEntry')
 
             for (const spellcastingEntry of spellcastingEntries) {
-                const bookGroupId = `spells+${spellcastingEntry[1].name.slugify({ replacement: '-', strict: true })}`
-                const bookGroupName = spellcastingEntry[1].name
-                const bookInfo1 = this.#getSpellDcInfo(spellcastingEntry[1])
+                const spellbookGroupId = `spells+${spellcastingEntry[1].name.slugify({ replacement: '-', strict: true })}`
+                const spellbookGroupName = spellcastingEntry[1].name
+                const spellbookInfo1 = this.#getSpellDcInfo(spellcastingEntry[1])
 
                 // Create book group data
                 const bookGroupData = {
-                    id: bookGroupId,
-                    name: bookGroupName,
+                    id: spellbookGroupId,
+                    name: spellbookGroupName,
                     type: 'system-derived',
-                    info1: bookInfo1
+                    info1: spellbookInfo1
                 }
 
                 // Add group to action list
@@ -1247,7 +1253,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                 for (const level of Object.entries(activeLevels)) {
                     const spellLevel = level[1].id
-                    const levelGroupId = `${bookGroupId}+${spellLevel}`
+                    const levelGroupId = `${spellbookGroupId}+${spellLevel}`
                     const levelGroupName = String(coreModule.api.Utils.i18n(level[1].label))
 
                     // Create level group data
@@ -1264,13 +1270,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                     // Get available spells
                     const activeSpells = level[1].active
-                        .filter(activeSpell => !activeSpell?.expended && activeSpell)
+                        .filter(activeSpell => activeSpell && !activeSpell.expended)
                         .map(spell => spell.spell)
 
-                    const items = new Map(activeSpells.map(spell => [spell.id, spell]))
+                    const spells = new Map(activeSpells.map(spell => [spell.id, spell]))
 
+                    // Get actions
                     const actions = await Promise.all(
-                        [...items].map(async ([itemId, itemData]) => {
+                        [...spells].map(async ([_, itemData]) => {
                             const id = this.#getActionId(itemData, actionType, spellLevel)
                             const name = this.#getActionName(itemData)
                             const listName = this.#getActionListName(itemData, actionType)
@@ -1278,8 +1285,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             const encodedValue = this.#getActionEncodedValue(itemData, actionType, spellLevel)
                             const icon1 = this.#getIcon1(itemData, actionType)
                             const img = coreModule.api.Utils.getImage(itemData)
-                            const tooltipData = await this.#getTooltipData(actionType, itemData)
+                            const tooltipData = await this.#getTooltipData(itemData, actionType, spellLevel)
                             const tooltip = await this.#getTooltip(actionType, tooltipData)
+
                             return {
                                 id,
                                 name,
@@ -1366,11 +1374,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #buildElementalBlasts () {
             const actionType = 'elementalBlast'
 
-            // Create parent group data
-            const parentGroupData = { id: 'strikes', type: 'system' }
-
             // Get elemental blasts
             const blasts = new game.pf2e.ElementalBlast(this.actor)?.configs
+
+            // Create parent group data
+            const parentGroupData = { id: 'strikes', type: 'system' }
 
             // Exit if no strikes exist
             if (!blasts.length) return
@@ -1398,7 +1406,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE.strike)}: ${strikeGroupName} (${blast.item.id})`
                 const image = blast.img ?? blast.item?.img
                 const showTitle = this.showStrikeNames
-                const tooltipData = await this.#getTooltipData(actionType, blast)
+                const tooltipData = await this.#getTooltipData(blast, actionType)
                 const tooltip = await this.#getTooltip(actionType, tooltipData)
 
                 // Create group data
@@ -1563,7 +1571,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ${strike.label} (${strike.item.id})`
                 const image = strike.imageUrl ?? strike.item?.img
                 const showTitle = this.showStrikeNames
-                const tooltipData = await this.#getTooltipData(actionType, strike)
+                const tooltipData = await this.#getTooltipData(strike, actionType)
                 const tooltip = await this.#getTooltip(actionType, tooltipData)
                 // Create group data
                 strikeGroupData = { id: strikeGroupId, name: strikeGroupName, listName: strikeGroupListName, type: 'system-derived', settings: { showTitle }, tooltip }
@@ -1892,19 +1900,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @returns {string}                 The spell DC info
          */
         #getSpellDcInfo (spellcastingEntry) {
-            let result = ''
-
             const statistic = spellcastingEntry.statistic
-            const spelldc = typeof statistic.dc === 'function' ? statistic.dc().value : statistic.dc.value
-            const spellatk = statistic.check.mod
-            const attackBonus = spellatk >= 0
-                ? `${coreModule.api.Utils.i18n('tokenActionHud.pf2e.atk')} +${spellatk}`
-                : `${coreModule.api.Utils.i18n('tokenActionHud.pf2e.atk')} ${spellatk}`
-            const dcInfo = `${coreModule.api.Utils.i18n('tokenActionHud.pf2e.dc')}${spelldc}`
-
-            result = `${attackBonus} ${dcInfo}`
-
-            return result
+            const spellDc = typeof statistic.dc === 'function'
+                ? statistic.dc().value
+                : statistic.dc.value
+            const spellAttackModifier = statistic.check.mod
+            const spellAttackBonus = spellAttackModifier >= 0
+                ? `${coreModule.api.Utils.i18n('tokenActionHud.pf2e.atk')} +${spellAttackModifier}`
+                : `${coreModule.api.Utils.i18n('tokenActionHud.pf2e.atk')} ${spellAttackModifier}`
+            const spellDcInfo = `${coreModule.api.Utils.i18n('tokenActionHud.pf2e.dc')}${spellDc}`
+            return `${spellAttackBonus} ${spellDcInfo}`
         }
 
         /**
@@ -2016,51 +2021,119 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
         /**
          * Get tooltip data
-         * @param {string} actionType The action type
          * @param {object} entity     The entity
+         * @param {string} actionType The action type
          * @returns {Promise<object>} The tooltip data
          */
-        async #getTooltipData (actionType, entity) {
-            if (this.tooltipsSetting === 'none') return ''
+        // This function contains an ugly workaround for an unknown issue stemming from calling "await entity.getChatData()" for the "spell" actionType.
+        async #getTooltipData (entity, actionType, spellRank = null) {
+            if (this.tooltipsSetting === 'none' || !entity) return ''
+            else if (this.tooltipsSetting === 'nameOnly') return entity.name ?? ''
 
-            if (this.tooltipsSetting === 'nameOnly') return entity.name ?? ''
+            const itemActionTypes = ['elementalBlast', 'strike']
 
-            const chatData = (['elementalBlast', 'strike'].includes(actionType)) ? await entity.item.getChatData() : await entity.getChatData()
+            let chatData
+
+            if (itemActionTypes.includes(actionType)) {
+                chatData = await entity.item.getChatData()
+            } else if (actionType !== 'spell') {
+                chatData = await entity.getChatData()
+            } else if (actionType === 'spell') {
+                chatData = 'spell'
+            }
+
+            if (!chatData) return ''
 
             switch (actionType) {
             case 'item':
                 return {
-                    name: entity.name ?? '',
-                    description: chatData?.description?.value ?? null,
-                    rarity: chatData?.rarity ?? null,
-                    traits: chatData?.traits ?? null,
-                    traits2: chatData?.properties ?? null
+                    name: entity.name,
+                    description: chatData.description?.value,
+                    rarity: chatData.rarity,
+                    traits: chatData.traits,
+                    traits2: chatData.properties
                 }
             case 'spell':
-                return {
-                    name: entity.name ?? '',
-                    description: chatData?.description?.value ?? null,
-                    properties: chatData?.properties ?? null,
-                    rarity: chatData?.rarity ?? null,
-                    traits: chatData?.actionTraits ?? null,
-                    traitsAlt: chatData?.spellTraits ?? null
+            {
+                let targetHtml = ''
+                if (entity.system?.target?.value.length > 0) {
+                    targetHtml = `<span><strong>${game.i18n.localize('PF2E.SpellTargetLabel')}</strong>\n${entity.system.target.value}</span>\n`
                 }
+                let areaHtml = ''
+                if (entity.area) {
+                    areaHtml = `<span>\n<strong>${game.i18n.localize('PF2E.AreaLabel')}</strong>\n${entity.area.label}</span>\n`
+                }
+                let rangeHtml = ''
+                if (entity.system?.range?.value.length > 0) {
+                    rangeHtml = `<span>\n<strong>${game.i18n.localize('PF2E.TraitRange')}</strong>\n${entity.system.range.value}${(targetHtml.length > 0 || areaHtml.length > 0) ? '; ' : ''}</span>\n`
+                }
+                let durationHtml = ''
+                if (entity.system?.duration?.value) {
+                    durationHtml = `<span>\n<strong>${game.i18n.localize('PF2E.Time.Duration')}</strong>\n${entity.system.duration.sustained ? game.i18n.format('PF2E.Item.Spell.Sustained.Duration', { maximum: entity.system.duration.value }).toLocaleLowerCase(game.i18n.lang) : entity.system.duration.value}</span>\n`
+                }
+                let defenseHtml = ''
+                if (entity.defense) {
+                    defenseHtml = `<span>\n<strong>${game.i18n.localize('PF2E.Item.Spell.Defense.Label')}</strong>\n${entity.defense.label}${(durationHtml.length > 0) ? '; ' : ''}</span>\n`
+                }
+                let spellDescription = ''
+                if (rangeHtml.length > 0 || areaHtml.length > 0 || targetHtml.length > 0) {
+                    spellDescription = `<p class="item-block-line">\n${rangeHtml}${areaHtml}${targetHtml}</p>`
+                }
+                if (defenseHtml.length > 0 || durationHtml.length > 0) {
+                    spellDescription = spellDescription + `<p class="item-block-line">\n${defenseHtml}${durationHtml}</p>`
+                }
+                if (spellDescription.length > 0) {
+                    spellDescription = spellDescription + '<hr class="item-block-divider">\n'
+                }
+                spellDescription = spellDescription + entity.description
+                const spellProperties = []
+                const spellHeightenedRank = (spellRank > entity.rank) ? spellRank : entity.rank
+                if (spellHeightenedRank > entity.baseRank) {
+                    spellProperties.push(game.i18n.format('PF2E.SpellLevelBase', { base: ordinalString(entity.baseRank) }))
+                    spellProperties.push(game.i18n.format('PF2E.SpellLevelHeightened', { heightened: spellHeightenedRank - entity.baseRank }))
+
+                    // Adapted from pf2e
+                    function ordinalString (value) {
+                        const pluralRules = new Intl.PluralRules(game.i18n.lang, { type: 'ordinal' })
+                        const suffix = game.i18n.localize(`PF2E.OrdinalSuffixes.${pluralRules.select(value)}`)
+                        return game.i18n.format('PF2E.OrdinalNumber', { value, suffix })
+                    }
+                }
+                const spellTraits = Array.from(entity.traits).map(trait => { return { label: trait } })
+                spellTraits.push({ label: entity.spellcasting.tradition })
+                spellTraits.sort((a, b) => a.label.localeCompare(b.label))
+                const spellRarity = entity.rarity === 'common' ? null : { label: entity.rarity }
+                return {
+                    // name: entity.name,
+                    // description: chatData.description?.value,
+                    // properties: chatData.properties,
+                    // rarity: chatData.rarity,
+                    // traits: chatData.actionTraits,
+                    // traitsAlt: chatData.spellTraits
+                    name: entity.name,
+                    description: spellDescription,
+                    properties: spellProperties,
+                    rarity: spellRarity,
+                    traits: spellTraits,
+                    traitsAlt: null
+                }
+            }
             case 'strike':
                 return {
-                    name: entity.label ?? '',
-                    descriptionLocalised: this.#getStrikeDescription(entity) ?? '',
-                    modifiers: entity?.modifiers ?? null,
-                    properties: chatData?.properties?.filter(property => property !== 'PF2E.WeaponTypeMartial') ?? null,
-                    traits: entity?.traits ?? null,
-                    traitsAlt: entity?.weaponTraits ?? null
+                    name: entity.label,
+                    descriptionLocalised: this.#getStrikeDescription(entity),
+                    modifiers: entity.modifiers,
+                    properties: chatData.properties?.filter(property => property !== 'PF2E.WeaponTypeMartial'),
+                    traits: entity.traits,
+                    traitsAlt: entity.weaponTraits
                 }
             default:
                 return {
-                    name: entity.name ?? '',
-                    description: chatData?.description?.value ?? null,
-                    properties: chatData?.properties ?? null,
-                    rarity: chatData?.rarity ?? null,
-                    traits: chatData?.traits ?? null
+                    name: entity.name,
+                    description: chatData.description?.value,
+                    properties: chatData.properties,
+                    rarity: chatData.rarity,
+                    traits: chatData.traits
                 }
             }
         }
