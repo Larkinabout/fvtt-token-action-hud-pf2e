@@ -380,7 +380,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         async #rollInitiative (actor, actionId) {
             if (actor.inCombat && actor.combatant?.initiative) {
-                coreModule.api.Logger.info(coreModule.api.Utils.i18n('tokenActionHud.pf2e.initiativeAlreadyRolled'), true)
+                coreModule.api.Logger.info(game.i18n.format('PF2E.Encounter.AlreadyRolled', { actor: actor.name }), true)
             } else {
                 await actor.update({ 'system.attributes.initiative.statistic': actionId })
 
@@ -620,7 +620,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {string} actionId The action id
          */
         async #performVersatileOption (actor, actionId) {
-            // itemId, slug, selection
             const [itemId, slug, selection] = decodeURIComponent(actionId).split('>', 3)
 
             const action = actor.system.actions
@@ -632,7 +631,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             await toggleWeaponTrait({ weapon, trait: 'versatile', selection })
 
-            // Adapted from pf2e.js
+            // Adapted from pf2e
             async function toggleWeaponTrait ({ weapon, trait, selection }) {
                 if (weapon.system.traits.toggles[trait].selection === selection) return
 
