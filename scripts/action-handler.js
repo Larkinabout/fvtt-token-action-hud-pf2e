@@ -757,7 +757,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @private
          */
         async #buildInventory () {
-        // Exit early if no items exist
+            // Exit if no items exist
             if (this.items.size === 0) return
 
             const actionType = 'item'
@@ -1249,7 +1249,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.addGroupInfo(bookGroupData)
 
                 const spellInfo = await (spellcastingEntry[1].getSpellData ? spellcastingEntry[1].getSpellData() : spellcastingEntry[1].getSheetData())
-                const activeLevels = spellInfo.groups.filter((level) => level.active.length > 0)
+                const activeLevels = spellInfo.groups.filter(level => level.active.length > 0)
 
                 for (const level of Object.entries(activeLevels)) {
                     const spellLevel = level[1].id
@@ -1377,11 +1377,11 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // Get elemental blasts
             const blasts = new game.pf2e.ElementalBlast(this.actor)?.configs
 
-            // Create parent group data
-            const parentGroupData = { id: 'strikes', type: 'system' }
-
             // Exit if no strikes exist
             if (!blasts.length) return
+
+            // Create parent group data
+            const parentGroupData = { id: 'strikes', type: 'system' }
 
             for (const blast of blasts) {
                 let damageTypeActions = []
@@ -1765,7 +1765,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionType = 'toggle'
 
             // Get toggles
-            const toggles = this.actor.synthetics.toggles
+            const toggles = Object.values(this.actor.synthetics.toggles).flatMap(domain => Object.values(domain))
 
             // Exit if no toggles exist
             if (!toggles.length) return
@@ -1821,24 +1821,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             }
         }
 
-        /**
-         * Get attribute pool action
-         * @param {string} actionType   The action type
-         * @param {string} name         The tracker
-         * @param {number} currentValue The current value
-         * @param {number} maxValue     The max value
-         * @returns {object}            The action
-         */
-        #getAttributePoolAction (actionType, name, currentValue, maxValue) {
-            const id = name.slugify({ replacement: '-', strict: true })
-            return {
-                id,
-                name,
-                encodedValue: [actionType, id].join(this.delimiter),
-                info1: { text: `${currentValue}/${maxValue}` }
-            }
-        }
-
         #getActionId (entity, actionType, spellLevel) {
             return (actionType === 'spell') ? `${entity.id ?? entity._id}-${spellLevel}` : entity.id ?? entity._id
         }
@@ -1880,17 +1862,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const iconType = (actionType === 'spell') ? timeValue : (actionTypes.includes(actionTypeValue)) ? actionTypeValue : actionsCost ?? actionIcon
             const name = this.#getActionName(entity)
             return this.#getActionIcon(iconType, name)
-        }
-
-        /**
-         * Whether the action is a slow action
-         * @private
-         * @param {object} action The action
-         * @returns {boolean}
-         */
-        #isSlowAction (action) {
-            const shortActionTypes = ['downtime', 'exploration']
-            return shortActionTypes.includes(action.system.traits?.value)
         }
 
         /**
@@ -2025,7 +1996,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {string} actionType The action type
          * @returns {Promise<object>} The tooltip data
          */
-        // This function contains an ugly workaround for an unknown issue stemming from calling "await entity.getChatData()" for the "spell" actionType.
         async #getTooltipData (entity, actionType, spellRank = null) {
             if (this.tooltipsSetting === 'none' || !entity) return ''
             else if (this.tooltipsSetting === 'nameOnly') return entity.name ?? ''
@@ -2036,10 +2006,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (itemActionTypes.includes(actionType)) {
                 chatData = await entity.item.getChatData()
-            } else if (actionType !== 'spell') {
+            } else {
                 chatData = await entity.getChatData()
-            } else if (actionType === 'spell') {
-                chatData = 'spell'
             }
 
             if (!chatData) return ''
@@ -2055,67 +2023,13 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
             case 'spell':
             {
-                let targetHtml = ''
-                if (entity.system?.target?.value.length > 0) {
-                    targetHtml = `<span><strong>${game.i18n.localize('PF2E.SpellTargetLabel')}</strong>\n${entity.system.target.value}</span>\n`
-                }
-                let areaHtml = ''
-                if (entity.area) {
-                    areaHtml = `<span>\n<strong>${game.i18n.localize('PF2E.AreaLabel')}</strong>\n${entity.area.label}</span>\n`
-                }
-                let rangeHtml = ''
-                if (entity.system?.range?.value.length > 0) {
-                    rangeHtml = `<span>\n<strong>${game.i18n.localize('PF2E.TraitRange')}</strong>\n${entity.system.range.value}${(targetHtml.length > 0 || areaHtml.length > 0) ? '; ' : ''}</span>\n`
-                }
-                let durationHtml = ''
-                if (entity.system?.duration?.value) {
-                    durationHtml = `<span>\n<strong>${game.i18n.localize('PF2E.Time.Duration')}</strong>\n${entity.system.duration.sustained ? game.i18n.format('PF2E.Item.Spell.Sustained.Duration', { maximum: entity.system.duration.value }).toLocaleLowerCase(game.i18n.lang) : entity.system.duration.value}</span>\n`
-                }
-                let defenseHtml = ''
-                if (entity.defense) {
-                    defenseHtml = `<span>\n<strong>${game.i18n.localize('PF2E.Item.Spell.Defense.Label')}</strong>\n${entity.defense.label}${(durationHtml.length > 0) ? '; ' : ''}</span>\n`
-                }
-                let spellDescription = ''
-                if (rangeHtml.length > 0 || areaHtml.length > 0 || targetHtml.length > 0) {
-                    spellDescription = `<p class="item-block-line">\n${rangeHtml}${areaHtml}${targetHtml}</p>`
-                }
-                if (defenseHtml.length > 0 || durationHtml.length > 0) {
-                    spellDescription = spellDescription + `<p class="item-block-line">\n${defenseHtml}${durationHtml}</p>`
-                }
-                if (spellDescription.length > 0) {
-                    spellDescription = spellDescription + '<hr class="item-block-divider">\n'
-                }
-                spellDescription = spellDescription + entity.description
-                const spellProperties = []
-                const spellHeightenedRank = (spellRank > entity.rank) ? spellRank : entity.rank
-                if (spellHeightenedRank > entity.baseRank) {
-                    spellProperties.push(game.i18n.format('PF2E.SpellLevelBase', { base: ordinalString(entity.baseRank) }))
-                    spellProperties.push(game.i18n.format('PF2E.SpellLevelHeightened', { heightened: spellHeightenedRank - entity.baseRank }))
-
-                    // Adapted from pf2e
-                    function ordinalString (value) {
-                        const pluralRules = new Intl.PluralRules(game.i18n.lang, { type: 'ordinal' })
-                        const suffix = game.i18n.localize(`PF2E.OrdinalSuffixes.${pluralRules.select(value)}`)
-                        return game.i18n.format('PF2E.OrdinalNumber', { value, suffix })
-                    }
-                }
-                const spellTraits = Array.from(entity.traits).map(trait => { return { label: trait } })
-                spellTraits.push({ label: entity.spellcasting.tradition })
-                spellTraits.sort((a, b) => a.label.localeCompare(b.label))
-                const spellRarity = entity.rarity === 'common' ? null : { label: entity.rarity }
                 return {
-                    // name: entity.name,
-                    // description: chatData.description?.value,
-                    // properties: chatData.properties,
-                    // rarity: chatData.rarity,
-                    // traits: chatData.actionTraits,
-                    // traitsAlt: chatData.spellTraits
                     name: entity.name,
-                    description: spellDescription,
-                    properties: spellProperties,
-                    rarity: spellRarity,
-                    traits: spellTraits,
-                    traitsAlt: null
+                    description: chatData.description?.value,
+                    properties: chatData.properties,
+                    rarity: chatData.rarity,
+                    traits: chatData.traits,
+                    traitsAlt: chatData.spellTraits
                 }
             }
             case 'strike':

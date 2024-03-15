@@ -382,7 +382,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (actor.inCombat && actor.combatant?.initiative) {
                 coreModule.api.Logger.info(game.i18n.format('PF2E.Encounter.AlreadyRolled', { actor: actor.name }), true)
             } else {
-                await actor.update({ 'system.attributes.initiative.statistic': actionId })
+                await actor.update({ 'system.initiative.statistic': actionId })
 
                 actor.initiative.roll({ rollMode: this.rollMode, skipDialog: this.skipDialog })
             }
@@ -405,7 +405,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          */
         #rollRecovery (event, actor) {
             actor.rollRecovery({ event })
-            actor.perception.roll({ rollMode: this.rollMode, skipDialog: this.skipDialog })
         }
 
         /**
