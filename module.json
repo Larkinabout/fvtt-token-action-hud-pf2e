@@ -95,7 +95,7 @@
         "compatibility": [
           {
             "minimum": "5.14.0",
-            "verified": "5.12.3"
+            "verified": "5.14.3"
           }
         ]
       }
