@@ -578,7 +578,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (!domain || !option) return
 
-            const toggle = actor.synthetics.toggles.find(t => t.domain === domain && t.option === option && t.itemId === itemId)
+            const toggles = Object.values(this.actor.synthetics.toggles).flatMap(domain => Object.values(domain))
+
+            const toggle = toggles.find(t => t.domain === domain && t.option === option && t.itemId === itemId)
 
             if (!toggle) return
 
