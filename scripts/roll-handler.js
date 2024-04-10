@@ -634,16 +634,25 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Adapted from pf2e
             async function toggleWeaponTrait ({ weapon, trait, selection }) {
-                if (weapon.system.traits.toggles[trait].selection === selection) return
+                if (!actor?.isOfType('character')) return
 
-                const item = weapon.actor?.items.get(weapon.id)
+                const item = actor.items.get(weapon.id)
+
+                const property = trait === 'double-barrel' ? 'doubleBarrel' : trait
+                const current = item.system.traits.toggles[property].selected
+                if (current === selection) return
 
                 if (item?.isOfType('weapon') && item === weapon) {
-                    await item.update({ [`system.traits.toggles.${trait}.selection`]: selection })
+                    const value = property === 'doubleBarrel' ? !!selection : selection
+                    await item.update({ [`system.traits.toggles.${property}.selected`]: value })
                 } else if (item?.isOfType('weapon') && weapon.altUsageType === 'melee') {
                     item.update({ [`system.meleeUsage.traitToggles.${trait}`]: selection })
-                } else {
-                    const rule = item?.rules.find(r => r.key === 'Strike' && !r.ignored && r.slug === weapon.slug)
+                } else if (trait === 'versatile' && item?.isOfType('shield')) {
+                    item.update({ 'system.traits.integrated.versatile.selected': selection })
+                } else if (trait !== 'double-barrel') {
+                    const rule = item?.rules.find(
+                        r => r.key === 'Strike' && !r.ignored && r.slug === weapon.slug
+                    )
                     await rule?.toggleTrait({ trait, selection })
                 }
             }

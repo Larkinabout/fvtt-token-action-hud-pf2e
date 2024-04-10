@@ -1617,14 +1617,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     if (strike.versatileOptions?.length) {
                         // Get actions
                         versatileOptionActions = strike.versatileOptions.map(versatileOption => {
-                            const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${versatileOption.value}>`)
+                            const encodedId = encodeURIComponent(`${strike.item.id}>${strike.slug}>${versatileOption.value}>`)
                             const fullName = coreModule.api.Utils.i18n(versatileOption.label)
                             return {
-                                id: encodeURIComponent(`${strike.item.id}>${strike.slug}>${versatileOption.value}>`),
+                                id: encodedId,
                                 name: '',
                                 fullName,
                                 listName: `${strikeGroupListName}: ${fullName}`,
-                                encodedValue: ['versatileOption', id].join(this.delimiter),
+                                encodedValue: ['versatileOption', encodedId].join(this.delimiter),
                                 cssClass: this.#getActionCss(versatileOption),
                                 icon1: this.#getActionIcon(versatileOption.glyph, fullName)
                             }
