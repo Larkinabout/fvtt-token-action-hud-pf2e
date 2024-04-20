@@ -157,7 +157,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.#buildSkillActions(),
                 this.#buildSkills(),
                 this.#buildStrikes(),
-                this.#buildSpells()
+                this.#buildSpells(),
+                this.#buildToggles()
             ])
         }
 
@@ -1770,8 +1771,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // Exit if no toggles exist
             if (!toggles.length) return
 
-            const togglesWithoutSuboptions = toggles.filter(toggle => !toggle.suboptions.length)
-            const togglesWithSuboptions = toggles.filter(toggle => toggle.suboptions.length > 1)
+            const togglesWithoutSuboptions = toggles.filter(toggle => toggle.suboptions.length === 0)
+            const togglesWithSuboptions = toggles.filter(toggle => toggle.suboptions.length !== 0)
 
             // Create group data
             const groupData = { id: 'toggles', type: 'system' }
@@ -1803,10 +1804,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
                 this.addGroup(subgroupData, groupData)
 
+                // Get actions
                 const actions = toggle.suboptions.map(suboption => {
                     const id = encodeURIComponent(`${toggle.domain}>${toggle.option}>${toggle.itemId}>${suboption.value}`)
                     const name = coreModule.api.Utils.i18n(suboption.label)
                     const selected = suboption.selected && toggle.enabled && toggle.checked
+
                     return {
                         id,
                         name,
