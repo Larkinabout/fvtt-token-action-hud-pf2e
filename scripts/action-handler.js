@@ -662,7 +662,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actions = []
 
             if (this.actorType !== 'hazard') {
-                const perception = this.actor ? this.actor.system.perception : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
+                const initiative = this.actor ? this.actor.system.initiative : coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
                 const fullName = coreModule.api.Utils.i18n('PF2E.PerceptionLabel')
                 const name = this.abbreviatedSkills ? SKILL_ABBREVIATION.perception ?? fullName : fullName
                 const actionTypeName = `${coreModule.api.Utils.i18n(ACTION_TYPE[actionType])}: ` ?? ''
@@ -670,12 +670,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const encodedValue = [actionType, 'perception'].join(this.delimiter)
                 const active = (initiativeStatistic === 'perception') ? ' active' : ''
                 const cssClass = `toggle${active}`
-                const modifier = coreModule.api.Utils.getModifier(perception?.totalModifier)
+                const modifier = coreModule.api.Utils.getModifier(initiative?.totalModifier)
                 const info1 = this.actor ? { text: modifier } : ''
                 const tooltipName = `${fullName}${(this.actor && modifier) ? ` ${modifier}` : ''}`
                 const tooltipData = {
                     name: tooltipName,
-                    modifiers: perception?.modifiers
+                    modifiers: initiative?.modifiers
                 }
                 const tooltip = this.actor ? await this.#getTooltip(actionType, tooltipData) : null
 
