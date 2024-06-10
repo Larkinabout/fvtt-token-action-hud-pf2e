@@ -12,14 +12,17 @@
     },
     {
       "name": "^ and stick"
+    },
+    {
+      "name": "Silvertower"
     }
   ],
   "url": "This is auto replaced",
   "flags": {},
   "version": "This is auto replaced",
   "compatibility": {
-    "minimum": "10",
-    "verified": "11.315"
+    "minimum": "12",
+    "verified": "12.327"
   },
   "esmodules": [
     "./scripts/token-action-hud-pf2e.min.js"
@@ -94,8 +97,8 @@
         "type": "system",
         "compatibility": [
           {
-            "minimum": "5.15.0",
-            "verified": "5.15.0"
+            "minimum": "6.0.0",
+            "verified": "6.0.1"
           }
         ]
       }
@@ -106,9 +109,9 @@
         "type": "module",
         "compatibility": [
           {
-            "minimum": "1.5.0",
+            "minimum": "1.5.5",
             "maximum": "1.5",
-            "verified": "1.5.4"
+            "verified": "1.5.5"
           }
         ]
       }
