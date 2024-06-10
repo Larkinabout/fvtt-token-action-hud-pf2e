@@ -358,16 +358,19 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             let value = actor.system.resources[resource][valueName]
 
             if (this.rightClick) {
+console.log("rightClick")
                 if (value > 0) {
                     value--
                 }
             } else {
+console.log("other")
                 if (value < actor.system.resources[resource].max) {
                     value++
                 }
             }
 
-            await Actor.updateDocuments([{ _id: actor.id, data: { resources: { [resource]: { [valueName]: value } } } }])
+            await actor.update({ "system.resources.heroPoints.value": value });
+            // await Actor.updateDocuments([{ _id: actor.id, data: { resources: { [resource]: { [valueName]: value } } } }])
 
             Hooks.callAll('forceUpdateTokenActionHud')
         }
