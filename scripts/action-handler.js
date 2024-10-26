@@ -2014,6 +2014,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (!chatData) return ''
 
+            // console.log(entity)
+            // console.log(actionType)
+
             switch (actionType) {
             case 'item':
                 return {
@@ -2045,7 +2048,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
             default:
                 return {
-                    name: entity.name,
+                    name: actionType === 'elementalBlast' ? entity.item.name : entity.name,
                     description: chatData.description?.value,
                     properties: chatData.properties,
                     rarity: chatData.rarity,
