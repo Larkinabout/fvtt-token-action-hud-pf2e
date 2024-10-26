@@ -1670,17 +1670,16 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                             settings
                         }
 
-                        if (typeof usageGroupData.settings.sort === 'undefined' && coreModule.api.Utils.getSetting('sortActions')) usageGroupData.settings.sort = false
+                        if (typeof usageGroupData.settings.sort === 'undefined' && coreModule.api.Utils.getSetting('sortActions')) {
+                            usageGroupData.settings.sort = false
+                        }
 
                         const actions = strikeUsage.variants.map((variant, index) => {
                             const id = encodeURIComponent(`${strike.item.id}>${strike.slug}>${index}>` + usage)
                             const isMap = variant.label.includes(this.mapLabel)
-                            let modifier
-                            if (isMap) {
-                                modifier = variant.label.split(' ')[0]
-                            } else {
-                                modifier = variant.label.replace(coreModule.api.Utils.i18n('PF2E.WeaponStrikeLabel'), '').replace(' ', '')
-                            }
+                            const modifier = (isMap)
+                                ? variant.label.split(' ')[0]
+                                : variant.label.replace(coreModule.api.Utils.i18n('PF2E.WeaponStrikeLabel'), '').replace(' ', '')
                             const name = (this.calculateAttackPenalty) ? modifier : variant.label
                             return {
                                 id,
