@@ -95,24 +95,21 @@
       {
         "id": "pf2e",
         "type": "system",
-        "compatibility": [
-          {
-            "minimum": "6.5.0",
-            "verified": "6.5.0"
-          }
-        ]
+        "compatibility": {
+          "minimum": "6.5.0",
+          "verified": "6.6.0"
+        }
       }
     ],
     "requires": [
       {
         "id": "token-action-hud-core",
         "type": "module",
-        "compatibility": [
-          {
-            "minimum": "1.5.7",
-            "verified": "1.5.7"
-          }
-        ]
+        "compatibility": {
+          "minimum": "2.0.0",
+          "verified": "2.0.5",
+          "maximum": "2.0.99"
+        }
       }
     ],
     "optional": [],
