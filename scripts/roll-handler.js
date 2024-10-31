@@ -94,7 +94,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const payload = decodeURIComponent(encodedPayload).split('|', 2)
 
             if (payload.length < 2) {
-                super.throwInvalidValueErr()
+                return
             }
 
             const [actionType, actionData] = payload

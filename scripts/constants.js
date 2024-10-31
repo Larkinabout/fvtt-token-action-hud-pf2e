@@ -15,7 +15,7 @@ export const CORE_MODULE = {
 /**
  * Core module version required by the system module
  */
-export const REQUIRED_CORE_MODULE_VERSION = '1.5'
+export const REQUIRED_CORE_MODULE_VERSION = '2.0'
 
 /**
  * Damage type icons

@@ -12,7 +12,8 @@ export default [
         },
         output: {
             format: 'esm',
-            file: 'scripts/token-action-hud-pf2e.min.js'
+            file: 'scripts/token-action-hud-pf2e.min.js',
+            sourcemap: true
         },
         plugins: [
             terser({ keep_classnames: true, keep_fnames: true }),
