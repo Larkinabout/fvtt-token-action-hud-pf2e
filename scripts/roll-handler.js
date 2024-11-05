@@ -446,7 +446,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const [spellbookId, level, spellId, expend] = decodeURIComponent(actionId).split('>', 4)
 
             if (this.isRenderItem()) {
-                return this.doRenderItem(actor, spellId)
+                return this.renderItem(actor, spellId)
             }
 
             const spellbook = actor.items.get(spellbookId)
@@ -518,7 +518,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 .find(strike => strike.item.id === itemId && strike.slug === slug)
 
             if (this.isRenderItem() && strike.item?.id !== 'xxPF2ExUNARMEDxx') {
-                return this.doRenderItem(actor, strike.item.id)
+                return this.renderItem(actor, strike.item.id)
             }
 
             let altUsage
@@ -569,7 +569,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (!strike) return
 
             if (strike.origin && this.isRenderItem()) {
-                this.doRenderItem(actor, strike.origin.id)
+                this.renderItem(actor, strike.origin.id)
             } else {
                 strike.auxiliaryActions[strikeType]?.execute({ selection })
             }
