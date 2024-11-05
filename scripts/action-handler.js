@@ -1411,7 +1411,15 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const tooltip = await this.#getTooltip(actionType, tooltipData)
 
                 // Create group data
-                strikeGroupData = { id: strikeGroupId, name: strikeGroupName, listName: strikeGroupListName, type: 'system-derived', settings: { showTitle }, tooltip }
+                strikeGroupData = {
+                    id: strikeGroupId,
+                    name: strikeGroupName,
+                    listName: strikeGroupListName,
+                    type: 'system-derived',
+                    settings: { showTitle },
+                    tooltip
+                }
+                
                 if (this.showStrikeImages) {
                     strikeGroupData.settings.image = image
                 }
@@ -1574,9 +1582,17 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 const showTitle = this.showStrikeNames
                 const tooltipData = await this.#getTooltipData(strike, actionType)
                 const tooltip = await this.#getTooltip(actionType, tooltipData)
+
                 // Create group data
-                strikeGroupData = { id: strikeGroupId, name: strikeGroupName, listName: strikeGroupListName, type: 'system-derived', settings: { showTitle }, tooltip }
-                if (this.showStrikeImages) { strikeGroupData.settings.image = image }
+                strikeGroupData = {
+                    id: strikeGroupId,
+                    name: strikeGroupName,
+                    listName: strikeGroupListName,
+                    type: 'system-derived',
+                    settings: { showTitle },
+                    tooltip
+                }
+                if (this.showStrikeImages) strikeGroupData.settings.image = image
                 if (typeof strikeGroupData.settings.sort === 'undefined' && coreModule.api.Utils.getSetting('sortActions')) strikeGroupData.settings.sort = false
 
                 // Add group to action list
@@ -1596,8 +1612,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                                     name,
                                     listName: `${strikeGroupListName}: ${name}`,
                                     encodedValue: ['strikeAuxiliaryAction', id].join(this.delimiter),
-                                    icon1: this.#getActionIcon(auxiliaryAction.glyph),
-                                    cssClass: this.#getActionCss({ selected: (modularOption === modularSelection) })
+                                    cssClass: this.#getActionCss({ selected: (modularOption === modularSelection) }),
+                                    icon1: this.#getActionIcon(auxiliaryAction.glyph)
                                 }
                             })
                         } else {
@@ -1730,7 +1746,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                                 actions.push({
                                     id,
                                     name,
-
                                     listName: `${usageGroupListName}: ${name}`,
                                     encodedValue: [actionType, id].join(this.delimiter)
                                 })
@@ -2014,9 +2029,6 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (!chatData) return ''
 
-            // console.log(entity)
-            // console.log(actionType)
-
             switch (actionType) {
             case 'item':
                 return {
@@ -2114,14 +2126,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (!description && !tagsHtml && !modifiersHtml) return name
 
-            /*  const tooltipHtml = await TextEditor.enrichHTML(
-                `<div>${nameHtml}${headerTags}${description}${propertiesHtml}</div>`,
-                { async: true }
-            ) */
-
-            const tooltipHtml = `<div>${nameHtml}${headerTags}${description}${propertiesHtml}</div>`
-
-            return await TextEditor.enrichHTML(tooltipHtml, { async: true })
+            return `<div>${nameHtml}${headerTags}${description}${propertiesHtml}</div>`
         }
 
         /**
