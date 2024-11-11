@@ -195,11 +195,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             case 'feat':
                 this.#rollItemMacro(event, actor, actionId)
                 break
-            case 'heroAction':
-                this.#performHeroAction(actor, actionId)
-                break
+             case 'heroAction':
+                 this.#performHeroAction(actor, actionId)
+                 break
             case 'heroPoints':
                 await this.#adjustResources(actor, 'heroPoints', 'value')
+                break
+            case 'mythicPoints':
+                await this.#adjustResources(actor, 'mythicPoints', 'value')
                 break
             case 'initiative':
                 this.#rollInitiative(actor, actionId)
@@ -375,7 +378,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
             }
 
-            await actor.update({ "system.resources.heroPoints.value": value });
+            switch (resource) {
+            case "heroPoints":
+                await actor.update({ "system.resources.heroPoints.value": value })
+                break
+            case "mythicPoints":
+                await actor.update({ "system.resources.mythicPoints.value": value })
+                break
+            }
 
             Hooks.callAll('forceUpdateTokenActionHud')
         }

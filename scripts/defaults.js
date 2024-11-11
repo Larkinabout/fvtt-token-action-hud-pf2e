@@ -85,6 +85,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 name: coreModule.api.Utils.i18n('tokenActionHud.pf2e.attributes'),
                 groups: [
                     { ...groups.heroPoints, nestId: 'attributes_hero-points' },
+                    { ...groups.mythicPoints, nestId: 'attributes_mythic-points' },
                     { ...groups.initiative, nestId: 'attributes_initiative' },
                     { ...groups.perceptionCheck, nestId: 'attributes_perception-check' },
                     { ...groups.saves, nestId: 'attributes_saves' }
