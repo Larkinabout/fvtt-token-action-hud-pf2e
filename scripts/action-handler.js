@@ -91,7 +91,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.#buildEffects(),
                 this.#buildFeats(),
                 this.#buildHeroActions(),
-                this.#buildHeroPoints(),
+                this.#buildPoints('heroPoints'),
+                this.#buildPoints('mythicPoints'),
                 this.#buildInitiative(),
                 this.#buildInventory(),
                 this.#buildPerceptionCheck(),
@@ -451,26 +452,47 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         /**
          * Build hero points
          */
-        async #buildHeroPoints () {
-            const actionType = 'heroPoints'
+        async #buildPoints (actionType) {
+            let actions, groupData
+
+            const mythicEnabled = this.actor.system.resources?.mythicPoints.max ? true : false
 
             // Create group data
-            const groupData = { id: 'hero-points', type: 'system' }
+            if (actionType === 'heroPoints' && !mythicEnabled) {
+                groupData = { id: 'hero-points', type: 'system' }
 
-            const heroPoints = this.actor.system.resources?.heroPoints
-            const value = heroPoints.value
-            const max = heroPoints.max
+                const heroPoints = this.actor.system.resources?.heroPoints
+                const value = heroPoints.value
+                const max = heroPoints.max
 
-            // Get actions
-            const actions = [{
-                id: 'heroPoints',
-                name: coreModule.api.Utils.i18n('PF2E.HeroPointsLabel'),
-                encodedValue: [actionType, actionType].join(this.delimiter),
-                info1: { text: (max > 0) ? `${value ?? 0}/${max}` : '' }
-            }]
+                // Get actions
+                actions = [{
+                    id: 'heroPoints',
+                    name: coreModule.api.Utils.i18n('PF2E.Actor.Resource.HeroPoints'),
+                    encodedValue: [actionType, actionType].join(this.delimiter),
+                    info1: { text: (max > 0) ? `${value ?? 0}/${max}` : '' }
+                }]
+            }
+            else if (actionType === 'mythicPoints' && mythicEnabled) {
+                groupData = { id: 'mythic-points', type: 'system' }
+
+                const mythicPoints = this.actor.system.resources?.mythicPoints
+                const value = mythicPoints.value
+                const max = mythicPoints.max
+
+                // Get actions
+                actions = [{
+                    id: 'mythicPoints',
+                    name: coreModule.api.Utils.i18n('PF2E.Actor.Resource.MythicPoints'),
+                    encodedValue: [actionType, actionType].join(this.delimiter),
+                    info1: { text: (max > 0) ? `${value ?? 0}/${max}` : '' }
+                }]
+            }
 
             // Add actions to action list
-            this.addActions(actions, groupData)
+            if (actions && groupData) {
+                this.addActions(actions, groupData)
+            }
         }
 
         /**
@@ -593,9 +615,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         }
 
         /**
-         * Build Hero Actions
-         * @private
-         */
+        * Build hero actions
+        * @private
+        */
         async #buildHeroActions () {
             if (!game.modules.get('pf2e-hero-actions')?.active) return
 
@@ -2126,7 +2148,9 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (!description && !tagsHtml && !modifiersHtml) return name
 
-            return `<div>${nameHtml}${headerTags}${description}${propertiesHtml}</div>`
+            const tooltipHtml = `<div>${nameHtml}${headerTags}${description}${propertiesHtml}</div>`
+
+            return await TextEditor.enrichHTML(tooltipHtml, { async: true })
         }
 
         /**
