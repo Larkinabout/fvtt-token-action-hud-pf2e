@@ -568,7 +568,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             for (const [key, value] of this.items) {
                 if (value.type !== 'feat') continue
-                // 'featType' changed to 'system.category' post pf2e 4.10+
+
                 const featType = value.system?.category ?? value.featType
                 const groupId = featTypes[featType]
 
