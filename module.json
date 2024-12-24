@@ -97,7 +97,7 @@
         "type": "system",
         "compatibility": {
           "minimum": "6.6.2",
-          "verified": "6.7.0"
+          "verified": "6.8.0"
         }
       }
     ],
@@ -107,7 +107,7 @@
         "type": "module",
         "compatibility": {
           "minimum": "2.0.7",
-          "verified": "2.0.8",
+          "verified": "2.0.10",
           "maximum": "2.0.99"
         }
       }

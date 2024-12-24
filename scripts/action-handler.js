@@ -1271,7 +1271,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 // Add spell slot info to group
                 this.addGroupInfo(bookGroupData)
 
-                const spellInfo = await (spellcastingEntry[1].getSpellData ? spellcastingEntry[1].getSpellData() : spellcastingEntry[1].getSheetData())
+                const spellInfo = await spellcastingEntry[1].getSheetData()
                 const activeLevels = spellInfo.groups.filter(level => level.active.length > 0)
 
                 for (const level of Object.entries(activeLevels)) {
