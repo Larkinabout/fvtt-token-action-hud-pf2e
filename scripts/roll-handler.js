@@ -175,7 +175,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #handleActions (event, actionType, actor, token, actionId) {
             switch (actionType) {
             case 'action':
-                this.#rollItemMacro(event, actor, actionId)
+                this.#rollItemMacro(actor, actionId)
                 break
             case 'condition':
                 this.#adjustCondition(actor, actionId)
@@ -193,7 +193,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.#rollFamiliarAttack(actor)
                 break
             case 'feat':
-                this.#rollItemMacro(event, actor, actionId)
+                this.#rollItemMacro(actor, actionId)
                 break
              case 'heroAction':
                  this.#performHeroAction(actor, actionId)
@@ -208,7 +208,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 this.#rollInitiative(actor, actionId)
                 break
             case 'item':
-                this.#rollItemMacro(event, actor, actionId)
+                this.#rollItemMacro(actor, actionId)
                 break
             case 'perceptionCheck':
                 this.#rollPerception(actor)
@@ -249,17 +249,14 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         /**
          * Roll item macro
          * @private
+         * @param {object} actor    The actor
          * @param {string} actionId The action id
          */
-        #rollItemMacro (event, actor, actionId) {
+        #rollItemMacro (actor, actionId) {
             const item = actor?.items?.get(actionId)
+
             if (item) {
-                if (!item.system.selfEffect && !item.system.frequency) {
-                    item.toMessage(event)
-                }
-                else {
-                    game.pf2e.rollItemMacro(actionId)
-                }
+                game.pf2e.rollItemMacro(actionId)
             }
         }
 
