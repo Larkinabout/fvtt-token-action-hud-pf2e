@@ -156,7 +156,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (!item) return
 
-            if (event.type === 'mouseenter') {
+            if (event.type === 'pointerenter') {
                 Hooks.call('tokenActionHudSystemActionHoverOn', event, item)
             } else {
                 Hooks.call('tokenActionHudSystemActionHoverOff', event, item)
