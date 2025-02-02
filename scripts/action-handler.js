@@ -194,6 +194,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const actionsMap = new Map()
 
             for (const [key, value] of actionItems) {
+                if (value.suppressed === true) continue
+
                 // Set variables
                 const actionTypeValue = value.system.actionType?.value
 
@@ -219,6 +221,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Loop through inventory subcategory ids
             for (const [key, value] of actionsMap) {
+                if (value.suppressed === true) continue
+                
                 const groupId = key
                 const items = value
 
@@ -568,6 +572,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             for (const [key, value] of this.items) {
                 if (value.type !== 'feat') continue
+                if (value.suppressed === true) continue
 
                 const featType = value.system?.category ?? value.featType
                 const groupId = featTypes[featType]
