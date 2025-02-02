@@ -50,8 +50,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @private
          */
         #setRollOptions () {
-            this.rollMode = this.ctrl ? game.user.isGM ? 'gmroll' : 'blindroll' : null
-            this.showCheckDialogs = this.shift ? game.user.settings.showCheckDialogs : !game.user.settings.showCheckDialogs
+            this.rollMode = this.isCtrl ? (game.user.isGM ? 'gmroll' : 'blindroll') : null
+            this.showCheckDialogs = this.isShift ? game.user.settings.showCheckDialogs : !game.user.settings.showCheckDialogs
         }
 
         /**
@@ -398,6 +398,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 coreModule.api.Logger.info(game.i18n.format('PF2E.Encounter.AlreadyRolled', { actor: actor.name }), true)
             } else {
                 await actor.update({ 'system.initiative.statistic': actionId })
+
+                this.#setRollOptions()
 
                 actor.initiative.roll({ rollMode: this.rollMode, skipDialog: this.skipDialog })
             }
