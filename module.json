@@ -21,8 +21,8 @@
   "flags": {},
   "version": "This is auto replaced",
   "compatibility": {
-    "minimum": "12",
-    "verified": "12.331"
+    "minimum": "13",
+    "verified": "13.344"
   },
   "esmodules": [
     "./scripts/token-action-hud-pf2e.min.js"
@@ -96,8 +96,8 @@
         "id": "pf2e",
         "type": "system",
         "compatibility": {
-          "minimum": "6.8.0",
-          "verified": "6.8.1"
+          "minimum": "7.1.0",
+          "verified": "7.1.0"
         }
       }
     ],
@@ -106,8 +106,8 @@
         "id": "token-action-hud-core",
         "type": "module",
         "compatibility": {
-          "minimum": "2.0.7",
-          "verified": "2.0.10",
+          "minimum": "2.0.15",
+          "verified": "2.0.15",
           "maximum": "2.0.99"
         }
       }
