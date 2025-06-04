@@ -267,7 +267,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
          * @param {string} actionId The action id
          */
         async #adjustCondition (actor, actionId) {
-            this.rightClick ? actor.decreaseCondition(actionId) : actor.increaseCondition(actionId)
+            this.isRightClick ? actor.decreaseCondition(actionId) : actor.increaseCondition(actionId)
         }
 
         /**
@@ -281,7 +281,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (!effect) return
 
-            this.rightClick ? effect.decrease() : effect.increase()
+            this.isRightClick ? effect.decrease() : effect.increase()
 
             Hooks.callAll('forceUpdateTokenActionHud')
         }
@@ -365,7 +365,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
         async #adjustResources (actor, resource, valueName) {
             let value = actor.system.resources[resource][valueName]
 
-            if (this.rightClick) {
+            if (this.isRightClick) {
                 if (value > 0) {
                     value--
                 }

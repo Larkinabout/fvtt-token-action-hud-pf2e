@@ -222,7 +222,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // Loop through inventory subcategory ids
             for (const [key, value] of actionsMap) {
                 if (value.suppressed === true) continue
-                
+
                 const groupId = key
                 const items = value
 
@@ -1446,7 +1446,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     settings: { showTitle },
                     tooltip
                 }
-                
+
                 if (this.showStrikeImages) {
                     strikeGroupData.settings.image = image
                 }
@@ -2155,7 +2155,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             const tooltipHtml = `<div>${nameHtml}${headerTags}${description}${propertiesHtml}</div>`
 
-            return await TextEditor.enrichHTML(tooltipHtml, { async: true })
+            return await foundry.applications.ux.TextEditor.enrichHTML(tooltipHtml, { async: true })
         }
 
         /**
