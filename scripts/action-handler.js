@@ -1404,9 +1404,10 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             // Get elemental blasts
             const blasts = new game.pf2e.ElementalBlast(this.actor)?.configs
+            const blastItem = this.actor.itemTypes.action.filter((i) => i.slug === "elemental-blast")[0] ?? null
 
             // Exit if no strikes exist
-            if (!blasts.length) return
+            if (!blasts.length || !blastItem) return
 
             // Create parent group data
             const parentGroupData = { id: 'strikes', type: 'system' }
@@ -1416,12 +1417,12 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 let strikeGroupData = null
                 const usageData = []
 
-                const strikeId = `${blast.item.id}-${blast.element}`
+                const strikeId = `${blastItem.id}-${blast.element}`
                 const strikeGroupId = `strikes+${strikeId}`
                 const strikeGroupName = (() => {
                     let groupName = coreModule.api.Utils.i18n(blast.label)
                     if (this.showStrikeTraits && this.showStrikeNames) {
-                        const blastTraits = blast.item.system.traits.value
+                        const blastTraits = blastItem.system.traits.value
                         if (blastTraits.length > 0) {
                             groupName += ' - '
                             for (const trait of blastTraits) {
@@ -1431,8 +1432,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     }
                     return groupName
                 })()
-                const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE.strike)}: ${strikeGroupName} (${blast.item.id})`
-                const image = blast.img ?? blast.item?.img
+                const strikeGroupListName = `${coreModule.api.Utils.i18n(ACTION_TYPE.strike)}: ${strikeGroupName} (${blastItem.id})`
+                const image = blast.img ?? blastItem?.img
                 const showTitle = this.showStrikeNames
                 const tooltipData = await this.#getTooltipData(blast, actionType)
                 const tooltip = await this.#getTooltip(actionType, tooltipData)
@@ -1457,7 +1458,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 if (blast.damageTypes.length > 1) {
                     // Get actions
                     damageTypeActions = blast.damageTypes.map((damageType, index) => {
-                        const id = encodeURIComponent(`${blast.item.id}>${blast.element}>${damageType.value}>`)
+                        const id = encodeURIComponent(`${blastItem.id}>${blast.element}>${damageType.value}>`)
                         const fullName = damageType.label
                         return {
                             id,
@@ -1503,7 +1504,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     const rolls = Object.values(blastUsage)
 
                     const actions = rolls.map((roll, index) => {
-                        const id = encodeURIComponent(`${blast.item.id}>${blast.element}>${index}>` + usage)
+                        const id = encodeURIComponent(`${blastItem.id}>${blast.element}>${index}>` + usage)
                         const isMap = `${roll}`.includes(this.mapLabel)
                         let modifier
                         if (isMap) {
@@ -1521,7 +1522,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     })
 
                     // Get Damage
-                    const damageId = encodeURIComponent(`${blast.item.id}>${blast.element}>damage>${usage}`)
+                    const damageId = encodeURIComponent(`${blastItem.id}>${blast.element}>damage>${usage}`)
                     const damageName = coreModule.api.Utils.i18n('PF2E.DamageLabel')
                     actions.push({
                         id: damageId,
@@ -1532,7 +1533,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                     })
 
                     // Get Critical
-                    const criticalId = encodeURIComponent(`${blast.item.id}>${blast.element}>critical>${usage}`)
+                    const criticalId = encodeURIComponent(`${blastItem.id}>${blast.element}>critical>${usage}`)
                     const criticalName = coreModule.api.Utils.i18n('PF2E.CriticalDamageLabel')
                     actions.push({
                         id: criticalId,
@@ -2044,14 +2045,26 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             if (this.tooltipsSetting === 'none' || !entity) return ''
             else if (this.tooltipsSetting === 'nameOnly') return entity.name ?? ''
 
-            const itemActionTypes = ['elementalBlast', 'strike']
+            let blastItem
+
+            if (actionType === 'elementalBlast') {
+                blastItem = this.actor.itemTypes.action.filter((i) => i.slug === "elemental-blast")[0] ?? null
+
+                if (!blastItem) return ''
+            }
 
             let chatData
 
-            if (itemActionTypes.includes(actionType)) {
+            switch (actionType) {
+            case 'elementalBlast':
+                chatData = await blastItem.getChatData()
+                break
+            case 'strike':
                 chatData = await entity.item.getChatData()
-            } else {
+                break
+            default:
                 chatData = await entity.getChatData()
+                break
             }
 
             if (!chatData) return ''
@@ -2087,7 +2100,7 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
                 }
             default:
                 return {
-                    name: actionType === 'elementalBlast' ? entity.item.name : entity.name,
+                    name: actionType === 'elementalBlast' ? blastItem.name : entity.name,
                     description: chatData.description?.value,
                     properties: chatData.properties,
                     rarity: chatData.rarity,
