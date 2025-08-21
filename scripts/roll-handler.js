@@ -297,7 +297,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             const [itemId, element, type, usage] = decodeURIComponent(actionId).split('>', 4)
 
             const blasts = new game.pf2e.ElementalBlast(actor)
-            const blast = blasts.configs.find(blast => blast.item.id === itemId && blast.element === element)
+            const blastItem = actor.itemTypes.action.filter((i) => i.slug === "elemental-blast")[0] ?? null
+            const blast = blasts.configs.find(blast => blastItem.id === itemId && blast.element === element)
             const damageType = blast.damageTypes.find(damageType => damageType.selected)?.value ?? element
             const melee = usage === 'melee'
             const outcome = type === 'damage' ? 'success' : 'criticalSuccess'
