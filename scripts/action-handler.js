@@ -1813,8 +1813,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
             // Exit if no toggles exist
             if (!toggles.length) return
 
-            const togglesWithoutSuboptions = toggles.filter(toggle => toggle.suboptions.length === 0)
-            const togglesWithSuboptions = toggles.filter(toggle => toggle.suboptions.length !== 0)
+            const togglesWithoutSuboptions = toggles.filter(toggle => toggle.enabled && (toggle.suboptions.length === 0))
+            const togglesWithSuboptions = toggles.filter(toggle => toggle.enabled && (toggle.suboptions.length !== 0))
 
             // Create group data
             const groupData = { id: 'toggles', type: 'system' }
