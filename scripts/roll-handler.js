@@ -602,7 +602,8 @@ Hooks.once('tokenActionHudCoreApiReady', async (coreModule) => {
 
             if (!toggle) return
 
-            const value = !toggle.enabled || !toggle.checked || (suboptionValue && !toggle.suboptions.find(s => s.value === suboptionValue)?.selected)
+            const subOpt = toggle.suboptions.find(s => s.value === suboptionValue) ?? null
+            const value = subOpt ? !subOpt.selected : null
 
             await actor.toggleRollOption(domain, option, itemId, value, suboptionValue)
         }
